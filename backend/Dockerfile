@@ -6,5 +6,5 @@ COPY requirements.txt /app/
 
 RUN pip install -r requirements.txt
 
-ENV FLASK_APP=itca.api:app
+ENV FLASK_APP=watcher.api:app
 ENTRYPOINT ["flask", "run", "-h", "0.0.0.0"]
