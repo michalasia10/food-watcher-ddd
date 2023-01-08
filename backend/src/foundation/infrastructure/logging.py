@@ -3,8 +3,8 @@ from datetime import datetime
 import logging
 from logging import Logger
 from logging.config import dictConfig
-from seedwork.utils.functional import SimpleLazyObject
-from seedwork.infrastructure.request_context import request_context
+from foundation.utils.functional import SimpleLazyObject
+from foundation.infrastructure.request_context import request_context
 
 
 class RequestContextFilter(logging.Filter):
@@ -84,7 +84,7 @@ class LoggerFactory:
                     },
                 },
                 "json_formatter": {
-                    "()": "seedwork.infrastructure.logging.ElkJsonFormatter",
+                    "()": "foundation.infrastructure.logging.ElkJsonFormatter",
                 },
             },
             "handlers": {

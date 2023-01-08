@@ -1,4 +1,4 @@
 from typing import List
-from seedwork.domain.events import DomainEvent
+from foundation.domain.events import DomainEvent
 
 DomainEvents = List[DomainEvent]

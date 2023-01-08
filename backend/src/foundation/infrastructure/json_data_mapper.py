@@ -1,6 +1,6 @@
 from typing import Type
 import uuid
-from seedwork.domain.entities import Entity
+from foundation.domain.entities import Entity
 
 
 class JSONDataMapper:

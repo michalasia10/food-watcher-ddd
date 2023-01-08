@@ -1,5 +1,5 @@
-from seedwork.domain.entities import Entity
-from seedwork.application.exceptions import EntityNotFoundException
+from foundation.domain.entities import Entity
+from foundation.application.exceptions import EntityNotFoundException
 
 
 class Repository:
