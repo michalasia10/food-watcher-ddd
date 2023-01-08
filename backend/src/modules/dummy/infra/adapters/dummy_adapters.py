@@ -1,4 +1,4 @@
-from watcher.dummy.domain.ports.dummy_ports import ListUser
+from modules.dummy.domain.ports.dummy_ports import ListUser
 
 
 class ListDummyUsers(ListUser):
