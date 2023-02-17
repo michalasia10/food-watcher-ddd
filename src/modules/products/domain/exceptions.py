@@ -1,0 +1,6 @@
+class ProductAlreadyExists(Exception):
+    ...
+
+
+class ProductNotFound(Exception):
+    ...

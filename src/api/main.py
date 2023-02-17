@@ -4,20 +4,20 @@ from uuid import uuid4, UUID
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
 
-from api.routers import auth
-from api.routers import products
+from api.routers.products import ProductViewSet
+from api.routers.users import UserViewSet
 from config.api_config import ApiConfig
 from config.container_ioc import Container
 from foundation.infrastructure.request_context import request_context
 
 container = Container()
 container.config.from_pydantic(ApiConfig())
-container.wire(modules=['api.routers.auth', 'api.shared.auth', 'api.routers.products'])
+container.wire(modules=['api.routers.users', 'api.shared.auth', 'api.routers.products', 'api.routers.base'])
 
 app = FastAPI()
 
-app.include_router(auth.router)
-app.include_router(products.router)
+app.include_router(ProductViewSet().router)
+app.include_router(UserViewSet().router)
 app.container = container
 
 

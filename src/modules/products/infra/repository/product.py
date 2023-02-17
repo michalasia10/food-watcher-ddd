@@ -13,8 +13,9 @@ class SqlProductRepository(Repository, ProductRepository):
     def get_by_id(self, id: ProductID) -> Product:
         return self.session.query(self.model).filter_by(id=str(id)).first()
 
-    def create(self, entity: Product) -> NoReturn:
-        raise NotImplementedError
+    def create(self, entity: Product) -> Product:
+        self.session.add(self.entity_to_data(entity))
+        return entity
 
     def update(self, entity: Product):
         raise NotImplementedError

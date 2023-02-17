@@ -1,12 +1,12 @@
 from abc import abstractmethod
 from typing import Any, NoReturn
 
-from foundation.domain.repository import GenericRepostirory
+from foundation.domain.repository import GenericRepository
 from modules.products.domain.entities import Product
 from modules.products.domain.value_objects import ProductID
 
 
-class ProductRepository(GenericRepostirory):
+class ProductRepository(GenericRepository):
 
     @abstractmethod
     def get_by_id(self, id: ProductID) -> Product:
