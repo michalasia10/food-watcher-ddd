@@ -14,8 +14,10 @@ from .api_config import ApiConfig
 
 def create_configured_engine(config: ApiConfig | dict):
     config = config.dict() if isinstance(config, ApiConfig) else config
+    base_url: str = config.get("DATABASE_URL")
+    _base_url = base_url.replace("postgres://", "postgresql://")
     engine = create_engine(
-        config["DATABASE_URL"], echo=config["DEBUG"]
+        _base_url, echo=config["DEBUG"]
     )
     Base.metadata.bind = engine
     return engine
