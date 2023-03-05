@@ -8,6 +8,7 @@ from src.modules.auth.infra.usecases.command.user import UserCommand
 from src.modules.auth.infra.usecases.query.user import UserQuery
 from src.modules.products.infra.repository.product import SqlProductRepository
 from src.modules.products.infra.usecases.query.product import ProductQuery
+from src.modules.products.infra.usecases.command.product import ProductCommand
 from .api_config import ApiConfig
 
 
@@ -57,3 +58,4 @@ class Container(containers.DeclarativeContainer):
     user_command = providers.Factory(UserCommand, repository=user_repository)
     user_query = providers.Factory(UserQuery, repository=user_repository)
     product_query = providers.Factory(ProductQuery, repository=product_repository)
+    product_command = providers.Factory(ProductCommand, repository=product_repository)

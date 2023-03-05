@@ -4,8 +4,7 @@ from modules.products.domain.value_objects import ProductID
 
 
 @dataclass(frozen=True)
-class ProductOutputDto:
-    id: ProductID
+class ProductBaseDto:
     code: int
     name: str
     quantity: str | None
@@ -18,3 +17,14 @@ class ProductOutputDto:
     carbohydrates_100g: float | None
     sugars_100g: float | None
     proteins_100g: float | None
+
+
+@dataclass(frozen=True)
+class ProductOutputDto(ProductBaseDto):
+    id: ProductID
+
+
+
+@dataclass(frozen=True)
+class ProductInputDto(ProductBaseDto):
+    ...

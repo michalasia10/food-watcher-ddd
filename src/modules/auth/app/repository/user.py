@@ -1,12 +1,12 @@
 from abc import abstractmethod
 from typing import Any, NoReturn
 
-from foundation.domain.repository import GenericRepostirory
+from foundation.domain.repository import GenericRepository
 from modules.auth.domain.entities import User
 from modules.auth.domain.value_objects import UserID
 
 
-class UserRepository(GenericRepostirory):
+class UserRepository(GenericRepository):
 
     @abstractmethod
     def get_by_id(self, id: UserID) -> User:

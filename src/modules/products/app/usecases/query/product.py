@@ -1,9 +1,10 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
+from foundation.application.queries import QueryBase
 from src.modules.products.app.usecases.dtos.product import ProductOutputDto
 
 
-class ProductQuery(ABC):
+class ProductQuery(QueryBase):
 
     @abstractmethod
     def get_all(self, skip: int, limit: int) -> list[ProductOutputDto]:

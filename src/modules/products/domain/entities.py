@@ -6,7 +6,6 @@ from modules.products.domain.value_objects import ProductID
 
 @dataclass(kw_only=True)
 class Product(AggregateRoot):
-    id: ProductID
     code: int
     name: str
     quantity: str | None

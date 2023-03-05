@@ -1,1 +1,1 @@
-from .user import UserCommand
+from .product import ProductCommand

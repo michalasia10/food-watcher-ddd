@@ -1,19 +1,20 @@
 from dependency_injector.wiring import inject
-from fastapi import APIRouter, Depends
-from fastapi.security import HTTPBearer
 
-from api.shared import dependency, bearer_auth
+from api.routers.base import BaseModelView
+from api.shared import dependency
 from config.container_ioc import Container
-from modules.products.app.usecases import ProductQuery, ProductOutputDto
-
-router = APIRouter(tags=['products'])
+from modules.products.app.usecases.dtos.product import ProductOutputDto, ProductInputDto
 
 
-@router.get('/products/')
-@inject
-def product(user: HTTPBearer = Depends(bearer_auth),
-            query: ProductQuery = dependency(Container.product_query),
-            skip: int = 0,
-            limit: int = 100
-            ) -> list[ProductOutputDto]:
-    return query.get_all(skip, limit)
+class ProductViewSet(BaseModelView[ProductInputDto, ProductOutputDto]):
+    prefix = '/products'
+    tag = 'products'
+    crud_methods = ('create', 'list', 'read')
+
+    @inject
+    def __init__(self, query_service=dependency(Container.product_query),
+                 command_service=dependency(Container.product_command)):
+        super(ProductViewSet, self).__init__(query_service=query_service,
+                                             command_service=command_service,
+                                             basic_create_dto=ProductInputDto,
+                                             basic_output_dto=ProductOutputDto)
