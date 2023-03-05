@@ -10,9 +10,6 @@ from src.config.api_config import ApiConfig
 from src.config.container_ioc import create_configured_engine
 from src.foundation.infrastructure.db import Base
 
-from src.modules.auth.infra.models.user import User
-from src.modules.products.infra.models.product import Product
-
 config = context.config
 
 target_metadata = Base.metadata
@@ -31,8 +28,10 @@ def run_migrations_offline():
 
     """
     config = ApiConfig()
+    base_url: str = config.DATABASE_URL
+    _base_url = base_url.replace("postgres://", "postgresql://")
     context.configure(
-        url=config.DATABASE_URL,
+        url=_base_url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
