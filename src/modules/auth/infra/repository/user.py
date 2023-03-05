@@ -13,9 +13,10 @@ class SqlUserRepository(Repository, UserRepository):
     def get_by_id(self, id: UserID) -> User:
         return self.session.query(self.model).filter_by(id=str(id)).first()
 
-    def create(self, entity: User) -> NoReturn:
+    def create(self, entity: User) -> User:
         entity.hash_pswd()
         self.session.add(self.entity_to_data(entity))
+        return entity
 
     def update(self, entity: User):
         raise NotImplementedError

@@ -5,7 +5,8 @@ from uuid import UUID
 from foundation.domain.entity import Entity
 
 
-class GenericRepostirory(ABC):
+class GenericRepository(ABC):
+    """An interface for a generic repository with CRUD operations"""
 
     @abstractmethod
     def get_by_id(self, id: UUID):
