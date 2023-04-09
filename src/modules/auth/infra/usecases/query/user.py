@@ -1,10 +1,10 @@
 from pydantic import EmailStr
 
-from foundation.domain.value_objects import UUID
-from modules.auth.domain.value_objects import UserID
+from src.foundation.domain.value_objects import UUID
 from src.modules.auth.app.repository.user import UserRepository
 from src.modules.auth.app.usecases.dtos.user import UserOutputDto
 from src.modules.auth.app.usecases.query.user import UserQuery as UserQueryBase
+from src.modules.auth.domain.value_objects import UserID
 
 
 class UserQuery(UserQueryBase):

@@ -12,9 +12,9 @@ from src.modules.products.infra.usecases.command.product import ProductCommand
 from .api_config import ApiConfig
 
 
-def create_configured_engine(config: ApiConfig | dict):
+def create_configured_engine(config: ApiConfig | dict, test: bool = False):
     config = config.dict() if isinstance(config, ApiConfig) else config
-    base_url: str = config.get("DATABASE_URL")
+    base_url: str = config.get("TEST_DATABASE_URL") if test else config.get("DATABASE_URL")
     _base_url = base_url.replace("postgres://", "postgresql://")
     engine = create_engine(
         _base_url, echo=config["DEBUG"]
@@ -24,7 +24,7 @@ def create_configured_engine(config: ApiConfig | dict):
 
 
 def create_request_context(engine):
-    from foundation.infrastructure.request_context import request_context
+    from src.foundation.infrastructure.request_context import request_context
 
     request_context.setup(engine)
     return request_context

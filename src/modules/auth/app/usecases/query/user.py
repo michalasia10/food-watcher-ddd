@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
-from foundation.application.queries import QueryBase
-from foundation.domain.value_objects import UUID
+from src.foundation.application.queries import QueryBase
+from src.foundation.domain.value_objects import UUID
 from src.modules.auth.app.usecases.dtos.user import UserOutputDto
 
 

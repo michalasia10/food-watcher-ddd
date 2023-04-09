@@ -1,4 +1,4 @@
-from foundation.infrastructure.logging import logger
+from src.foundation.infrastructure.logging import logger
 from .commands import Command
 from .queries import Query
 from .command_handlers import CommandResult

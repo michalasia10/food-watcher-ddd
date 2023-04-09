@@ -13,9 +13,9 @@ from pydantic import BaseModel
 from api.shared.auth import bearer_auth
 from api.shared.filters.filters import BaseFilter
 from api.shared.filters.validator import QueryValidator
-from foundation.application.commands import CommandBase
-from foundation.application.queries import QueryBase
-from foundation.domain.value_objects import UUID
+from src.foundation.application.commands import CommandBase
+from src.foundation.application.queries import QueryBase
+from src.foundation.domain.value_objects import UUID
 
 OutPutModel = TypeVar("OutPutModel", bound=BaseModel)
 InPutModel = TypeVar("InPutModel", bound=BaseModel)

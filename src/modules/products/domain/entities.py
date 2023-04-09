@@ -1,7 +1,6 @@
 from pydantic.dataclasses import dataclass
 
-from foundation.domain.entities import AggregateRoot
-from modules.products.domain.value_objects import ProductID
+from src.foundation.domain.entities import AggregateRoot
 
 
 @dataclass(kw_only=True)
