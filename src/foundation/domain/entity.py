@@ -1,6 +1,6 @@
 from dataclasses import dataclass, asdict
 
-from foundation.domain.mixins import BusinessRuleValidationMixin
+from src.foundation.domain.mixins import BusinessRuleValidationMixin
 
 
 @dataclass

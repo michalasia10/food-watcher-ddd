@@ -1,7 +1,7 @@
 from abc import ABC,abstractmethod
 
-from modules.auth.app.usecases.dtos import UserAuthInputDto, TokenOutputDto
-from modules.auth.domain.exceptions import BadCredentials, UserNotFound
+from src.modules.auth.app.usecases.dtos import UserAuthInputDto, TokenOutputDto
+from src.modules.auth.domain.exceptions import BadCredentials, UserNotFound
 
 
 class AuthService(ABC):

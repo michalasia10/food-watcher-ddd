@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from modules.products.domain.value_objects import ProductID
+from src.modules.products.domain.value_objects import ProductID
 
 
 @dataclass(frozen=True)
@@ -22,7 +22,6 @@ class ProductBaseDto:
 @dataclass(frozen=True)
 class ProductOutputDto(ProductBaseDto):
     id: ProductID
-
 
 
 @dataclass(frozen=True)

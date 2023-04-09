@@ -1,9 +1,9 @@
 from abc import abstractmethod
 from typing import NoReturn
 
-from foundation.application.commands import CommandBase
-from foundation.domain.value_objects import UUID
-from modules.products.domain.value_objects import ProductID
+from src.foundation.application.commands import CommandBase
+from src.foundation.domain.value_objects import UUID
+from src.modules.products.domain.value_objects import ProductID
 from src.modules.products.app.usecases.dtos.product import ProductOutputDto, ProductInputDto
 
 

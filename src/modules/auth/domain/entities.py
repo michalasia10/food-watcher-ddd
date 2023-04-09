@@ -1,7 +1,7 @@
 from pydantic.dataclasses import dataclass
 
-from foundation.domain.entities import AggregateRoot
-from foundation.utils.functional import hash_helper
+from src.foundation.domain.entities import AggregateRoot
+from src.foundation.utils.functional import hash_helper
 
 
 @dataclass(kw_only=True)

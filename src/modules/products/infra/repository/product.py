@@ -1,7 +1,7 @@
 from typing import Any, NoReturn
 
-from modules.products.app.repository.product import ProductRepository
-from modules.products.domain.value_objects import ProductID
+from src.modules.products.app.repository.product import ProductRepository
+from src.modules.products.domain.value_objects import ProductID
 from src.foundation.infrastructure.repository import Repository
 from src.modules.products.domain.entities import Product
 from src.modules.products.infra.models.product import Product as ProductModel

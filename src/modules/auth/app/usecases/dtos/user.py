@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from pydantic import EmailStr
 from pydantic.typing import Optional
 
-from modules.auth.domain.value_objects import UserID
+from src.modules.auth.domain.value_objects import UserID
 
 
 @dataclass(frozen=True)

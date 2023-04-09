@@ -8,7 +8,7 @@ from api.routers.products import ProductViewSet
 from api.routers.users import UserViewSet
 from config.api_config import ApiConfig
 from config.container_ioc import Container
-from foundation.infrastructure.request_context import request_context
+from src.foundation.infrastructure.request_context import request_context
 
 container = Container()
 container.config.from_pydantic(ApiConfig())
