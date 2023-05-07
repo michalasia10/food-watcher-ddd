@@ -11,9 +11,41 @@ services:
     ports:
       - "5432:5432"
     networks:
-      external-network:  # usuwamy internal-network, aby udostępnić usługę z sieci zewnętrznej
+      external-network:
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:latest
+    hostname: localhost
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      external-network:
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: always
+    hostname: localhost
+    environment:
+      RABBITMQ_DEFAULT_USER: michu
+      RABBITMQ_DEFAULT_PASS: michu
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      external-network:
+    healthcheck:
+      test: [ "CMD-SHELL", "rabbitmqctl ping" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -26,21 +58,29 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
       - RELOAD=True
       - PORT=80
       - DATABASE_URL=postgresql://postgres:password@db:5432/postgres
+      - REDIS_URL=redis://redis:6379/0
+      - RABBITMQ_URL=amqp://michu:michu@rabbitmq:5672//
     links:
       - "db:postgres"
+      - "redis"
+      - "rabbitmq"
     command: [ "python3", "-m", "src.api" ]
     volumes:
       - ./src:/app/src
     networks:
-      external-network:  # usuwamy internal-network, aby udostępnić usługę z sieci zewnętrznej
+      external-network:
 
 networks:
   external-network:
-    driver: bridge  # ustawiamy driver na bridge, aby usługa była dostępna z sieci zewnętrznej
+    driver: bridge
 
 volumes:
   postgres-vol:

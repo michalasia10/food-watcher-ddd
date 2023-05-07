@@ -60,5 +60,27 @@ def run_db(test: Optional[bool] = False):
         run_commands(COMMANDS["db"])
 
 
+@app.command()
+def update_dependencies(package: str):
+    run_commands([f"poetry add {package}"])
+    run_commands(["poetry export --without-hashes --format=requirements.txt > requirements.txt"])
+
+
+@app.command()
+def run_migrations(name: str):
+    run_commands([f"alembic revision --autogenerate -m '{name}'"])
+
+
+@app.command()
+def migrate():
+    run_commands(["alembic upgrade head"])
+
+
+@app.command()
+def bootstrap():
+    migrate()
+    run_commands(["docker-compose up -d"])
+
+
 if __name__ == "__main__":
     app()
