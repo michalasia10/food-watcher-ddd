@@ -11,6 +11,7 @@ from src.config.container_ioc import create_configured_engine
 from src.foundation.infrastructure.db import Base
 from src.modules.auth.infra.models.user import User
 from src.modules.products.infra.models.product import Product, DailyUserConsumption, DailyUserProducts
+from src.modules.chat.infra.models.messages import Message, Channel
 
 config = context.config
 

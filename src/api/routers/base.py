@@ -22,7 +22,7 @@ InPutModel = TypeVar("InPutModel", bound=BaseModel)
 
 
 class RoutableMetav2(type):
-    """This is a meta-class that converts all the methods that were marked by a route/path decorator into values on a
+    """This is a metaclass that converts all the methods that were marked by a route/path decorator into values on a
     class member called _endpoints that the Routable constructor then uses to add the endpoints to its router."""
 
     def __new__(cls: Type[type], name: str, bases: Tuple[Type[Any]], attrs: Dict[str, Any],
@@ -61,11 +61,15 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
         self.basic_output_dto = basic_output_dto
         self.basic_create_dto = basic_create_dto
         self._filter_validator = filter_validator or QueryValidator(BaseFilter)
-        self.router = APIRouter(prefix=self.prefix, tags=[self.tag], **self.extra_router_kwargs)
+        self._router = APIRouter(prefix=self.prefix, tags=[self.tag], **self.extra_router_kwargs)
         for endpoint in self._endpoints:
             self.router.add_api_route(endpoint=partial(endpoint.endpoint, self),
                                       **dataclasses.asdict(endpoint.args))
         self.register_basic_crud_endpoints(basic_create_dto)
+
+    @property
+    def router(self):
+        return self._router
 
     def register_basic_crud_endpoints(self, basic_create_dto):
         if 'list' in self.crud_methods:

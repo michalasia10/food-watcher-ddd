@@ -59,11 +59,11 @@ class LoggerFactory:
             "formatters": {
                 "default": {
                     # exact format is not important, this is the minimum information
-                    "format": "%(asctime)s %(name)-12s %(levelname)-8s %(correlation_id)s %(message)s",
+                    "format": "%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
                 },
                 "colored": {
                     "()": "colorlog.ColoredFormatter",
-                    "format": "%(log_color)s%(asctime)s %(name)-12s %(levelname)-8s %(correlation_id)s %(message)s",
+                    "format": "%(log_color)s%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
                     "log_colors": {
                         "DEBUG": "white",
                         "INFO": "green",
@@ -74,7 +74,7 @@ class LoggerFactory:
                 },
                 "colored_db": {
                     "()": "colorlog.ColoredFormatter",
-                    "format": "%(log_color)s%(asctime)s %(name)-12s %(levelname)-8s %(correlation_id)s %(message)s",
+                    "format": "%(log_color)s%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
                     "log_colors": {
                         "DEBUG": "purple",
                         "INFO": "green",

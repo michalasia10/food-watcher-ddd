@@ -22,10 +22,13 @@ class User(Base):
     is_superuser = Column(Boolean(), default=False)
     daily_user_consumptions = relationship('DailyUserConsumption', back_populates='user')
     settings = relationship('UserSettings', back_populates='user')
+    messages = relationship('Message', back_populates='user')
 
 
 class UserSettings(Base):
     __tablename__ = 'user_settings'
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4())
+
     user_id = Column(UUID(as_uuid=True), ForeignKey('user.id'), primary_key=True)
     user = relationship('User', back_populates='settings')
     daily_calories = Column(Float(), nullable=True)

@@ -16,6 +16,8 @@ class ApiConfig(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8080
     RELOAD: bool = Field(env="RELOAD", default=False)
+    REDIS_URL: str = Field(env="REDIS_URL", default="redis://localhost")
+    RABBITMQ_URL: str = Field(env="RABBITMQ_URL", default="amqp://michu:michu@localhost:5672//")
 
 
 settings = ApiConfig()
