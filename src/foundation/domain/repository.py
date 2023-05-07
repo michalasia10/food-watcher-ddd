@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 from uuid import UUID
 
-from foundation.domain.entity import Entity
+from src.foundation.domain.entity import Entity
 
 
 class GenericRepository(ABC):

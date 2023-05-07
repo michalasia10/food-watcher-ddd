@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from foundation.application.queries import QueryBase
+from src.foundation.application.queries import QueryBase
 from src.modules.products.app.usecases.dtos.product import ProductOutputDto
 
 

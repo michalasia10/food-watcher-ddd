@@ -3,8 +3,8 @@ from typing import NoReturn
 
 from pydantic import BaseModel
 
-from foundation.domain.entities import Entity
-from foundation.domain.value_objects import UUID
+from src.foundation.domain.entities import Entity
+from src.foundation.domain.value_objects import UUID
 
 
 class Command(BaseModel):

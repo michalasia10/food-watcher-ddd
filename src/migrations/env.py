@@ -10,7 +10,7 @@ from src.config.api_config import ApiConfig
 from src.config.container_ioc import create_configured_engine
 from src.foundation.infrastructure.db import Base
 from src.modules.auth.infra.models.user import User
-from src.modules.products.infra.models.product import Product
+from src.modules.products.infra.models.product import Product, DailyUserConsumption, DailyUserProducts
 
 config = context.config
 
@@ -52,8 +52,9 @@ def run_migrations_online():
 
     """
     config = ApiConfig()
-    engine = create_configured_engine(config)
-
+    import sys
+    _test = any('pytest' in arg for arg in sys.argv)
+    engine = create_configured_engine(config, _test)
     with engine.connect() as connection:
         context.configure(
             connection=connection,

@@ -1,7 +1,7 @@
 from typing import Any, NoReturn
 
-from modules.auth.app.repository.user import UserRepository
-from modules.auth.domain.value_objects import UserID
+from src.modules.auth.app.repository.user import UserRepository
+from src.modules.auth.domain.value_objects import UserID
 from src.foundation.infrastructure.repository import Repository
 from src.modules.auth.domain.entities import User
 from src.modules.auth.infra.models.user import User as UserModel
@@ -11,7 +11,7 @@ class SqlUserRepository(Repository, UserRepository):
     model = UserModel
 
     def get_by_id(self, id: UserID) -> User:
-        return self.session.query(self.model).filter_by(id=str(id)).first()
+        return self.data_to_entity(self.session.query(self.model).filter_by(id=str(id)).first(), User)
 
     def create(self, entity: User) -> User:
         entity.hash_pswd()

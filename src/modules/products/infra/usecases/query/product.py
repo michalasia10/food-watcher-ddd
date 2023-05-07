@@ -1,8 +1,8 @@
-from foundation.domain.value_objects import UUID
-from modules.products.domain.value_objects import ProductID
+from src.foundation.domain.value_objects import UUID
 from src.modules.products.app.repository.product import ProductRepository
 from src.modules.products.app.usecases.dtos.product import ProductOutputDto
 from src.modules.products.app.usecases.query.product import ProductQuery as ProductQueryBase
+from src.modules.products.domain.value_objects import ProductID
 
 
 class ProductQuery(ProductQueryBase):

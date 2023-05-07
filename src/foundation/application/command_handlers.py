@@ -1,7 +1,7 @@
 import sys
 from typing import Any, List
 from pydantic import BaseModel
-from foundation.domain.type_hints import DomainEvent
+from src.foundation.domain.type_hints import DomainEvent
 
 
 class CommandResult(BaseModel):
