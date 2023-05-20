@@ -15,7 +15,7 @@ from src.modules.chat.app.repository.messages import MessageCompositeRepository
 from src.modules.chat.facade import WebSocketFacade, NotificationPublisherFacade
 from src.modules.chat.infra.services.websockets import ConnectionManager
 
-chat_router = APIRouter(prefix='/chat', tags=['chat'])
+router = APIRouter(prefix='/chat', tags=['chat'])
 
 conn_manager = ConnectionManager()
 
@@ -34,7 +34,7 @@ class ChannelsViewSet(BaseModelView[ChannelInputDto, ChannelOutputDto]):
                                               basic_output_dto=ChannelOutputDto)
 
 
-@chat_router.post('/send_message/{channel_id}/')
+@router.post('/send_message/{channel_id}/')
 @inject
 async def send_message(channel_id: ChanelId,
                        message: WebSockMessage,
@@ -52,7 +52,7 @@ async def send_message(channel_id: ChanelId,
         raise HTTPException(status_code=400, detail=f"Error while publishing message: {e}")
 
 
-@chat_router.websocket('/ws/{channel_id}/')
+@router.websocket('/ws/{channel_id}/')
 @inject
 async def chat(websocket: WebSocket,
                channel_id: ChanelId,

@@ -1,7 +1,8 @@
 import dataclasses
 from functools import partial
-from typing import Any, Type, Tuple, Dict, cast, Literal
+from typing import Any, Tuple, Dict, cast, Literal
 from typing import List, TypeVar, Generic
+from typing import Type
 
 from classy_fastapi.route_args import EndpointDefinition
 from dependency_injector.wiring import inject
@@ -51,10 +52,10 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
 
     @inject
     def __init__(self,
-                 query_service: QueryBase,
-                 command_service: CommandBase,
-                 basic_create_dto: Generic[OutPutModel],
-                 basic_output_dto: Generic[InPutModel],
+                 query_service: QueryBase | None = None,
+                 command_service: CommandBase | None = None,
+                 basic_create_dto: OutPutModel | None = None,
+                 basic_output_dto: InPutModel | None = None,
                  filter_validator: QueryValidator | None = None) -> None:
         self._query_service = query_service
         self._command_service = command_service
@@ -73,6 +74,8 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
 
     def register_basic_crud_endpoints(self, basic_create_dto):
         if 'list' in self.crud_methods:
+            assert self.basic_output_dto is not None and self._query_service is not None
+
             @self.router.get("/", response_model=List[self.basic_output_dto])
             def list(skip: int = 0,
                      limit: int = 100,
@@ -85,6 +88,8 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
                     raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
         if 'create' in self.crud_methods:
+            assert self.basic_create_dto is not None and self._command_service is not None
+
             @self.router.post("/", response_model=self.basic_output_dto)
             def create(item: basic_create_dto):
                 """Basic endpoint to create instance"""
@@ -94,6 +99,8 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
                     raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
         if 'read' in self.crud_methods:
+            assert self.basic_output_dto is not None and self._query_service is not None
+
             @self.router.get("/{id}", response_model=self.basic_output_dto)
             def read(id: UUID):
                 """Basic endpoint to get instance by id."""
@@ -102,7 +109,9 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
                     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
                 return item
 
-        if 'list' in self.crud_methods:
+        if 'update' in self.crud_methods:
+            assert self.basic_create_dto is not None and self._command_service is not None
+
             @self.router.put("/{id}", response_model=self.basic_output_dto)
             def update(id: UUID, item: basic_create_dto, user: HTTPBearer = Depends(bearer_auth)):
                 """Basic endpoint to update instance."""

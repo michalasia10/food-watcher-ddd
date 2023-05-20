@@ -1,6 +1,6 @@
 from typing import Any, NoReturn, final
 
-from src.foundation.infrastructure.repository import Repository
+from src.foundation.infra.repository import Repository
 from src.modules.auth.app.repository.user import UserRepository
 from src.modules.auth.domain.entities import User
 from src.modules.auth.domain.value_objects import UserID
@@ -16,7 +16,7 @@ class SqlUserRepository(Repository, UserRepository):
 
     def create(self, entity: User) -> User:
         entity.hash_pswd()
-        self.session.add(self.entity_to_data(entity))
+        self.session.add(self.entity_to_model(entity))
         return entity
 
     def update(self, entity: User):

@@ -1,6 +1,6 @@
 from typing import Any, final
 
-from src.foundation.infrastructure.repository import Repository
+from src.foundation.infra.repository import Repository
 from src.modules.chat.app.repository.messages import (
     ChanelRepository as ChannelRepositoryBase,
     MessageRepository as MessageRepositoryBase,
@@ -26,7 +26,7 @@ class SqlChannelRepository(Repository, ChannelRepositoryBase):
         raise NotImplementedError
 
     def create(self, entity: ChannelE) -> ChannelE:
-        self.session.add(self.entity_to_data(entity))
+        self.session.add(self.entity_to_model(entity))
         return entity
 
     def get_all(self) -> list[ChannelE]:
@@ -49,7 +49,7 @@ class SqlMessageRepository(Repository, MessageRepositoryBase):
     model = Message
 
     def create(self, entity: MessageE) -> MessageE:
-        self.session.add(self.entity_to_data(entity))
+        self.session.add(self.entity_to_model(entity))
         return entity
 
     def get_all_by_channel(self, channel_id: ChanelId) -> list[MessageE]:

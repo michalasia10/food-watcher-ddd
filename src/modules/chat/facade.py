@@ -5,7 +5,7 @@ from typing import final
 
 from starlette.websockets import WebSocket, WebSocketState
 
-from foundation.infrastructure.logging import logger
+from foundation.infra.logging import logger
 from modules.chat.app.dtos import Message as MessageDto, WebSockMessage
 from src.modules.chat.app.repository.messages import MessageCompositeRepository
 from src.modules.chat.app.services.websockets import ConnectionManager
@@ -48,6 +48,7 @@ class WebSocketFacade:
     async def run(self):
         pika = AioPikaClient(self._channel_id, self._loop, self._rabbitmq_url)
         await pika.config()
+
         try:
             await self._connect(self._channel_id)
             while True:

@@ -17,7 +17,10 @@ class LabeledEnum(Enum):
 
     def __getattr__(self, name):
         if name == 'label':
-            return self._value_[1]
+            try:
+                return self._value_[1]
+            except TypeError:
+                return str(self.value)
         raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
 
     @classmethod
@@ -38,3 +41,6 @@ class Base:
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         ...
+
+    class Meta:
+        children = []

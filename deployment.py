@@ -1,8 +1,9 @@
 import subprocess
 import sys
 from typing import Optional
-from typer import progressbar
+
 import typer
+from typer import progressbar
 
 app = typer.Typer()
 
@@ -10,12 +11,13 @@ COMMANDS: dict[str, list[str]] = {
     "test": [
         "docker-compose -f docker-compose.testdb.yml stop test_db",
         "docker-compose -f docker-compose.testdb.yml up -d test_db",
-        "pytest --cov=./src/ --cov-config=pytest.ini tests/ OPTIONAL_ARGS",
+        "pytest tests/ -s OPTIONAL_ARGS",
         "docker-compose -f docker-compose.testdb.yml stop test_db"
     ],
     "test_db": ["docker-compose -f docker-compose.testdb.yml up -d test_db"],
 
 }
+
 
 
 def run_commands(command_list, optional_args=None):
@@ -78,8 +80,9 @@ def migrate():
 
 @app.command()
 def bootstrap():
-    migrate()
+    run_commands(["docker-compose down"])
     run_commands(["docker-compose up -d"])
+    migrate()
 
 
 if __name__ == "__main__":

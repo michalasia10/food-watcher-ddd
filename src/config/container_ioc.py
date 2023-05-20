@@ -2,18 +2,26 @@ from dependency_injector import containers, providers
 from sqlalchemy import create_engine
 
 from src.config.api_config import ApiConfig
-from src.foundation.infrastructure.db import Base
+from src.foundation.infra.db import Base
 from src.modules.auth.infra.repository.user import SqlUserRepository
 from src.modules.auth.infra.services.authentication import AuthenticationService
 from src.modules.auth.infra.usecases.command.user import UserCommand
 from src.modules.auth.infra.usecases.query.user import UserQuery
-from src.modules.chat.infra.repository.messages import SqlChannelRepository, SqlMessageRepository, \
+from src.modules.chat.infra.repository.messages import (
+    SqlChannelRepository,
+    SqlMessageRepository,
     SqlMessageCompositeRepository
+)
 from src.modules.chat.infra.usecases.command.channel import ChannelCommand
 from src.modules.chat.infra.usecases.query.channel import ChannelQuery
-from src.modules.products.infra.repository.product import SqlProductRepository
+from src.modules.products.infra.repository.product import (
+    SqlProductRepository,
+    SqlDailyUserConsumptionRepository,
+    SqlDailyUserProductRepository,
+)
+from src.modules.products.infra.usecases.add_meal import AddMealI
 from src.modules.products.infra.usecases.command.product import ProductCommand
-from src.modules.products.infra.usecases.query.product import ProductQuery
+from src.modules.products.infra.usecases.query.product import ProductQuery, UserDayQuery
 
 
 def create_configured_engine(config: ApiConfig | dict, test: bool = False):
@@ -28,14 +36,14 @@ def create_configured_engine(config: ApiConfig | dict, test: bool = False):
 
 
 def create_request_context(engine):
-    from src.foundation.infrastructure.request_context import request_context
+    from src.foundation.infra.request_context import request_context
 
     request_context.setup(engine)
     return request_context
 
 
 class Container(containers.DeclarativeContainer):
-    from src.foundation.infrastructure.request_context import RequestContext
+    from src.foundation.infra.request_context import RequestContext
 
     __self__ = providers.Self()
     ### Config ###
@@ -61,7 +69,6 @@ class Container(containers.DeclarativeContainer):
         SqlUserRepository, db_session=request_context.provided.db_session
     )
 
-
     auth_service = providers.Factory(AuthenticationService,
                                      user_repository=user_repository,
                                      secret_key=api_config.SECRET_KEY,
@@ -69,14 +76,6 @@ class Container(containers.DeclarativeContainer):
 
     user_command = providers.Factory(UserCommand, repository=user_repository)
     user_query = providers.Factory(UserQuery, repository=user_repository)
-
-    ### Product ###
-
-    product_repository = providers.Factory(
-        SqlProductRepository, db_session=request_context.provided.db_session
-    )
-    product_query = providers.Factory(ProductQuery, repository=product_repository)
-    product_command = providers.Factory(ProductCommand, repository=product_repository)
 
     ### Chat ###
 
@@ -94,3 +93,26 @@ class Container(containers.DeclarativeContainer):
         message_repository=message_repository,
         channel_repository=channel_repository
     )
+
+    ### Product ###
+
+    product_repository = providers.Factory(
+        SqlProductRepository, db_session=request_context.provided.db_session
+    )
+    product_query = providers.Factory(ProductQuery, repository=product_repository)
+    product_command = providers.Factory(ProductCommand, repository=product_repository)
+
+    ### UserConsumption ###
+    user_consumption_repository = providers.Factory(
+        SqlDailyUserConsumptionRepository, db_session=request_context.provided.db_session
+    )
+
+    user_product_repository = providers.Factory(
+        SqlDailyUserProductRepository, db_session=request_context.provided.db_session
+    )
+
+    user_day_query = providers.Factory(UserDayQuery, repository=user_consumption_repository)
+    add_meal_use_case = providers.Factory(AddMealI,
+                                          product_repository=product_repository,
+                                          daily_product_repository=user_product_repository,
+                                          daily_user_consumption_repository=user_consumption_repository)

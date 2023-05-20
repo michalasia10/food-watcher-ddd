@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import EmailType
 
-from src.foundation.infrastructure.db import Base
+from src.foundation.infra.db import Base
 
 
 class User(Base):

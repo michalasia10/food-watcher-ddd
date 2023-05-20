@@ -1,23 +1,26 @@
 from abc import ABC, abstractmethod
-from typing import Any
-from uuid import UUID
+from typing import Any, TypeVar, Generic
+from uuid import UUID as UUDIBase
 
-from src.foundation.domain.entity import Entity
+from src.foundation.domain.entity import Entity as E
+
+Entity = TypeVar("Entity", bound=E)
+UUID = TypeVar("UUID", bound=UUDIBase)
 
 
-class GenericRepository(ABC):
+class GenericRepository(ABC, Generic[Entity, UUID]):
     """An interface for a generic repository with CRUD operations"""
 
     @abstractmethod
-    def get_by_id(self, id: UUID):
+    def get_by_id(self, id: UUID, raw=False):
         ...
 
     @abstractmethod
-    def get_by_field_value(self, field: str, value: Any):
+    def get_by_field_value(self, field: str, value: Any, raw=False):
         ...
 
     @abstractmethod
-    def update(self, entity: Entity):
+    def update(self, entity: [Entity], raw=False):
         ...
 
     @abstractmethod
@@ -25,7 +28,7 @@ class GenericRepository(ABC):
         ...
 
     @abstractmethod
-    def create(self, entity: Any):
+    def create(self, entity: Any, raw=False):
         ...
 
     @abstractmethod
@@ -33,9 +36,9 @@ class GenericRepository(ABC):
         ...
 
     @abstractmethod
-    def get_all(self):
+    def get_all(self) -> list[Entity]:
         ...
 
     @abstractmethod
-    def get_all_pagination(self, skip: int, limit: int):
+    def get_all_pagination(self, skip: int, limit: int, **kwargs) -> list[Entity]:
         ...

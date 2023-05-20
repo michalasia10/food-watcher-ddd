@@ -5,3 +5,5 @@ backend/src/assets
 .coverage
 .pytest_cache
 .pylintrc
+postgres_data
+assets
