@@ -16,6 +16,7 @@ networks:
   internal-network:
     internal: true
   external-network:
+    driver: bridge
 
 volumes:
   postgres-vol:

@@ -12,9 +12,14 @@ class ProductViewSet(BaseModelView[ProductInputDto, ProductOutputDto]):
     crud_methods = ('create', 'list', 'read')
 
     @inject
-    def __init__(self, query_service=dependency(Container.product_query),
-                 command_service=dependency(Container.product_command)):
-        super(ProductViewSet, self).__init__(query_service=query_service,
-                                             command_service=command_service,
-                                             basic_create_dto=ProductInputDto,
-                                             basic_output_dto=ProductOutputDto)
+    def __init__(
+            self,
+            query_service=dependency(Container.product_query),
+            command_service=dependency(Container.product_command)
+    ) -> None:
+        super(ProductViewSet, self).__init__(
+            query_service=query_service,
+            command_service=command_service,
+            basic_create_dto=ProductInputDto,
+            basic_output_dto=ProductOutputDto
+        )

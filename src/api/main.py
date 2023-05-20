@@ -1,32 +1,44 @@
 import time
 
 from fastapi import FastAPI, Request
-from starlette.middleware.base import BaseHTTPMiddleware
 
-from api.routers.chat import chat_router, ChannelsViewSet
-from api.routers.products import ProductViewSet
-from api.routers.users import UserViewSet
-from api.shared.utils import CurrentUser
+from api.routers import (
+    UserViewSet,
+    ProductViewSet,
+    ChatRouter,
+    ChannelsViewSet,
+    ConsumptionRouter
+)
 from config.api_config import ApiConfig
 from config.container_ioc import Container
-from src.foundation.infrastructure.request_context import request_context
+from src.api.setup import include_routers
+from src.api.shared.utils import CurrentUser
+from src.foundation.infra.request_context import request_context
 
 container = Container()
 container.config.from_pydantic(ApiConfig())
 container.wire(
-    modules=['api.routers.users',
-             'api.shared.auth',
-             'api.routers.products',
-             'api.routers.base',
-             'api.routers.chat']
+    modules=[
+        'api.routers.users',
+        'api.shared.auth',
+        'api.routers.products',
+        'api.routers.base',
+        'api.routers.chat',
+        'api.routers.consumption'
+    ]
 )
 
 app = FastAPI()
-
-app.include_router(ProductViewSet().router)
-app.include_router(UserViewSet().router)
-app.include_router(chat_router)
-app.include_router(ChannelsViewSet().router)
+include_routers(
+    app,
+    [
+        ProductViewSet(),
+        UserViewSet(),
+        ChannelsViewSet(),
+        ChatRouter,
+        ConsumptionRouter
+    ]
+)
 app.container = container
 
 

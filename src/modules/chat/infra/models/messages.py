@@ -4,7 +4,7 @@ from sqlalchemy import Column, Text, ForeignKey, ARRAY, DateTime, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
-from src.foundation.infrastructure.db import Base
+from src.foundation.infra.db import Base
 
 
 class Channel(Base):

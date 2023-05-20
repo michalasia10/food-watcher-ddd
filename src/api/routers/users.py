@@ -16,19 +16,26 @@ class UserViewSet(BaseModelView[UserInputDto, UserOutputDto]):
     tag = 'users'
 
     @inject
-    def __init__(self, query_service=dependency(Container.user_query),
-                 command_service=dependency(Container.user_command)):
-        super(UserViewSet, self).__init__(query_service=query_service,
-                                          command_service=command_service,
-                                          basic_create_dto=UserInputDto,
-                                          basic_output_dto=UserOutputDto,
-                                          filter_validator=user_query_validator)
+    def __init__(
+            self,
+            query_service=dependency(Container.user_query),
+            command_service=dependency(Container.user_command)
+    ) -> None:
+        super(UserViewSet, self).__init__(
+            query_service=query_service,
+            command_service=command_service,
+            basic_create_dto=UserInputDto,
+            basic_output_dto=UserOutputDto,
+            filter_validator=user_query_validator
+        )
 
     @post('/login')
     @inject
-    def login(self, credentials: UserAuthInputDto,
-              auth_service: AuthService = dependency(Container.auth_service)
-              ) -> TokenOutputDto:
+    def login(
+            self,
+            credentials: UserAuthInputDto,
+            auth_service: AuthService = dependency(Container.auth_service)
+    ) -> TokenOutputDto:
         """ Endpoint to authenticate user."""
 
         try:

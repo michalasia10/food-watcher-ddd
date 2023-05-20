@@ -1,5 +1,6 @@
 from dataclasses import dataclass, asdict
 
+from pydantic import BaseModel
 from pydantic.typing import Optional
 
 from foundation.domain.value_objects import UUID
@@ -7,7 +8,7 @@ from src.modules.chat.domain.value_objects import ChanelId
 
 
 @dataclass(frozen=True)
-class MessageBase:
+class MessageBase(BaseModel):
     def dict(self):
         return {k: str(v) for k, v in asdict(self).items()}
 

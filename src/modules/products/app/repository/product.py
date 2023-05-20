@@ -1,33 +1,17 @@
-from abc import abstractmethod
-from typing import Any, NoReturn
+from abc import ABC
 
 from src.foundation.domain.repository import GenericRepository
-from src.modules.products.domain.entities import Product
-from src.modules.products.domain.value_objects import ProductID
+from src.modules.products.domain.entities import Product, DailyUserProduct, DailyUserConsumption
+from src.modules.products.domain.value_objects import ProductID, DailyUserProductID, DailyUserConsID
 
 
-class ProductRepository(GenericRepository):
+class ProductRepository(GenericRepository[Product, ProductID], ABC):
+    ...
 
-    @abstractmethod
-    def get_by_id(self, id: ProductID) -> Product:
-        ...
 
-    @abstractmethod
-    def get_by_field_value(self, field: str, value: Any) -> Product:
-        ...
+class DailyUserProductRepository(GenericRepository[DailyUserProduct, DailyUserProductID], ABC):
+    ...
 
-    @abstractmethod
-    def update(self, entity: Product) -> NoReturn:
-        ...
 
-    @abstractmethod
-    def create(self, entity: Product) -> NoReturn:
-        ...
-
-    @abstractmethod
-    def get_all(self) -> list[Product]:
-        ...
-
-    @abstractmethod
-    def get_all_pagination(self, skip: int, limit: int) -> list[Product]:
-        ...
+class DailyUserConsumptionRepository(GenericRepository[DailyUserConsumption, DailyUserConsID], ABC):
+    ...

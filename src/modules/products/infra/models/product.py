@@ -5,8 +5,8 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import ChoiceType
 
-from src.foundation.infrastructure.db import Base
-from src.foundation.infrastructure.db import LabeledEnum
+from src.foundation.infra.db import Base
+from src.foundation.infra.db import LabeledEnum
 
 
 class Product(Base):
@@ -46,6 +46,9 @@ class DailyUserConsumption(Base):
     summary_fats = Column(Float(), nullable=True)
     summary_carbohydrates = Column(Float(), nullable=True)
 
+    class Meta:
+        children = ['products']
+
 
 class DailyUserProducts(Base):
     __tablename__ = 'daily_user_products'
@@ -61,3 +64,6 @@ class DailyUserProducts(Base):
     proteins = Column(Float(), nullable=True)
     fats = Column(Float(), nullable=True)
     carbohydrates = Column(Float(), nullable=True)
+
+    class Meta:
+        children = ['product']
