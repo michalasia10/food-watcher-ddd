@@ -16,7 +16,6 @@ pydantic = { extras = ["email"], version = "^1.10.5" }
 babel = "^2.9.1"
 black = "^21.5b1"
 fastapi = "^0.92.0"
-uvicorn = "^0.14.0"
 typer-cli = "^0.0.13"
 flask_babel = "^2.0.0"
 starlette-context = "^0.3.3"
@@ -34,6 +33,9 @@ pyjwt = "^2.6.0"
 passlib = "^1.7.4"
 sqlalchemy-utils = "^0.40.0"
 classy-fastapi = "^0.3.0"
+aioredis = "^2.0.1"
+uvicorn = {extras = ["standard"], version = "^0.22.0"}
+aio-pika = "^9.0.7"
 
 [tool.poetry.group.dev.dependencies]
 poethepoet = "^0.19.0"

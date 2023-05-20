@@ -1,12 +1,13 @@
-from typing import Any, NoReturn
+from typing import Any, NoReturn, final
 
-from src.modules.auth.app.repository.user import UserRepository
-from src.modules.auth.domain.value_objects import UserID
 from src.foundation.infrastructure.repository import Repository
+from src.modules.auth.app.repository.user import UserRepository
 from src.modules.auth.domain.entities import User
+from src.modules.auth.domain.value_objects import UserID
 from src.modules.auth.infra.models.user import User as UserModel
 
 
+@final
 class SqlUserRepository(Repository, UserRepository):
     model = UserModel
 
