@@ -1,16 +1,5 @@
 version: "3.8"
 services:
-  db:
-    image: postgres:12.3
-    environment:
-      POSTGRES_PASSWORD: password
-    volumes:
-      - postgres-vol:/var/lib/postgresql/data:Z
-    ports:
-      - "5432:5432"
-    networks:
-      - internal-network
-      - external-network
   test_db:
     image: postgres:12.3
     environment:
@@ -27,6 +16,7 @@ networks:
   internal-network:
     internal: true
   external-network:
+    driver: bridge
 
 volumes:
   postgres-vol:

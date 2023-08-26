@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from pydantic import BaseModel
 
-from foundation.domain.value_objects import UUID
+from src.foundation.domain.value_objects import UUID
 
 
 class Query(BaseModel):

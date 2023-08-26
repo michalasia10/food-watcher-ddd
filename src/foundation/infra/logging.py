@@ -1,10 +1,11 @@
-from pythonjsonlogger import jsonlogger
-from datetime import datetime
 import logging
-from logging import Logger
+from datetime import datetime
 from logging.config import dictConfig
+
+from pythonjsonlogger import jsonlogger
+
+from foundation.infra.request_context import request_context
 from foundation.utils.functional import SimpleLazyObject
-from foundation.infrastructure.request_context import request_context
 
 
 class RequestContextFilter(logging.Filter):
@@ -36,10 +37,10 @@ class LoggerFactory:
 
     @classmethod
     def configure(
-        cls,
-        logger_name="app",
-        log_filename="./logs.json",
-        request_context=request_context,
+            cls,
+            logger_name="app",
+            log_filename="./logs.json",
+            request_context=request_context,
     ):
         cls.logger_name = logger_name
         cls.log_filename = log_filename
@@ -59,11 +60,11 @@ class LoggerFactory:
             "formatters": {
                 "default": {
                     # exact format is not important, this is the minimum information
-                    "format": "%(asctime)s %(name)-12s %(levelname)-8s %(correlation_id)s %(message)s",
+                    "format": "%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
                 },
                 "colored": {
                     "()": "colorlog.ColoredFormatter",
-                    "format": "%(log_color)s%(asctime)s %(name)-12s %(levelname)-8s %(correlation_id)s %(message)s",
+                    "format": "%(log_color)s%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
                     "log_colors": {
                         "DEBUG": "white",
                         "INFO": "green",
@@ -74,7 +75,7 @@ class LoggerFactory:
                 },
                 "colored_db": {
                     "()": "colorlog.ColoredFormatter",
-                    "format": "%(log_color)s%(asctime)s %(name)-12s %(levelname)-8s %(correlation_id)s %(message)s",
+                    "format": "%(log_color)s%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
                     "log_colors": {
                         "DEBUG": "purple",
                         "INFO": "green",

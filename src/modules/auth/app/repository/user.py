@@ -1,9 +1,9 @@
 from abc import abstractmethod
 from typing import Any, NoReturn
 
-from foundation.domain.repository import GenericRepository
-from modules.auth.domain.entities import User
-from modules.auth.domain.value_objects import UserID
+from src.foundation.domain.repository import GenericRepository
+from src.modules.auth.domain.entities import User
+from src.modules.auth.domain.value_objects import UserID
 
 
 class UserRepository(GenericRepository):

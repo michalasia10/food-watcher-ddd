@@ -1,8 +1,8 @@
 import dataclasses
 
-from modules.products.app.usecases.dtos.product import ProductInputDto, ProductOutputDto
-from modules.products.domain.exceptions import ProductAlreadyExists, ProductNotFound
-from modules.products.domain.value_objects import ProductID
+from src.modules.products.app.usecases.dtos.product import ProductInputDto, ProductOutputDto
+from src.modules.products.domain.exceptions import ProductAlreadyExists, ProductNotFound
+from src.modules.products.domain.value_objects import ProductID
 from src.modules.products.app.repository.product import ProductRepository
 from src.modules.products.app.usecases.command.product import ProductCommand as ProductCommandBase
 from src.modules.products.domain.entities import Product

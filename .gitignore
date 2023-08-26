@@ -2,3 +2,8 @@
 backend/venv
 backend/src/assets
 .venv
+.coverage
+.pytest_cache
+.pylintrc
+postgres_data
+assets

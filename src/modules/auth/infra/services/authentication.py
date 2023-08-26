@@ -3,11 +3,11 @@ import time
 import jwt
 from sqlalchemy.exc import NoResultFound
 
-from modules.auth.app.repository.user import UserRepository
-from modules.auth.app.usecases.dtos import TokenOutputDto
-from modules.auth.app.usecases.dtos import UserAuthInputDto
 from src.foundation.utils.functional import hash_helper
+from src.modules.auth.app.repository.user import UserRepository
 from src.modules.auth.app.services.authentication import AuthService
+from src.modules.auth.app.usecases.dtos import TokenOutputDto
+from src.modules.auth.app.usecases.dtos import UserAuthInputDto
 from src.modules.auth.domain.entities import User
 from src.modules.auth.domain.exceptions import BadCredentials, UserNotFound
 
