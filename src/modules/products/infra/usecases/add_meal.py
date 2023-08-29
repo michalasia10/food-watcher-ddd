@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from modules.products.domain.exceptions import ProductNotFound
-from src.modules.auth.domain.value_objects import UserID
 from src.modules.products.app.repository.product import (
     ProductRepository,
     DailyUserProductRepository,
@@ -46,5 +45,6 @@ class AddMealI(AddMeal):
         daily_product = self._daily_product_repository.create(daily_product_dto, raw=True)
         product.daily_user_products.append(daily_product)
         day.add_product(daily_product_dto)
+        day.products = []
 
         return self._daily_user_consumption_repository.update(day)
