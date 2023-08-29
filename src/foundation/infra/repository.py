@@ -2,7 +2,7 @@ from contextvars import ContextVar
 from typing import TypeVar, Any, NoReturn, Callable, Generic, Tuple
 from uuid import UUID as UUDIBase
 
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, class_mapper
 
 from src.foundation.domain.entity import Entity as E
 from src.foundation.infra.db import Base
@@ -14,26 +14,27 @@ Model = Callable[..., Base]
 
 def to_dict_recursive(obj, seen=None):
     if seen is None:
-        seen = set()
+        seen = {}
 
     if obj in seen:
-        return None  # Prevent circular references
+        return seen[obj]
 
-    seen.add(obj)
+    seen[obj] = {}
 
-    if hasattr(obj, '__table__'):
-        columns = obj.__table__.columns.keys()
-        result = {col: getattr(obj, col) for col in columns}
-        for rel in obj.__mapper__.relationships:
-            related_obj = getattr(obj, rel.key)
-            if related_obj is not None:
-                if isinstance(related_obj, list):
-                    result[rel.key] = [to_dict_recursive(child, seen) for child in related_obj]
-                else:
-                    result[rel.key] = to_dict_recursive(related_obj, seen)
-        return result
-    else:
-        return None
+    mapper = class_mapper(obj.__class__)
+
+    for column in mapper.columns:
+        seen[obj][column.key] = getattr(obj, column.key)
+
+    for relationship in mapper.relationships:
+        related_obj = getattr(obj, relationship.key)
+        if related_obj is not None:
+            if isinstance(related_obj, list):
+                seen[obj][relationship.key] = [to_dict_recursive(child, seen) for child in related_obj]
+            else:
+                seen[obj][relationship.key] = to_dict_recursive(related_obj, seen)
+
+    return seen[obj]
 
 
 def clean_dict(dictionary):
@@ -135,6 +136,19 @@ class Repository(Generic[Entity, UUID]):
             data = self.session.query(self.model).options(joinedload(*relation)).filter_by(**{field: value}).first()
         else:
             data = self.session.query(self.model).filter_by(**{field: value}).first()
+
+        if raw:
+            return data
+        return self.data_to_entity(data, self.entity) if data else None
+
+    def get_by_field_values(self, raw=False, **kwargs) -> tuple[Any] | None | Any:
+
+        relation = [getattr(self.model, child) for child in self.model.Meta.children] if hasattr(self.model,
+                                                                                                 "Meta") else []
+        if relation:
+            data = self.session.query(self.model).options(joinedload(*relation)).filter_by(**kwargs).first()
+        else:
+            data = self.session.query(self.model).filter_by(**kwargs).first()
 
         if raw:
             return data

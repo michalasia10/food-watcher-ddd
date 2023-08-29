@@ -40,7 +40,7 @@ class DailyUserConsumption(Base):
     user = relationship('User', back_populates='daily_user_consumptions')
     products = relationship('DailyUserProducts', back_populates='day')
     time_updated = Column(DateTime(), onupdate=func.now())
-    date = Column(DateTime(), default=func.now())
+    date = Column(DateTime())
     summary_calories = Column(Float(), nullable=True)
     summary_proteins = Column(Float(), nullable=True)
     summary_fats = Column(Float(), nullable=True)
