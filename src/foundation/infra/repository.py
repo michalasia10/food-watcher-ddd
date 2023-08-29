@@ -62,14 +62,14 @@ class Repository(Generic[Entity, UUID]):
         return entity(**data_as_dict)
 
     def entity_to_model(self, entity: [Entity], model: Model | None = None, update=False) -> [Base]:
-        entity_dict = entity.to_dict()
+        entity_dict = {key: value for key, value in vars(entity).copy().items() if not key.startswith("_")}
         for key, value in entity_dict.items():
-            if hasattr(getattr(entity, key), "Meta.orm_model"):
-                child = self.entity_to_model(getattr(entity, key), getattr(entity, key).Meta.orm_model)
+            if hasattr(getattr(entity, key), "Meta") and hasattr(getattr(entity, key).Meta, "orm_model"):
+                child = self.entity_to_model(getattr(entity, key), getattr(entity, key).Meta.orm_model, update=update)
                 child.id = None
                 entity_dict[key] = child
             if isinstance(value, list):
-                children = [self.entity_to_model(item) for item in getattr(entity, key)]
+                children = [self.entity_to_model(item, update=update) for item in getattr(entity, key)]
                 [setattr(child, "id", None) for child in children]
                 entity_dict[key] = children
 
@@ -118,12 +118,13 @@ class Repository(Generic[Entity, UUID]):
             elif hasattr(value, "Meta") and hasattr(value.Meta, "orm_model"):
                 value_as_model = self.entity_to_model(value, update=True)
                 setattr(record, key, value_as_model)
+            elif value is None or not value:
+                continue
             else:
                 setattr(record, key, value)
             print(f"Record with id {entity.id} updated for key {key} with value {value}")
         if raw:
             return record
-
         return entity
 
     def get_by_field_value(self, field: str, value: Any, raw=False) -> tuple[Any] | None | Any:
