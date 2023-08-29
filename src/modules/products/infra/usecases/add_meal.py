@@ -23,16 +23,16 @@ class AddMealI(AddMeal):
 
     @staticmethod
     def _convert_string_to_date(date: str | datetime) -> datetime:
-        return datetime.strptime(date, "%Y-%m-%d") if isinstance(date, str) else date
+        d = datetime.strptime(date, "%Y-%m-%d") if isinstance(date, str) else date
+        return d.replace(hour=0, minute=0, second=0, microsecond=0)
 
     def execute(self, daily_product_input: DailyUserProductInputDto) -> None:
         product = self._product_repository.get_by_id(daily_product_input.product_id, raw=True)
         if product is None:
             raise ProductNotFound(f"Product with id {daily_product_input.product_id} not found")
 
-        day: DailyUserConsumption = self._daily_user_consumption_repository \
-            .get_by_field_value("user_id", daily_product_input.user_id)
-
+        day: DailyUserConsumption = self._daily_user_consumption_repository.get_by_field_values(
+            user_id=daily_product_input.user_id, date=self._convert_string_to_date(daily_product_input.date))
         if day is None:
             record = DailyUserConsumption(user_id=daily_product_input.user_id,
                                           date=self._convert_string_to_date(daily_product_input.date))
@@ -44,7 +44,9 @@ class AddMealI(AddMeal):
         daily_product_dto.calculate_macros(product)
         daily_product = self._daily_product_repository.create(daily_product_dto, raw=True)
         product.daily_user_products.append(daily_product)
+
         day.add_product(daily_product_dto)
         day.products = []
+        day.date = None
 
         return self._daily_user_consumption_repository.update(day)

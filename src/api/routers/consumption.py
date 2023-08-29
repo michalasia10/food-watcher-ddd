@@ -56,7 +56,9 @@ def add_meal(
         dto: DailyUserProductInputDto,
         command: AddMeal = dependency(Container.add_meal_use_case)
 ):
-    # try:
-    command.execute(dto)
+    try:
+        command.execute(dto)
+    except Exception as e:
+        raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
     return Response(status_code=status.HTTP_201_CREATED)
