@@ -3,6 +3,7 @@ import time
 import jwt
 from sqlalchemy.exc import NoResultFound
 
+from modules.auth.domain.value_objects import UserID
 from src.foundation.utils.functional import hash_helper
 from src.modules.auth.app.repository.user import UserRepository
 from src.modules.auth.app.services.authentication import AuthService
@@ -19,12 +20,12 @@ class AuthenticationService(AuthService):
         self._algorithm = algorithm
         self._secret_key = secret_key
 
-    def _create_token(self, credentials: UserAuthInputDto) -> TokenOutputDto:
+    def _create_token(self, credentials: UserAuthInputDto, user_id: UserID) -> TokenOutputDto:
         payload = {
             'username': credentials.username,
             'expires': time.time() + 2400,
         }
-        return TokenOutputDto(jwt.encode(payload, self._secret_key, self._algorithm))
+        return TokenOutputDto(jwt.encode(payload, self._secret_key, self._algorithm), user_id)
 
     def authenticate(self, credentials: UserAuthInputDto) -> TokenOutputDto | BadCredentials | UserNotFound:
         try:
@@ -36,6 +37,6 @@ class AuthenticationService(AuthService):
             credentials.password, user.password
         )
         if correct_password:
-            return self._create_token(credentials)
+            return self._create_token(credentials, UserID(user.id))
 
         raise BadCredentials("Incorrect password.")
