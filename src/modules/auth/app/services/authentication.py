@@ -1,5 +1,6 @@
-from abc import ABC,abstractmethod
+from abc import ABC, abstractmethod
 
+from modules.auth.domain.value_objects import UserID
 from src.modules.auth.app.usecases.dtos import UserAuthInputDto, TokenOutputDto
 from src.modules.auth.domain.exceptions import BadCredentials, UserNotFound
 
@@ -7,7 +8,7 @@ from src.modules.auth.domain.exceptions import BadCredentials, UserNotFound
 class AuthService(ABC):
 
     @abstractmethod
-    def _create_token(self, credentials: UserAuthInputDto) -> TokenOutputDto:
+    def _create_token(self, credentials: UserAuthInputDto, user_id: UserID) -> TokenOutputDto:
         ...
 
     @abstractmethod
