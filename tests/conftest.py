@@ -6,6 +6,8 @@ from contextvars import ContextVar
 import pytest
 from alembic import command
 from alembic.config import Config
+
+from src.modules.products.infra.models.product import Product
 from src.foundation.infra.db import metadata
 from src.api.main import CurrentUser
 from src.config.api_config import ApiConfig
@@ -17,6 +19,7 @@ from src.modules.products.infra.repository.product import (
     SqlDailyUserProductRepository,
     SqlDailyUserConsumptionRepository
 )
+from src.modules.recipes.infra.repository.recipe import SqlRecipeRepository
 
 disable_loggers = ['sqlalchemy.engine.Engine']
 
@@ -43,7 +46,7 @@ def engine():
 def drop_db_after_tests(engine):
     with contextlib.closing(engine.connect()) as con:
         trans = con.begin()
-        print("\n" + "#" * 25 + f" Number of {len(metadata.sorted_tables) } tables to delete" + "#" * 25 + "\n")
+        print("\n" + "#" * 25 + f" Number of {len(metadata.sorted_tables)} tables to delete" + "#" * 25 + "\n")
         for table in reversed(metadata.sorted_tables):
             con.execute(table.delete())
         trans.commit()
@@ -91,6 +94,28 @@ def daily_user_product_repo(db_session):
 def daily_user_consumption_repo(db_session):
     return SqlDailyUserConsumptionRepository(db_session=db_session)
 
+
+@pytest.fixture(autouse=True)
+def recipe_repo(db_session):
+    return SqlRecipeRepository(db_session=db_session)
+
+@pytest.fixture
+def product_fix(product_repo):
+    product = Product(
+        code=28001461,
+        name="test",
+        quantity="250g",
+        brand="Test",
+        size="test",
+        fat_100g=10.0,
+        carbohydrates_100g=10.0,
+        sugars_100g=10.0,
+        proteins_100g=10.0,
+        groups="tests",
+        category="tests",
+        energy_kcal_100g=10.0
+    )
+    return product_repo.create(product)
 
 def commit_repos(repos):
     for repo in repos:

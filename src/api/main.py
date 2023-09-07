@@ -7,7 +7,8 @@ from api.routers import (
     ProductViewSet,
     ChatRouter,
     ChannelsViewSet,
-    ConsumptionRouter
+    ConsumptionRouter,
+    RecipeViewSet
 )
 from config.api_config import ApiConfig
 from config.container_ioc import Container
@@ -24,7 +25,8 @@ container.wire(
         'api.routers.products',
         'api.routers.base',
         'api.routers.chat',
-        'api.routers.consumption'
+        'api.routers.consumption',
+        'api.routers.recipe',
     ]
 )
 
@@ -36,7 +38,8 @@ include_routers(
         UserViewSet(),
         ChannelsViewSet(),
         ChatRouter,
-        ConsumptionRouter
+        ConsumptionRouter,
+        RecipeViewSet()
     ]
 )
 app.container = container

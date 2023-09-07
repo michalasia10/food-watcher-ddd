@@ -7,26 +7,7 @@ from src.modules.products.domain.entities import Product, DailyUserConsumption
 from src.modules.products.infra.usecases.add_meal import AddMealI
 from src.modules.products.app.usecases.dtos.product import DailyUserProductInputDto
 
-from tests.conftest import base_user_fix, commit_repos, db_session
-
-
-@pytest.fixture
-def product_fix(product_repo):
-    product = Product(
-        code=28001461,
-        name="test",
-        quantity="250g",
-        brand="Test",
-        size="test",
-        fat_100g=10.0,
-        carbohydrates_100g=10.0,
-        sugars_100g=10.0,
-        proteins_100g=10.0,
-        groups="tests",
-        category="tests",
-        energy_kcal_100g=10.0
-    )
-    return product_repo.create(product)
+from tests.conftest import base_user_fix, commit_repos, db_session, product_fix
 
 
 @pytest.fixture

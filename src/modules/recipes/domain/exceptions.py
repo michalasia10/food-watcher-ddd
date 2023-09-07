@@ -1,0 +1,6 @@
+class RecipeAlreadyExists(Exception):
+    ...
+
+
+class RecipeNotFound(Exception):
+    ...
