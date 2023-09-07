@@ -7,6 +7,7 @@ from sqlalchemy_utils import ChoiceType
 
 from src.foundation.infra.db import Base
 from src.foundation.infra.db import LabeledEnum
+from src.modules.recipe_managment.product_recipe_association import product_recipe_association
 
 
 class Product(Base):
@@ -26,7 +27,10 @@ class Product(Base):
     sugars_100g = Column(Float(), nullable=True)
     proteins_100g = Column(Float(), nullable=True)
     daily_user_products = relationship('DailyUserProducts', back_populates='product')
-
+    recipes = relationship('Recipe', secondary=product_recipe_association, back_populates='products')
+    
+    class Meta:
+        children = ['recipes']
 
 class UserProductType(LabeledEnum):
     regular = 1

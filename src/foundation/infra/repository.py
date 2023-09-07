@@ -87,8 +87,11 @@ class Repository(Generic[Entity, UUID]):
         return self.model(**entity_dict)
 
     def get_by_id(self, id: UUID, raw=False) -> NotImplementedError | Entity | None:
-        relation = [getattr(self.model, child) for child in self.model.Meta.children] if hasattr(self.model,
-                                                                                                 "Meta") else []
+        if hasattr(self.model, "Meta") and hasattr(self.model.Meta, "children"):
+            relation = [getattr(self.model, child) for child in self.model.Meta.children]
+        else:
+            relation = []
+
         if relation:
             data = self.session.query(self.model).options(joinedload(*relation)).filter_by(id=str(id)).first()
         else:
@@ -129,9 +132,11 @@ class Repository(Generic[Entity, UUID]):
         return entity
 
     def get_by_field_value(self, field: str, value: Any, raw=False) -> tuple[Any] | None | Any:
+        if hasattr(self.model, "Meta") and hasattr(self.model.Meta, "children"):
+            relation = [getattr(self.model, child) for child in self.model.Meta.children]
+        else:
+            relation = []
 
-        relation = [getattr(self.model, child) for child in self.model.Meta.children] if hasattr(self.model,
-                                                                                                 "Meta") else []
         if relation:
             data = self.session.query(self.model).options(joinedload(*relation)).filter_by(**{field: value}).first()
         else:
@@ -142,9 +147,11 @@ class Repository(Generic[Entity, UUID]):
         return self.data_to_entity(data, self.entity) if data else None
 
     def get_by_field_values(self, raw=False, **kwargs) -> tuple[Any] | None | Any:
+        if hasattr(self.model, "Meta") and hasattr(self.model.Meta, "children"):
+            relation = [getattr(self.model, child) for child in self.model.Meta.children]
+        else:
+            relation = []
 
-        relation = [getattr(self.model, child) for child in self.model.Meta.children] if hasattr(self.model,
-                                                                                                 "Meta") else []
         if relation:
             data = self.session.query(self.model).options(joinedload(*relation)).filter_by(**kwargs).first()
         else:
@@ -165,10 +172,26 @@ class Repository(Generic[Entity, UUID]):
         return [self.data_to_entity(dat, self.entity) for dat in data]
 
     def get_all_pagination(self, skip: int, limit: int, **kwargs) -> list[Entity]:
-        if kwargs:
-            data = self.session.query(self.model).filter_by(**kwargs).offset(skip).limit(limit).all()
+        if hasattr(self.model, "Meta") and hasattr(self.model.Meta, "children"):
+            relation = [getattr(self.model, child) for child in self.model.Meta.children]
         else:
-            data = self.session.query(self.model).offset(skip).limit(limit).all()
+            relation = []
+
+        query = self.session.query(self.model)
+
+        if relation:
+            query = query.options(joinedload(*relation))
+
+        if kwargs:
+            query = query.filter_by(**kwargs)
+
+        if limit:
+            query = query.limit(limit)
+
+        if skip:
+            query = query.offset(skip)
+
+        data = query.all()
         return [self.data_to_entity(dat, self.entity) for dat in data]
 
     def commit(self):
