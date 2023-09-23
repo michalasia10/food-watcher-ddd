@@ -12,7 +12,7 @@ from src.foundation.infra.db import Base
 from src.modules.auth.infra.models.user import User
 from src.modules.products.infra.models.product import Product, DailyUserConsumption, DailyUserProducts
 from src.modules.chat.infra.models.messages import Message, Channel
-from src.modules.recipes.infra.models.recipe import Recipe
+from src.modules.recipes.infra.models.recipe import Recipe, ProductForRecipe
 
 config = context.config
 
