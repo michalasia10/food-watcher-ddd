@@ -19,7 +19,7 @@ from src.modules.products.infra.repository.product import (
     SqlDailyUserProductRepository,
     SqlDailyUserConsumptionRepository
 )
-from src.modules.recipes.infra.repository.recipe import SqlRecipeRepository
+from src.modules.recipes.infra.repository.recipe import SqlRecipeRepository, SqlRecipeProductRepository
 
 disable_loggers = ['sqlalchemy.engine.Engine']
 
@@ -98,6 +98,10 @@ def daily_user_consumption_repo(db_session):
 @pytest.fixture(autouse=True)
 def recipe_repo(db_session):
     return SqlRecipeRepository(db_session=db_session)
+
+@pytest.fixture(autouse=True)
+def recipe_product_repo(db_session):
+    return SqlRecipeProductRepository(db_session=db_session)
 
 @pytest.fixture
 def product_fix(product_repo):

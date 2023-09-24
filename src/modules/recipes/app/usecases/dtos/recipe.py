@@ -5,33 +5,45 @@ from src.modules.recipes.domain.value_objects import RecipeID
 
 
 @dataclass(frozen=True)
-class ProductRecipeBaseDto:
-    id: UUID
-
-
-@dataclass(frozen=True)
-class ProductRecipeOutputDto(ProductRecipeBaseDto):
+class ProductOutputDto:
     code: int
     name: str
     quantity: str | None
+    id: UUID | None
     brand: str | None
     size: str | None
     groups: str | None
     category: str | None
     energy_kcal_100g: float
-    fat_100g: float | None
-    carbohydrates_100g: float | None
-    sugars_100g: float | None
-    proteins_100g: float | None
+
+
+@dataclass(frozen=True)
+class RecipeProductInputDto:
+    weight_in_grams: float
+    product_id: UUID
+
+
+@dataclass(frozen=True)
+class RecipeProductOutputDto(RecipeProductInputDto):
+    product: ProductOutputDto
+    id: UUID | None = None
+    calories: float | None = None
+    proteins: float | None = None
+    fats: float | None = None
+    carbohydrates: float | None = None
 
 
 @dataclass(frozen=True)
 class RecipeOutputDto:
-    id: RecipeID
     name: str
+    id: RecipeID | None = None
     link: str | None = None
     description: str | None = None
-    products: list[ProductRecipeOutputDto] = field(default_factory=list)
+    products: list[RecipeProductOutputDto] = field(default_factory=list)
+    summary_calories: float | None = None
+    summary_proteins: float | None = None
+    summary_fats: float | None = None
+    summary_carbohydrates: float | None = None
 
 
 @dataclass(frozen=True)
@@ -39,4 +51,4 @@ class RecipeInputDto:
     name: str
     link: str | None = None
     description: str | None = None
-    products: list[ProductRecipeBaseDto] = field(default_factory=list)
+    products: list[RecipeProductInputDto] = field(default_factory=list)

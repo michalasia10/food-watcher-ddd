@@ -7,7 +7,6 @@ from sqlalchemy_utils import ChoiceType
 
 from src.foundation.infra.db import Base
 from src.foundation.infra.db import LabeledEnum
-from src.modules.recipe_managment.product_recipe_association import product_recipe_association
 
 
 class Product(Base):
@@ -26,11 +25,14 @@ class Product(Base):
     carbohydrates_100g = Column(Float(), nullable=True)
     sugars_100g = Column(Float(), nullable=True)
     proteins_100g = Column(Float(), nullable=True)
+
+    # relationships
     daily_user_products = relationship('DailyUserProducts', back_populates='product')
-    recipes = relationship('Recipe', secondary=product_recipe_association, back_populates='products')
-    
+    product_for_recipes = relationship('ProductForRecipe', back_populates='product')
+
     class Meta:
-        children = ['recipes']
+        children = ['product_for_recipes']
+
 
 class UserProductType(LabeledEnum):
     regular = 1
@@ -40,15 +42,17 @@ class UserProductType(LabeledEnum):
 class DailyUserConsumption(Base):
     __tablename__ = 'daily_user_consumption'
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4())
-    user_id = Column(UUID(as_uuid=True), ForeignKey('user.id'))
-    user = relationship('User', back_populates='daily_user_consumptions')
-    products = relationship('DailyUserProducts', back_populates='day')
     time_updated = Column(DateTime(), onupdate=func.now())
     date = Column(DateTime())
     summary_calories = Column(Float(), nullable=True)
     summary_proteins = Column(Float(), nullable=True)
     summary_fats = Column(Float(), nullable=True)
     summary_carbohydrates = Column(Float(), nullable=True)
+
+    # relationships
+    user_id = Column(UUID(as_uuid=True), ForeignKey('user.id'))
+    user = relationship('User', back_populates='daily_user_consumptions')
+    products = relationship('DailyUserProducts', back_populates='day')
 
     class Meta:
         children = ['products']

@@ -22,8 +22,8 @@ from src.modules.products.infra.repository.product import (
 from src.modules.products.infra.usecases.add_meal import AddMealI
 from src.modules.products.infra.usecases.command.product import ProductCommand
 from src.modules.products.infra.usecases.query.product import ProductQuery, UserDayQuery
-from src.modules.recipes.infra.repository.recipe import SqlRecipeRepository
-from src.modules.recipes.infra.usecases.command.recipe import RecipeCommand
+from src.modules.recipes.infra.repository.recipe import SqlRecipeRepository, SqlRecipeProductRepository
+from src.modules.recipes.infra.usecases.command.recipe import RecipeCommand, RecipeProductCommand
 from src.modules.recipes.infra.usecases.query.recipe import RecipeQuery
 
 
@@ -124,7 +124,16 @@ class Container(containers.DeclarativeContainer):
     recipe_repository = providers.Factory(
         SqlRecipeRepository, db_session=request_context.provided.db_session
     )
+    recipe_product_repository = providers.Factory(
+        SqlRecipeProductRepository, db_session=request_context.provided.db_session
+    )
     recipe_query = providers.Factory(RecipeQuery, repository=recipe_repository)
     recipe_command = providers.Factory(RecipeCommand,
                                        repository=recipe_repository,
+                                       recipe_product_repository=recipe_product_repository,
                                        product_repository=product_repository)
+
+    recipe_product_command = providers.Factory(RecipeProductCommand,
+                                               repository=recipe_product_repository,
+                                               )
+    recipe_product_query = NotImplementedError

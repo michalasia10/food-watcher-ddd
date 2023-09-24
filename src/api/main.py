@@ -8,8 +8,10 @@ from api.routers import (
     ChatRouter,
     ChannelsViewSet,
     ConsumptionRouter,
-    RecipeViewSet
+    RecipeViewSet,
+    RecipeProductViewSet
 )
+
 from config.api_config import ApiConfig
 from config.container_ioc import Container
 from src.api.setup import include_routers
@@ -39,7 +41,8 @@ include_routers(
         ChannelsViewSet(),
         ChatRouter,
         ConsumptionRouter,
-        RecipeViewSet()
+        RecipeViewSet(),
+        RecipeProductViewSet()
     ]
 )
 app.container = container
