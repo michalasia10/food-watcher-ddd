@@ -35,8 +35,9 @@ class Product(Base):
 
 
 class UserProductType(LabeledEnum):
-    regular = 1
-    ingredient = 2
+    breakfast = 1
+    lunch = 2
+    dinner = 3
 
 
 class DailyUserConsumption(Base):
@@ -66,7 +67,7 @@ class DailyUserProducts(Base):
     product_id = Column(UUID(as_uuid=True), ForeignKey('products.id'))
     product = relationship('Product', back_populates='daily_user_products')
     weight_in_grams = Column(Float(), nullable=False)
-    type = Column(ChoiceType(choices=UserProductType, impl=Integer()), default=UserProductType.regular)
+    type = Column(ChoiceType(choices=UserProductType, impl=Integer()), default=UserProductType.breakfast)
     time_updated = Column(DateTime(), onupdate=func.now())
     calories = Column(Float(), nullable=True)
     proteins = Column(Float(), nullable=True)

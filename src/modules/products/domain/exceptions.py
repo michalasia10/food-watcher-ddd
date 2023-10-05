@@ -7,3 +7,6 @@ class ProductNotFound(Exception):
 
 class DailyUserProductNotFound(Exception):
     ...
+
+class UserDayNotFound(Exception):
+    ...

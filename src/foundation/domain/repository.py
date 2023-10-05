@@ -20,6 +20,10 @@ class GenericRepository(ABC, Generic[Entity, UUID]):
         ...
 
     @abstractmethod
+    def get_by_field_values(self, raw=False, **kwargs):
+        ...
+
+    @abstractmethod
     def update(self, entity: [Entity], raw=False):
         ...
 

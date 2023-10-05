@@ -23,7 +23,7 @@ class UserDayQuery(QueryBase):
         ...
 
     @abstractmethod
-    def get_day_by_datetime(self, datetime: str) -> DailyUserConsumptionOutputDto:
+    def get_day_by_datetime(self, datetime: str, user_id: str) -> DailyUserConsumptionOutputDto:
         ...
 
     def get_all(self, skip: int, limit: int):

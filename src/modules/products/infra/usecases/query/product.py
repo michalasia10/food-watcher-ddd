@@ -5,6 +5,7 @@ from src.modules.products.app.usecases.query.product import (
     ProductQuery as ProductQueryBase,
     UserDayQuery as UserDayQueryBase
 )
+from src.modules.products.domain.exceptions import UserDayNotFound
 from src.modules.products.domain.value_objects import ProductID, DailyUserConsID
 
 
@@ -26,10 +27,19 @@ class UserDayQuery(UserDayQueryBase):
 
     def get_all_user_days(self, user_id: str, skip: int, limit: int) -> list[DailyUserConsumptionOutputDto]:
         return [DailyUserConsumptionOutputDto(**day.to_dict()) for day in
-                self._repository.get_all_pagination(skip, limit, user_id=user_id)]
+                self._repository.get_all_pagination(skip, limit, user_id=user_id) if day]
 
     def get_day_by_id(self, id: DailyUserConsID) -> DailyUserConsumptionOutputDto:
-        return DailyUserConsumptionOutputDto(**self._repository.get_by_id(id).to_dict())
+        day = self._repository.get_by_id(id)
+        if day:
+            return DailyUserConsumptionOutputDto(**day.to_dict()) if day else {}
+        else:
+            raise UserDayNotFound("User's day not found")
 
-    def get_day_by_datetime(self, datetime: str) -> DailyUserConsumptionOutputDto:
-        return DailyUserConsumptionOutputDto(**self._repository.get_by_field_value("date", datetime).to_dict())
+    def get_day_by_datetime(self, datetime: str, user_id: str) -> DailyUserConsumptionOutputDto:
+        day = self._repository.get_by_field_values(raw=False, date=datetime, user_id=user_id)
+
+        if day:
+            return DailyUserConsumptionOutputDto(**day.to_dict())
+        else:
+            raise UserDayNotFound("User's day not found")
