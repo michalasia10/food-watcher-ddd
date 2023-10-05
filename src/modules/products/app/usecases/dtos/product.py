@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Literal, Any
 
 from modules.auth.domain.value_objects import UserID
-from src.modules.products.domain.value_objects import ProductID, DailyUserProductID
+from src.modules.products.domain.value_objects import ProductID, DailyUserProductID, DailyUserConsID
 from src.modules.recipes.app.usecases.dtos.recipe import RecipeOutputDto
 
 
@@ -74,6 +74,7 @@ class DailyUserProductOutputDto(DailyUserProductDto):
 class DailyUserConsumptionOutputDto:
     user_id: UserID
     date: datetime
+    id: DailyUserConsID
     products: list[DailyUserProductOutputDto] | None
     summary_calories: float | None
     summary_proteins: float | None
