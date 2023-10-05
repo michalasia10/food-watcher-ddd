@@ -159,6 +159,7 @@ class Repository(Generic[Entity, UUID]):
 
         if raw:
             return data
+
         return self.data_to_entity(data, self.entity) if data else None
 
     def delete(self, id: Entity) -> NoReturn:
