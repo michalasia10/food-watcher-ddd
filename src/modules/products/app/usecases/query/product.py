@@ -11,6 +11,10 @@ class ProductQuery(QueryBase):
     def get_all(self, skip: int, limit: int) -> list[ProductOutputDto]:
         ...
 
+    @abstractmethod
+    def get_by_name(self, name: str = None, skip=0, limit=10) -> list[ProductOutputDto]:
+        ...
+
 
 class UserDayQuery(QueryBase):
 

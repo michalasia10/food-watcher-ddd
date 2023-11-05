@@ -34,6 +34,10 @@ class ProductQuery(ProductQueryBase):
         product = self._repository.get_by_id(ProductID(id))
         return ProductOutputDto(**self._map_to_dto(product))
 
+    def get_by_name(self, name: str, skip=0, limit=10) -> list[ProductOutputDto]:
+        return [ProductOutputDto(**self._map_to_dto(product)) for product in
+                self._repository.get_all_by_name(name=name, skip=skip, limit=limit)]
+
 
 class UserDayQuery(UserDayQueryBase):
     def __init__(self, repository: DailyUserConsumptionRepository):
