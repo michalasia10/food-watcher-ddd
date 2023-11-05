@@ -143,7 +143,8 @@ class Repository(Generic[Entity, UUID]):
             data = self.session.query(self.model).filter_by(**{field: value}).first()
 
         if raw:
-            return data
+            return data if data else None
+
         return self.data_to_entity(data, self.entity) if data else None
 
     def get_by_field_values(self, raw=False, **kwargs) -> tuple[Any] | None | Any:
@@ -158,7 +159,7 @@ class Repository(Generic[Entity, UUID]):
             data = self.session.query(self.model).filter_by(**kwargs).first()
 
         if raw:
-            return data
+            return data if data else None
 
         return self.data_to_entity(data, self.entity) if data else None
 
