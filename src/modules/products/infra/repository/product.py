@@ -17,6 +17,14 @@ class SqlProductRepository(Repository[Product, ProductID], ProductRepository):
     model = ProductModel
     entity = Product
 
+    def get_all_by_name(self, skip=0, limit=10, name=None) -> list[Entity]:
+        if name:
+            data = self.session.query(self.model).filter(self.model.name.like(f'%{name}%')).limit(limit).offset(
+                skip).all()
+            return [self.data_to_entity(dat, self.entity) for dat in data]
+        else:
+            return self.get_all_pagination(skip, limit)
+
 
 class SqlDailyUserProductRepository(Repository[DailyUserProduct, DailyUserProductID], DailyUserProductRepository):
     model = DailyUserProductModel
