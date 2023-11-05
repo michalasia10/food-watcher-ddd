@@ -35,7 +35,7 @@ class RecipeProductOutputDto(RecipeProductInputDto):
 
 @dataclass(frozen=True)
 class RecipeOutputDto:
-    name: str
+    name: str | None = None
     id: RecipeID | None = None
     link: str | None = None
     description: str | None = None

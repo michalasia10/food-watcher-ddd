@@ -16,10 +16,22 @@ from src.modules.products.infra.models.product import (
 
 
 @dataclass
-class RecipeProduct(AggregateRoot):
+class Recipe(AggregateRoot):
     name: str | None = None
     link: str | None = None
     description: str | None = None
+
+
+@dataclass
+class ProductForRecipe(AggregateRoot):
+    weight_in_grams: float | None = None
+    product_id: UUID | None = None
+    recipe_id: UUID | None = None
+    recipe = None
+    calories: float | None = None
+    proteins: float | None = None
+    fats: float | None = None
+    carbohydrates: float | None = None
 
 
 @dataclass
@@ -36,7 +48,7 @@ class Product(AggregateRoot):
     carbohydrates_100g: float | None = None
     sugars_100g: float | None = None
     proteins_100g: float | None = None
-    recipes: list[RecipeProduct] = Field(default_factory=list)
+    product_for_recipes: list[ProductForRecipe] = Field(default_factory=list)
 
     class Meta:
         orm_model = ProductModel

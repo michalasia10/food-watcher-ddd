@@ -31,7 +31,7 @@ class RecipeCommand(RecipeCommandBase):
         self._recipe_product_repository = recipe_product_repository
         self._product_repository = product_repository
 
-    def _create_entitites_with_mactor(self, recipe: RecipeInputDto) -> tuple[RecipeE, list[tuple[Any, ProductRecipeE]]]:
+    def _create_entities_with_macros(self, recipe: RecipeInputDto) -> tuple[RecipeE, list[tuple[Any, ProductRecipeE]]]:
         recipe_products_e: list[tuple[Any, ProductRecipeE]] = []
         recipe_e = RecipeE(name=recipe.name,
                            description=recipe.description,
@@ -52,7 +52,7 @@ class RecipeCommand(RecipeCommandBase):
         recipe_product_e: ProductRecipeE
         for recipe_product_e in recipe_products_e:
             base_product, product = recipe_product_e
-            new_recipe_product = ProductForRecipeModel(
+            values = dict(
                 product=base_product,
                 weight_in_grams=product.weight_in_grams,
                 calories=product.calories,
@@ -60,7 +60,12 @@ class RecipeCommand(RecipeCommandBase):
                 fats=product.fats,
                 carbohydrates=product.carbohydrates,
             )
-            recipe_record.products.append(new_recipe_product)
+            product_recipe = self._recipe_product_repository.get_by_field_values(raw=True, **values)
+            if product_recipe is not None:
+                recipe_record.products.append(product_recipe)
+            else:
+                new_recipe_product = ProductForRecipeModel(**values)
+                recipe_record.products.append(new_recipe_product)
 
         self._repository.commit()
         return recipe_record
@@ -69,7 +74,7 @@ class RecipeCommand(RecipeCommandBase):
         if self._repository.exists('name', recipe.name):
             raise RecipeAlreadyExists('Recipe already exists.')
 
-        recipe_e, recipe_products_e = self._create_entitites_with_mactor(recipe)
+        recipe_e, recipe_products_e = self._create_entities_with_macros(recipe)
 
         recipe_record = self._create_recipe_in_db(recipe_e, recipe_products_e)
         return self._repository.get_by_id(recipe_record.id)

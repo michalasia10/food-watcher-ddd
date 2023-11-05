@@ -97,30 +97,12 @@ class Container(containers.DeclarativeContainer):
         channel_repository=channel_repository
     )
 
-    ### Product ###
-
+    ### Recipes ###
     product_repository = providers.Factory(
         SqlProductRepository, db_session=request_context.provided.db_session
     )
-    product_query = providers.Factory(ProductQuery, repository=product_repository)
-    product_command = providers.Factory(ProductCommand, repository=product_repository)
 
-    ### UserConsumption ###
-    user_consumption_repository = providers.Factory(
-        SqlDailyUserConsumptionRepository, db_session=request_context.provided.db_session
-    )
 
-    user_product_repository = providers.Factory(
-        SqlDailyUserProductRepository, db_session=request_context.provided.db_session
-    )
-
-    user_day_query = providers.Factory(UserDayQuery, repository=user_consumption_repository)
-    add_meal_use_case = providers.Factory(AddMealI,
-                                          product_repository=product_repository,
-                                          daily_product_repository=user_product_repository,
-                                          daily_user_consumption_repository=user_consumption_repository)
-
-    ### Recipes ###
     recipe_repository = providers.Factory(
         SqlRecipeRepository, db_session=request_context.provided.db_session
     )
@@ -137,3 +119,24 @@ class Container(containers.DeclarativeContainer):
                                                repository=recipe_product_repository,
                                                )
     recipe_product_query = NotImplementedError
+
+    ### Product ###
+
+
+    product_query = providers.Factory(ProductQuery, repository=product_repository, recipe_repo=recipe_repository)
+    product_command = providers.Factory(ProductCommand, repository=product_repository)
+
+    ### UserConsumption ###
+    user_consumption_repository = providers.Factory(
+        SqlDailyUserConsumptionRepository, db_session=request_context.provided.db_session
+    )
+
+    user_product_repository = providers.Factory(
+        SqlDailyUserProductRepository, db_session=request_context.provided.db_session
+    )
+
+    user_day_query = providers.Factory(UserDayQuery, repository=user_consumption_repository)
+    add_meal_use_case = providers.Factory(AddMealI,
+                                          product_repository=product_repository,
+                                          daily_product_repository=user_product_repository,
+                                          daily_user_consumption_repository=user_consumption_repository)

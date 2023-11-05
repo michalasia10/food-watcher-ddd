@@ -7,18 +7,32 @@ from src.modules.products.app.usecases.query.product import (
 )
 from src.modules.products.domain.exceptions import UserDayNotFound
 from src.modules.products.domain.value_objects import ProductID, DailyUserConsID
+from src.modules.products.domain.entities import Product
 
 
 class ProductQuery(ProductQueryBase):
-    def __init__(self, repository: ProductRepository):
+    def __init__(
+            self,
+            repository: ProductRepository,
+            recipe_repo
+    ):
         self._repository = repository
+        self._recipe_repo = recipe_repo
+
+    def _map_to_dto(self, product: Product) -> dict:
+        product_dict = product.to_dict()
+        product_dict['recipes'] = [self._recipe_repo.get_by_id(product.recipe_id) for product in
+                                   product.product_for_recipes]
+        del product_dict['product_for_recipes']
+        return product_dict
 
     def get_all(self, skip: int = 0, limit: int = 100) -> list[ProductOutputDto]:
-        return [ProductOutputDto(**product.to_dict()) for product in self._repository.get_all_pagination(skip, limit)]
+        return [ProductOutputDto(**self._map_to_dto(product)) for product in
+                self._repository.get_all_pagination(skip, limit)]
 
     def get_by_id(self, id: UUID) -> ProductOutputDto:
-        user = self._repository.get_by_id(ProductID(id))
-        return ProductOutputDto(**user.to_dict())
+        product = self._repository.get_by_id(ProductID(id))
+        return ProductOutputDto(**self._map_to_dto(product))
 
 
 class UserDayQuery(UserDayQueryBase):
