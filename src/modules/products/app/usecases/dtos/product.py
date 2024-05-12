@@ -3,7 +3,11 @@ from datetime import datetime
 from typing import Literal, Any
 
 from modules.auth.domain.value_objects import UserID
-from src.modules.products.domain.value_objects import ProductID, DailyUserProductID, DailyUserConsID
+from src.modules.products.domain.value_objects import (
+    ProductID,
+    DailyUserProductID,
+    DailyUserConsID,
+)
 from src.modules.recipes.app.usecases.dtos.recipe import RecipeOutputDto
 
 
@@ -42,8 +46,7 @@ class ProductOutputDto(ProductOutputWithIdDto):
 
 
 @dataclass(frozen=True)
-class ProductInputDto(ProductBaseDto):
-    ...
+class ProductInputDto(ProductBaseDto): ...
 
 
 @dataclass(frozen=True)

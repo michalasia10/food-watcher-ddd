@@ -1,37 +1,35 @@
-import uuid
-
-from sqlalchemy import Column, Text, Boolean, ForeignKey, Float
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
-from sqlalchemy_utils import EmailType
-
-from src.foundation.infra.db import Base
+# from tortoise import fields
+#
+# from core_new.infra.model import BaseModel
+# from modules.auth_new.domain.enums import StatusEnum, TypeEnum
 
 
-class User(Base):
-    __tablename__ = 'user'
+class User:
+    pass
+    # username = fields.CharField(null=False, max_length=255)
+    # password = fields.CharField(null=False, max_length=255)
+    # email = fields.CharField(null=False, max_length=255)  # ToDo: Add email validation
+    # first_name = fields.CharField(null=True, max_length=255)
+    # last_name = fields.CharField(null=True, max_length=255)
+    # status = fields.CharEnumField(enum_type=StatusEnum, default=StatusEnum.INACTIVE)
+    # type = fields.CharEnumField(enum_type=TypeEnum, default=TypeEnum.USER)
+    #
+    # # daily_user_consumptions = relationship(
+    # #     "DailyUserConsumption", back_populates="user"
+    # # )
+    # # settings = relationship("UserSettings", back_populates="user")
+    # # messages = relationship("Message", back_populates="user")
+    #
+    # class Meta:
+    #     app = 'auth'
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4())
-
-    username = Column(Text(), nullable=False)
-    password = Column(Text(), nullable=False)
-    email = Column(EmailType(), nullable=False)
-    first_name = Column(Text(), nullable=True)
-    last_name = Column(Text(), nullable=True)
-    is_active = Column(Boolean(), default=False)
-    is_superuser = Column(Boolean(), default=False)
-    daily_user_consumptions = relationship('DailyUserConsumption', back_populates='user')
-    settings = relationship('UserSettings', back_populates='user')
-    messages = relationship('Message', back_populates='user')
-
-
-class UserSettings(Base):
-    __tablename__ = 'user_settings'
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4())
-
-    user_id = Column(UUID(as_uuid=True), ForeignKey('user.id'), primary_key=True)
-    user = relationship('User', back_populates='settings')
-    daily_calories = Column(Float(), nullable=True)
-    daily_proteins = Column(Float(), nullable=True)
-    daily_fats = Column(Float(), nullable=True)
-    daily_carbohydrates = Column(Float(), nullable=True)
+# class UserSettings(Base):
+#     __tablename__ = "user_settings"
+#     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4())
+#
+#     user_id = Column(UUID(as_uuid=True), ForeignKey("user.id"), primary_key=True)
+#     user = relationship("User", back_populates="settings")
+#     daily_calories = Column(Float(), nullable=True)
+#     daily_proteins = Column(Float(), nullable=True)
+#     daily_fats = Column(Float(), nullable=True)
+#     daily_carbohydrates = Column(Float(), nullable=True)

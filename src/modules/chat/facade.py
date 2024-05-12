@@ -17,13 +17,13 @@ from src.modules.chat.infra.services.notifications import AioPikaClient
 @final
 class WebSocketFacade:
     def __init__(
-            self,
-            ws: WebSocket,
-            channel_id: ChanelId,
-            connection_manager: ConnectionManager,
-            loop: AbstractEventLoop,
-            rabitmq_url: str,
-            message_repository: MessageCompositeRepository
+        self,
+        ws: WebSocket,
+        channel_id: ChanelId,
+        connection_manager: ConnectionManager,
+        loop: AbstractEventLoop,
+        rabitmq_url: str,
+        message_repository: MessageCompositeRepository,
     ):
         self._message_repository = message_repository
         self._ws = ws
@@ -37,11 +37,15 @@ class WebSocketFacade:
         await self._load_previous_messages(channel_id)
 
     async def _send_message(self, message: dict):
-        logger.info(f"Message received for channel {self._channel_id}. Message: {json.dumps(message)}")
+        logger.info(
+            f"Message received for channel {self._channel_id}. Message: {json.dumps(message)}"
+        )
         await self._con_manager.send_msg(self._channel_id, message)
 
     async def _load_previous_messages(self, channel_id: ChanelId):
-        messages: list[Message] = self._message_repository.load_previous_messages(channel_id)
+        messages: list[Message] = self._message_repository.load_previous_messages(
+            channel_id
+        )
         for message in messages:
             await self._send_message(message.to_serializer_dict())
 
@@ -54,31 +58,39 @@ class WebSocketFacade:
             while True:
                 async for message in pika.receive_notifications():
                     if message:
-                        logger.info(f"Message send for channel {self._channel_id}. Message: {message}")
+                        logger.info(
+                            f"Message send for channel {self._channel_id}. Message: {message}"
+                        )
                         await self._send_message(message)
 
                 if self._ws.client_state == WebSocketState.DISCONNECTED:
-                    logger.info("Connection will be disconnected. ", extra={'data': 'Client disconnected'})
+                    logger.info(
+                        "Connection will be disconnected. ",
+                        extra={"data": "Client disconnected"},
+                    )
                     break
 
-
         except Exception as e:
-            logger.info(f"Connection will be disconnected cause: {e}", extra={'data': e})
+            logger.info(
+                f"Connection will be disconnected cause: {e}", extra={"data": e}
+            )
             self._con_manager.disconnect(self._ws, self._channel_id)
-            await self._con_manager.send_msg(self._channel_id, {'message': 'Someone disconnected.'})
+            await self._con_manager.send_msg(
+                self._channel_id, {"message": "Someone disconnected."}
+            )
             await pika.close()
 
 
 @final
 class NotificationPublisherFacade:
     def __init__(
-            self,
-            channel_id: ChanelId,
-            message: WebSockMessage,
-            rabitmq_url: str,
-            message_repository: MessageCompositeRepository,
-            loop: AbstractEventLoop,
-            user
+        self,
+        channel_id: ChanelId,
+        message: WebSockMessage,
+        rabitmq_url: str,
+        message_repository: MessageCompositeRepository,
+        loop: AbstractEventLoop,
+        user,
     ):
         self._channel_id = channel_id
         self._message = message
@@ -101,12 +113,14 @@ class NotificationPublisherFacade:
             message = MessageDto(
                 user_id=self._user.id,
                 channel_id=self._channel_id,
-                **self._message.dict()
+                **self._message.dict(),
             )
             await pika_client.publish_message(message.dict())
             self._message_repository.create(Message(**dataclasses.asdict(message)))
 
         except Exception as e:
-            logger.info(f"Connection will be disconnected cause: {e}", extra={'data': e})
+            logger.info(
+                f"Connection will be disconnected cause: {e}", extra={"data": e}
+            )
             await pika_client.close()
             raise e

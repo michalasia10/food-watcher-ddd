@@ -4,7 +4,10 @@ from typing import NoReturn
 from src.foundation.application.commands import CommandBase
 from src.foundation.domain.value_objects import UUID
 from src.modules.products.domain.value_objects import ProductID
-from src.modules.products.app.usecases.dtos.product import ProductOutputDto, ProductInputDto
+from src.modules.products.app.usecases.dtos.product import (
+    ProductOutputDto,
+    ProductInputDto,
+)
 
 
 class ProductCommand(CommandBase):
@@ -13,9 +16,7 @@ class ProductCommand(CommandBase):
         raise NotImplementedError
 
     @abstractmethod
-    def create(self, entity: ProductInputDto) -> NoReturn:
-        ...
+    def create(self, entity: ProductInputDto) -> NoReturn: ...
 
     @abstractmethod
-    def update(self, id: ProductID, user: ProductInputDto) -> ProductOutputDto:
-        ...
+    def update(self, id: ProductID, user: ProductInputDto) -> ProductOutputDto: ...

@@ -10,7 +10,10 @@ class RecipeQuery(RecipeQueryBase):
         self._repository = repository
 
     def get_all(self, skip: int = 0, limit: int = 100) -> list[RecipeOutputDto]:
-        return [RecipeOutputDto(**recipe.to_dict()) for recipe in self._repository.get_all_pagination(skip, limit)]
+        return [
+            RecipeOutputDto(**recipe.to_dict())
+            for recipe in self._repository.get_all_pagination(skip, limit)
+        ]
 
     def get_by_id(self, id: UUID) -> RecipeOutputDto:
         recipe = self._repository.get_by_id(RecipeID(id))

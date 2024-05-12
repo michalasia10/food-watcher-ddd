@@ -37,8 +37,7 @@ class BusinessModule:
     def __init__(self) -> None:
         self.setup()
 
-    def setup(self):
-        ...
+    def setup(self): ...
 
     @logging_handler
     def execute_query(self, query: Query):

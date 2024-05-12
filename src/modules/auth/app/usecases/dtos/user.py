@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from pydantic import EmailStr
-from pydantic.typing import Optional
+from typing import Optional
 
 from src.modules.auth.domain.value_objects import UserID
 
@@ -13,8 +13,7 @@ class BaseUserDto:
 
 
 @dataclass(frozen=True)
-class UserAuthInputDto(BaseUserDto):
-    ...
+class UserAuthInputDto(BaseUserDto): ...
 
 
 @dataclass(frozen=True)

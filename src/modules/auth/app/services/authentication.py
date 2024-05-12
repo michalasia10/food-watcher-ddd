@@ -8,9 +8,11 @@ from src.modules.auth.domain.exceptions import BadCredentials, UserNotFound
 class AuthService(ABC):
 
     @abstractmethod
-    def _create_token(self, credentials: UserAuthInputDto, user_id: UserID) -> TokenOutputDto:
-        ...
+    def _create_token(
+        self, credentials: UserAuthInputDto, user_id: UserID
+    ) -> TokenOutputDto: ...
 
     @abstractmethod
-    def authenticate(self, credentials: UserAuthInputDto) -> TokenOutputDto | BadCredentials | UserNotFound:
-        ...
+    def authenticate(
+        self, credentials: UserAuthInputDto
+    ) -> TokenOutputDto | BadCredentials | UserNotFound: ...

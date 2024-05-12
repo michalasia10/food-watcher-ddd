@@ -7,5 +7,4 @@ from modules.products.app.usecases.dtos.product import DailyUserProductInputDto
 class AddMeal(ABC):
 
     @abstractmethod
-    def execute(self, daily_product_input: DailyUserProductInputDto):
-        ...
+    def execute(self, daily_product_input: DailyUserProductInputDto): ...

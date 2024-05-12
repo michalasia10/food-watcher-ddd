@@ -4,7 +4,7 @@ from src.modules.common.macro.strategies import (
     MacroCalculatorStrategy,
     MacroCalculatorWeightStrategy,
     MacroCalculatorSummaryStrategy,
-    MacroCalculatorSubtractStrategy
+    MacroCalculatorSubtractStrategy,
 )
 
 

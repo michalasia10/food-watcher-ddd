@@ -11,31 +11,31 @@ from modules.products.app.usecases.query.product import ProductQuery
 
 
 class ProductViewSet(BaseModelView[ProductInputDto, ProductOutputDto]):
-    prefix = '/products'
-    tag = 'products'
-    crud_methods = ('create', 'list', 'read')
+    prefix = "/products"
+    tag = "products"
+    crud_methods = ("create", "list", "read")
 
     @inject
     def __init__(
-            self,
-            query_service=dependency(Container.product_query),
-            command_service=dependency(Container.product_command)
+        self,
+        query_service=dependency(Container.product_query),
+        command_service=dependency(Container.product_command),
     ) -> None:
         super(ProductViewSet, self).__init__(
             query_service=query_service,
             command_service=command_service,
             basic_create_dto=ProductInputDto,
-            basic_output_dto=ProductOutputDto
+            basic_output_dto=ProductOutputDto,
         )
 
-    @get('/by_name/{name}')
+    @get("/by_name/{name}")
     @inject
     def get_by_name(
-            self,
-            name: str,
-            skip: int = 0,
-            limit: int = 10,
-            query_service: ProductQuery = dependency(Container.product_query)
+        self,
+        name: str,
+        skip: int = 0,
+        limit: int = 10,
+        query_service: ProductQuery = dependency(Container.product_query),
     ) -> list[ProductOutputDto]:
 
         try:

@@ -37,10 +37,10 @@ class LoggerFactory:
 
     @classmethod
     def configure(
-            cls,
-            logger_name="app",
-            log_filename="./logs.json",
-            request_context=request_context,
+        cls,
+        logger_name="app",
+        log_filename="./logs.json",
+        request_context=request_context,
     ):
         cls.logger_name = logger_name
         cls.log_filename = log_filename
@@ -102,13 +102,15 @@ class LoggerFactory:
                     "class": "colorlog.StreamHandler",
                     "formatter": "colored_db",
                 },
-                "file_handler": {
-                    "class": "logging.handlers.RotatingFileHandler",
-                    "filename": cls.log_filename,
-                    "formatter": "json_formatter",
-                }
-                if cls.log_filename
-                else None,
+                "file_handler": (
+                    {
+                        "class": "logging.handlers.RotatingFileHandler",
+                        "filename": cls.log_filename,
+                        "formatter": "json_formatter",
+                    }
+                    if cls.log_filename
+                    else None
+                ),
                 # Add Handler for Sentry for `warning` and above
                 # 'sentry': {
                 #     'level': 'WARNING',

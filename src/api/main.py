@@ -1,6 +1,5 @@
-import time
-
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
+from tortoise.contrib.fastapi import register_tortoise
 
 from api.routers import (
     UserViewSet,
@@ -9,30 +8,46 @@ from api.routers import (
     ChannelsViewSet,
     ConsumptionRouter,
     RecipeViewSet,
-    RecipeProductViewSet
+    RecipeProductViewSet,
 )
-
+from config import TORTOISE_CONFIG, settings
 from config.api_config import ApiConfig
 from config.container_ioc import Container
 from src.api.setup import include_routers
-from src.api.shared.utils import CurrentUser
-from src.foundation.infra.request_context import request_context
+
+####################################
+######### Container CONFIG #########
+####################################
 
 container = Container()
-container.config.from_pydantic(ApiConfig())
+
+container.config.from_dict(ApiConfig().model_dump())
 container.wire(
     modules=[
-        'api.routers.users',
-        'api.shared.auth',
-        'api.routers.products',
-        'api.routers.base',
-        'api.routers.chat',
-        'api.routers.consumption',
-        'api.routers.recipe',
+        "api.routers.users",
+        "api.shared.auth",
+        "api.routers.products",
+        "api.routers.base",
+        "api.routers.chat",
+        "api.routers.consumption",
+        "api.routers.recipe",
     ]
 )
 
-app = FastAPI()
+####################################
+######### FastAPI App Init #########
+####################################
+
+app = FastAPI(
+    title=settings.APP_NAME,
+    version=settings.VERSION,
+    debug=True
+)
+
+####################################
+######### FastAPI Routers ##########
+####################################
+
 include_routers(
     app,
     [
@@ -42,44 +57,25 @@ include_routers(
         ChatRouter,
         ConsumptionRouter,
         RecipeViewSet(),
-        RecipeProductViewSet()
-    ]
+        RecipeProductViewSet(),
+    ],
 )
+####################################
+######## Registration Extra to App #
+####################################
+
 app.container = container
+register_tortoise(
+    app,
+    config=TORTOISE_CONFIG,
+    generate_schemas=False,
+    add_exception_handlers=False,
+)
+# ToDo: Figure out middleware for ws
+# ToDo: Add exception handlers
 
 
-@app.middleware("http")
-async def add_request_context(request: Request, call_next):
-    start_time = time.time()
-    request_context.begin_request(current_user=CurrentUser.fake_user())
-    try:
-        response = await call_next(request)
-        process_time = time.time() - start_time
-        response.headers["X-Process-Time"] = str(process_time)
-        return response
+####################################
+############## END #################
+####################################
 
-    finally:
-        request_context.end_request()
-
-
-class WebSocketMiddleware:
-    def __init__(self, app):
-        self.app = app
-
-    def run_websocket_session(self):
-        request_context.begin_request(current_user=CurrentUser.fake_user())
-
-    def end_websocket_session(self):
-        request_context.end_request()
-
-    async def __call__(self, scope, receive, send):
-        if scope['type'] == 'websocket':
-            self.run_websocket_session()
-
-        await self.app(scope, receive, send)
-
-        if scope['type'] == 'websocket':
-            self.end_websocket_session()
-
-
-app.add_middleware(WebSocketMiddleware)

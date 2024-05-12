@@ -14,19 +14,21 @@ class UserCommand(UserCommandBase):
         self._repository = repository
 
     def create(self, user: UserInputDto) -> UserOutputDto:
-        if self._repository.exists('username', user.username):
-            raise UserAlreadyExists('User already exists.')
+        if self._repository.exists("username", user.username):
+            raise UserAlreadyExists("User already exists.")
         user = self._repository.create(User(**dataclasses.asdict(user)))
 
-        return UserOutputDto(id=user.id,
-                             username=user.username,
-                             email=user.email,
-                             first_name=user.first_name,
-                             last_name=user.last_name)
+        return UserOutputDto(
+            id=user.id,
+            username=user.username,
+            email=user.email,
+            first_name=user.first_name,
+            last_name=user.last_name,
+        )
 
     def delete(self, id: UserID):
-        if not self._repository.exists('id', id):
-            raise UserNotFound('User not found.')
+        if not self._repository.exists("id", id):
+            raise UserNotFound("User not found.")
 
         self._repository.delete(id)
 

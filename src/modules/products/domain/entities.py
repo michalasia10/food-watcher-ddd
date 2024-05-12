@@ -11,7 +11,8 @@ from src.modules.common.macro.strategies import MacroCalculatorStrategy
 from src.modules.products.infra.models.product import (
     Product as ProductModel,
     DailyUserProducts as DailyUserProductModel,
-    DailyUserConsumption as DailyUserConsumptionModel, UserProductType
+    DailyUserConsumption as DailyUserConsumptionModel,
+    UserProductType,
 )
 
 

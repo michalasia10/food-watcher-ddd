@@ -9,12 +9,12 @@ services:
     ports:
       - "5433:5432"
     networks:
-      - internal-network
+#      - internal-network
       - external-network
 
 networks:
-  internal-network:
-    internal: true
+#  internal-network:
+#    internal: true
   external-network:
     driver: bridge
 

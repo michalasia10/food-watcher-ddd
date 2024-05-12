@@ -65,7 +65,7 @@ services:
     environment:
       - RELOAD=True
       - PORT=80
-      - DATABASE_URL=postgresql://postgres:password@db:5432/postgres
+      - DATABASE_URL=postgres://postgres:password@db:5432/postgres
       - REDIS_URL=redis://redis:6379/0
       - RABBITMQ_URL=amqp://michu:michu@rabbitmq:5672//
     links:
