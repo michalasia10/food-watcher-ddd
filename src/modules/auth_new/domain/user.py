@@ -12,7 +12,7 @@ hash_helper = CryptContext(schemes=["bcrypt"])
 
 @dataclass
 class User(Entity):
-    #ToDo: implement check rule ( Error copuled with BussinesRule ?? )
+    # ToDo: implement check rule ( Error copuled with BussinesRule ?? )
     username: str
     password: str
     email: str
@@ -44,7 +44,9 @@ class User(Entity):
             first_name=first_name,
             last_name=last_name,
             status=status,
-            type=type
+            type=type,
+            created_at=cls.create_now_time(),
+            updated_at=cls.create_now_time(),
         )
 
     def correct_password(self, password: str) -> bool:

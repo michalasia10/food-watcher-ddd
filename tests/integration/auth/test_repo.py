@@ -6,7 +6,7 @@ from src.modules.auth_new.infra.user_repo import UserTortoiseRepo
 
 
 @pytest.mark.asyncio
-async def test_create_and_get_client(db):
+async def test_create_and_get_client():
     # given
     email = "test@domain.com"
     user_to_create = User.create(
@@ -18,9 +18,7 @@ async def test_create_and_get_client(db):
         status=StatusEnum.ACTIVE.value,
         type=TypeEnum.USER.value
     )
-    await UserTortoiseRepo.asave(
-        entity=user_to_create
-    )
+    await UserTortoiseRepo.asave(entity=user_to_create)
 
     # when
     user_get_from_db = await UserTortoiseRepo.aget_first_from_filter(email=email)
@@ -32,3 +30,39 @@ async def test_create_and_get_client(db):
     assert user_get_from_db.first_name == user_to_create.first_name
     assert user_get_from_db.created_at is not None
     assert user_get_from_db.updated_at is not None
+
+
+@pytest.mark.asyncio
+async def test_create_multiple_and_get_all():
+    # given
+    num_of_users_to_create = 10
+    users_to_create = [
+        User.create(
+            email=f"{i}@domain.com",
+            password=f"{i}.test",
+            username="test",
+            first_name="test",
+            last_name="test",
+            status=StatusEnum.ACTIVE.value,
+            type=TypeEnum.USER.value,
+        )
+        for i in range(num_of_users_to_create)
+    ]
+    for user in users_to_create:
+        await UserTortoiseRepo.asave(entity=user)
+
+    # when
+    users_get_from_db = await UserTortoiseRepo.aget_all()
+
+    # then
+    assert num_of_users_to_create == len(users_get_from_db)
+    allowed_emails = [u.email for u in users_to_create]
+    allowed_usernames = [u.username for u in users_to_create]
+    allowed_first_names = [u.first_name for u in users_to_create]
+
+    for user in users_get_from_db:
+        assert user.email in allowed_emails
+        assert user.username in allowed_usernames
+        assert user.first_name in allowed_first_names
+        assert user.created_at is not None
+        assert user.updated_at is not None

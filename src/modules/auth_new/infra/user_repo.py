@@ -3,7 +3,6 @@ from src.modules.auth_new.domain import user
 from src.modules.auth_new.infra import model
 
 
-class UserTortoiseRepo(TortoiseRepo):
-    # ToDo: type hints
+class UserTortoiseRepo(TortoiseRepo[model.User, user.User]):
     model = model.User
     entity = user.User

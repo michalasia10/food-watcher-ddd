@@ -23,8 +23,8 @@ def convert_uuid_to_str(obj: Any) -> str | list[dict[str, Any]] | dict[str, Any]
 @dataclass
 class Entity(ABC):
     id: UUID
-    updated_at: datetime = field(kw_only=True, default=None)
-    created_at: datetime = field(kw_only=True, default=None)
+    updated_at: datetime = field(kw_only=True)
+    created_at: datetime = field(kw_only=True)
 
     def __eq__(self, other: 'Entity') -> bool:
         return self.id == other.id
@@ -40,3 +40,7 @@ class Entity(ABC):
     def snapshot(self) -> SnapShot:
         _snapshot = asdict(self, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
         return convert_uuid_to_str(_snapshot)
+
+    @classmethod
+    def create_now_time(cls) -> datetime:
+        return datetime.now()

@@ -1,5 +1,6 @@
 from abc import ABCMeta
 from copy import deepcopy
+from typing import TypeVar, Generic, Type
 from uuid import UUID
 
 from asyncpg import ObjectInUseError
@@ -13,13 +14,16 @@ from src.core_new.domain.entity import Entity
 from src.core_new.domain.errors import DBError
 from src.core_new.domain.repo import IRepository
 
+ModelType = TypeVar('ModelType', bound=Model)
+EntityType = TypeVar('EntityType', bound=Entity)
 
-class TortoiseRepo(IRepository, metaclass=ABCMeta):
-    model = Model
-    entity = Entity
+
+class TortoiseRepo(Generic[ModelType, EntityType], IRepository, metaclass=ABCMeta):
+    model = ModelType
+    entity = EntityType
 
     @classmethod
-    def _to_entity(cls, record: Model) -> Entity:
+    def _to_entity(cls, record: ModelType) -> EntityType | None:
         return cls.entity(**dict(record)) if record else None
 
     @classmethod
@@ -31,24 +35,21 @@ class TortoiseRepo(IRepository, metaclass=ABCMeta):
         return await queryset.prefetch_related(*fetch_fields)
 
     @classmethod
-    async def asave(cls, entity: Entity) -> Entity:
+    async def asave(cls, entity: EntityType) -> EntityType:
         try:
-            # async with in_transaction():
-                print('AAAA', entity.snapshot)
+            async with in_transaction():
                 return await cls.model.create(**entity.snapshot)
-
-
-
         except (BaseORMException, ObjectInUseError) as e:
             raise DBError(e)
 
+
     @classmethod
-    async def aget_by_id(cls, id: UUID) -> Entity:
+    async def aget_by_id(cls, id: UUID) -> EntityType | None:
         model = await cls.model.get(id=id)
         return cls._to_entity(model)
 
     @classmethod
-    async def aget_all(cls, limit=100, offset=0) -> list[Entity]:
+    async def aget_all(cls, limit=100, offset=0) -> list[EntityType]:
         queryset = (
             cls.model
             .all()
@@ -61,7 +62,7 @@ class TortoiseRepo(IRepository, metaclass=ABCMeta):
         ]
 
     @classmethod
-    async def aget_first_from_filter(cls, *args, **kwargs) -> Entity:
+    async def aget_first_from_filter(cls, *args, **kwargs) -> EntityType | None:
         queryset = (
             cls.model
             .filter(*args, **kwargs)
@@ -76,7 +77,7 @@ class TortoiseRepo(IRepository, metaclass=ABCMeta):
             offset=0,
             *args,
             **kwargs
-    ) -> list[Entity]:
+    ) -> list[EntityType]:
 
         queryset = (
             cls.model
@@ -91,7 +92,7 @@ class TortoiseRepo(IRepository, metaclass=ABCMeta):
         ]
 
     @classmethod
-    async def aupdate(cls, entity: Entity) -> None:
+    async def aupdate(cls, entity: EntityType) -> None:
         snapshot = deepcopy(entity.snapshot)
         snapshot.pop("id")
         try:
@@ -101,7 +102,7 @@ class TortoiseRepo(IRepository, metaclass=ABCMeta):
             raise DBError(e)
 
     @classmethod
-    async def adelete(cls, entity: Entity) -> None:
+    async def adelete(cls, entity: EntityType) -> None:
         try:
             async with in_transaction():
                 await cls.model.filter(id=entity.id).delete()
