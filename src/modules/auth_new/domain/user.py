@@ -21,6 +21,10 @@ class User(Entity):
     status: str = StatusEnum.INACTIVE.value
     type: str = TypeEnum.USER.value
 
+    @property
+    def is_admin(self) -> bool:
+        return self.type == TypeEnum.ADMIN.value
+
     @staticmethod
     def _hash_pswd(password: str) -> str:
         return hash_helper.hash(password)

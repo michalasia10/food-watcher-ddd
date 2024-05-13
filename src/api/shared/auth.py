@@ -7,7 +7,7 @@ from fastapi import HTTPException, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from config.api_config import ApiConfig
-from config.container_ioc import Container
+from config.di import Container
 from src.modules.auth.app.repository.user import UserRepository
 from src.modules.auth.infra.models.user import User
 from .dependency import dependency
@@ -16,6 +16,7 @@ http_bearer = HTTPBearer()
 
 
 class JWTAUthBearer:
+    # ToDo: refactor + move to auth
 
     def __init__(self, user_repository: UserRepository):
         self._user_repository = user_repository

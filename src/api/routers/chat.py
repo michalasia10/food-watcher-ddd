@@ -7,7 +7,7 @@ from starlette.websockets import WebSocket
 from api.routers.base import BaseModelView
 from api.shared import bearer_auth
 from api.shared import dependency
-from config.container_ioc import Container
+from config.di import Container
 from modules.chat.domain.value_objects import ChanelId
 from src.api.shared.utils import get_event_loop
 from src.modules.chat.app.dtos import ChannelInputDto, ChannelOutputDto, WebSockMessage

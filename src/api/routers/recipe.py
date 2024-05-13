@@ -2,7 +2,7 @@ from dependency_injector.wiring import inject
 
 from api.routers.base import BaseModelView
 from api.shared import dependency
-from config.container_ioc import Container
+from config.di import Container
 from modules.recipes.app.usecases.dtos.recipe import (
     RecipeInputDto,
     RecipeOutputDto,

@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
 
 from api.routers import (
-    UserViewSet,
     ProductViewSet,
     ChatRouter,
     ChannelsViewSet,
@@ -11,17 +10,15 @@ from api.routers import (
     RecipeProductViewSet,
 )
 from config import TORTOISE_CONFIG, settings
-from config.api_config import ApiConfig
-from config.container_ioc import Container
+from config.di import AppContainer
 from src.api.setup import include_routers
+from src.modules.auth_new.controlers import UserViewSet
 
 ####################################
 ######### Container CONFIG #########
 ####################################
 
-container = Container()
-
-container.config.from_dict(ApiConfig().model_dump())
+container = AppContainer()
 container.wire(
     modules=[
         "api.routers.users",
@@ -78,4 +75,3 @@ register_tortoise(
 ####################################
 ############## END #################
 ####################################
-

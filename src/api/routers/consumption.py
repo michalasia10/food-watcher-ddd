@@ -4,7 +4,7 @@ from dependency_injector.wiring import inject
 from fastapi import APIRouter, HTTPException, Response
 from starlette import status
 
-from config.container_ioc import Container
+from config.di import Container
 from modules.products.app.usecases.add_meal import AddMeal
 from src.api.shared import dependency
 from src.foundation.domain.value_objects import UUID
