@@ -10,6 +10,7 @@ async def get_event_loop():
     loop = asyncio.get_event_loop()
     yield loop
 
+
 class CurrentUser(BaseModel):
     id: UUID
     username: str

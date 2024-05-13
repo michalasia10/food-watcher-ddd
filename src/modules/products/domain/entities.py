@@ -6,11 +6,33 @@ from pydantic.dataclasses import dataclass
 
 from foundation.domain.value_objects import UUID
 from src.foundation.domain.entities import AggregateRoot
+from src.modules.common.macro.factory import MacroCalculatorFactory, MacroCalculatorType
+from src.modules.common.macro.strategies import MacroCalculatorStrategy
 from src.modules.products.infra.models.product import (
     Product as ProductModel,
     DailyUserProducts as DailyUserProductModel,
-    DailyUserConsumption as DailyUserConsumptionModel, UserProductType
+    DailyUserConsumption as DailyUserConsumptionModel,
+    UserProductType,
 )
+
+
+@dataclass
+class Recipe(AggregateRoot):
+    name: str | None = None
+    link: str | None = None
+    description: str | None = None
+
+
+@dataclass
+class ProductForRecipe(AggregateRoot):
+    weight_in_grams: float | None = None
+    product_id: UUID | None = None
+    recipe_id: UUID | None = None
+    recipe = None
+    calories: float | None = None
+    proteins: float | None = None
+    fats: float | None = None
+    carbohydrates: float | None = None
 
 
 @dataclass
@@ -27,6 +49,7 @@ class Product(AggregateRoot):
     carbohydrates_100g: float | None = None
     sugars_100g: float | None = None
     proteins_100g: float | None = None
+    product_for_recipes: list[ProductForRecipe] = Field(default_factory=list)
 
     class Meta:
         orm_model = ProductModel
@@ -47,27 +70,12 @@ class DailyUserProduct(AggregateRoot):
     class Meta:
         orm_model = DailyUserProductModel
 
-    def calculate_calories(self, product=None):
-        _product = product or self.product
-        self.calories = self.weight_in_grams * _product.energy_kcal_100g / 100 if _product.energy_kcal_100g else 0
-
-    def calculate_proteins(self, product=None):
-        _product = product or self.product
-        self.proteins = self.weight_in_grams * _product.proteins_100g / 100 if _product.proteins_100g else 0
-
-    def calculate_fats(self, product=None):
-        _product = product or self.product
-        self.fats = self.weight_in_grams * _product.fat_100g / 100 if _product.fat_100g else 0
-
-    def calculate_carbohydrates(self, product=None):
-        _product = product or self.product
-        self.carbohydrates = self.weight_in_grams * _product.carbohydrates_100g / 100 if _product.carbohydrates_100g else 0
-
     def calculate_macros(self, product=None):
-        self.calculate_calories(product)
-        self.calculate_proteins(product)
-        self.calculate_fats(product)
-        self.calculate_carbohydrates(product)
+        _product = product or self.product
+        macro: MacroCalculatorStrategy = MacroCalculatorFactory.create_strategy(
+            MacroCalculatorType.WEIGHT_STRATEGY.value
+        )
+        macro.calculate(self, _product)
 
 
 @dataclass
@@ -88,14 +96,14 @@ class DailyUserConsumption(AggregateRoot):
 
     def add_product(self, product: DailyUserProduct):
         self.create_date()
-        self.summary_calories += product.calories
-        self.summary_proteins += product.proteins
-        self.summary_fats += product.fats
-        self.summary_carbohydrates += product.carbohydrates
+        macro: MacroCalculatorStrategy = MacroCalculatorFactory.create_strategy(
+            MacroCalculatorType.SUMMARY_STRATEGY.value
+        )
+        macro.calculate(self, product)
 
     def delete_product(self, product: DailyUserProduct):
         self.products.remove(product)
-        self.summary_calories -= product.calories
-        self.summary_proteins -= product.proteins
-        self.summary_fats -= product.fats
-        self.summary_carbohydrates -= product.carbohydrates
+        macro: MacroCalculatorStrategy = MacroCalculatorFactory.create_strategy(
+            MacroCalculatorType.SUBTRACT_STRATEGY.value
+        )
+        macro.calculate(self, product)

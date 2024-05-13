@@ -12,8 +12,7 @@ class Query(BaseModel):
 class QueryBase(ABC):
 
     @abstractmethod
-    def get_all(self, skip: int, limit: int) -> list[BaseModel]:
-        ...
+    def get_all(self, skip: int, limit: int) -> list[BaseModel]: ...
 
     @abstractmethod
     def get_by_id(self, id: UUID) -> BaseModel:

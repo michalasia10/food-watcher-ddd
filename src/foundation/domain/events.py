@@ -8,5 +8,4 @@ class DomainEvent(BaseModel):
 
 class EventPublisher(metaclass=ABCMeta):
     @abstractmethod
-    def publish(self, event: DomainEvent):
-        ...
+    def publish(self, event: DomainEvent): ...

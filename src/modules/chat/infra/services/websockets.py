@@ -1,6 +1,8 @@
 from starlette.websockets import WebSocket
 
-from src.modules.chat.app.services.websockets import ConnectionManager as ConnectionManagerBase
+from src.modules.chat.app.services.websockets import (
+    ConnectionManager as ConnectionManagerBase,
+)
 
 
 class ConnectionManager(ConnectionManagerBase):

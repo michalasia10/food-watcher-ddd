@@ -10,14 +10,22 @@ class ChannelQuery(ChannelQueryBase):
         self._repository = repository
 
     def get_all(self, skip: int, limit: int) -> list[ChannelOutputDto]:
-        return [ChannelOutputDto(id=ChanelId(channel.id),
-                                 name=channel.name,
-                                 messages=[Message(message=message.message,
-                                                   channel_id=ChanelId(channel.id),
-                                                   user_id=message.user_id)
-                                           for message in channel.messages],
-                                 participants_id=channel.participants_id)
-                for channel in self._repository.get_all_pagination(skip, limit)]
+        return [
+            ChannelOutputDto(
+                id=ChanelId(channel.id),
+                name=channel.name,
+                messages=[
+                    Message(
+                        message=message.message,
+                        channel_id=ChanelId(channel.id),
+                        user_id=message.user_id,
+                    )
+                    for message in channel.messages
+                ],
+                participants_id=channel.participants_id,
+            )
+            for channel in self._repository.get_all_pagination(skip, limit)
+        ]
 
     def get_by_id(self, id: UUID) -> ChannelOutputDto:
         chanel = self._repository.get_by_id(ChanelId(id))

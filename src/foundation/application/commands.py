@@ -14,12 +14,10 @@ class Command(BaseModel):
 class CommandBase(ABC):
 
     @abstractmethod
-    def create(self, entity: [Entity]) -> NoReturn:
-        ...
+    def create(self, entity: [Entity]) -> NoReturn: ...
 
     @abstractmethod
-    def delete(self, id: [UUID]):
-        ...
+    def delete(self, id: [UUID]): ...
 
     def update(self, id: [UUID], entity: [Entity]):
         pass

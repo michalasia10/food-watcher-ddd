@@ -3,7 +3,20 @@ from datetime import datetime
 from typing import Literal, Any
 
 from modules.auth.domain.value_objects import UserID
-from src.modules.products.domain.value_objects import ProductID, DailyUserProductID
+from src.modules.products.domain.value_objects import (
+    ProductID,
+    DailyUserProductID,
+    DailyUserConsID,
+)
+from src.modules.recipes.app.usecases.dtos.recipe import RecipeOutputDto
+
+
+@dataclass(frozen=True)
+class ProductMinimalOutputDto:
+    id: ProductID
+    code: int
+    name: str
+    brand: str | None
 
 
 @dataclass(frozen=True)
@@ -23,13 +36,17 @@ class ProductBaseDto:
 
 
 @dataclass(frozen=True)
-class ProductOutputDto(ProductBaseDto):
+class ProductOutputWithIdDto(ProductBaseDto):
     id: ProductID
 
 
 @dataclass(frozen=True)
-class ProductInputDto(ProductBaseDto):
-    ...
+class ProductOutputDto(ProductOutputWithIdDto):
+    recipes: list[RecipeOutputDto | None] | None = None
+
+
+@dataclass(frozen=True)
+class ProductInputDto(ProductBaseDto): ...
 
 
 @dataclass(frozen=True)
@@ -48,6 +65,7 @@ class DailyUserProductInputDto(DailyUserProductDto):
 @dataclass(frozen=True)
 class DailyUserProductOutputDto(DailyUserProductDto):
     id: DailyUserProductID
+    product: ProductMinimalOutputDto
     calories: float
     proteins: float
     fats: float
@@ -59,6 +77,7 @@ class DailyUserProductOutputDto(DailyUserProductDto):
 class DailyUserConsumptionOutputDto:
     user_id: UserID
     date: datetime
+    id: DailyUserConsID
     products: list[DailyUserProductOutputDto] | None
     summary_calories: float | None
     summary_proteins: float | None

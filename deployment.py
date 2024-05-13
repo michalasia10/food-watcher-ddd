@@ -19,7 +19,6 @@ COMMANDS: dict[str, list[str]] = {
 }
 
 
-
 def run_commands(command_list, optional_args=None):
     command: str
     with progressbar(command_list, label="Running commands") as commands:
@@ -63,26 +62,22 @@ def run_db(test: Optional[bool] = False):
 
 
 @app.command()
-def update_dependencies(package: str):
-    run_commands([f"poetry add {package}"])
-    run_commands(["poetry export --without-hashes --format=requirements.txt > requirements.txt"])
-
-
-@app.command()
 def run_migrations(name: str):
     run_commands([f"alembic revision --autogenerate -m '{name}'"])
 
 
 @app.command()
 def migrate():
-    run_commands(["alembic upgrade head"])
+    run_commands(["aerich --app auth init -s src -t src.config.TORTOISE_CONFIG  --location src.migrations "])
+    run_commands(["aerich --app auth init-db"])
+    run_commands(["aerich --app auth migrate"])
 
 
 @app.command()
 def bootstrap():
     run_commands(["docker-compose down"])
     run_commands(["docker-compose up -d"])
-    migrate()
+    # migrate()
 
 
 if __name__ == "__main__":
