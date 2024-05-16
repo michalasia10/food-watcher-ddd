@@ -1,12 +1,14 @@
-from core_new.domain.errors import DBError, DomainError
+from http import HTTPStatus
+
+from src.core_new.domain.errors import DBErrorNotFound, DomainError
 
 
-class UserNotFound(DBError): pass
+class UserNotFound(DBErrorNotFound): ...
 
 
 class BadCredentials(DomainError):
-    STATUS_CODE = 401
+    STATUS_CODE = HTTPStatus.UNAUTHORIZED
 
 
 class InvalidToken(DomainError):
-    STATUS_CODE = 401
+    STATUS_CODE = HTTPStatus.UNAUTHORIZED

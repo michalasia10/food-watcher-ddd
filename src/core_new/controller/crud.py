@@ -40,7 +40,7 @@ class RoutableMetav2(type):
         return cast(RoutableMetav2, type.__new__(cls, name, bases, attrs))
 
 
-CRUD_METHODS = Literal["create", "list", "delete", "read"]
+CRUD_METHODS = Literal["create", "list", "delete", "read", "update"]
 
 
 class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
@@ -50,7 +50,7 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
     tag: str | None = None
     prefix: str | None = None
     extra_router_kwargs: dict = {}
-    crud_methods: tuple[CRUD_METHODS] = ("create", "list", "delete", "read")
+    crud_methods: tuple[CRUD_METHODS] = ("create", "list", "delete", "read", "update")
 
     @inject
     def __init__(
@@ -58,12 +58,14 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
             crud_service: ICrudService = None,
             auth_service: IAuthService = None,
             create_dto: OutPutModel | None = None,
+            update_dto: OutPutModel | None = None,
             output_dto: InPutModel | None = None,
     ) -> None:
         self._service = crud_service
         self._auth_service = auth_service
         self.output_dto = output_dto
         self.create_dto = create_dto
+        self.update_dto = update_dto
         self._router = APIRouter(
             prefix=self.prefix, tags=[self.tag], **self.extra_router_kwargs
         )
@@ -72,13 +74,13 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
                 endpoint=partial(endpoint.endpoint, self),
                 **dataclasses.asdict(endpoint.args)
             )
-        self.register_basic_crud_endpoints(create_dto)
+        self.register_basic_crud_endpoints(create_dto, update_dto)
 
     @property
     def router(self):
         return self._router
 
-    def register_basic_crud_endpoints(self, basic_create_dto):
+    def register_basic_crud_endpoints(self, basic_create_dto, basic_update_dto):
         async def bearer_auth(token: HTTPAuthorizationCredentials = Depends(http_bearer)):
             return await self._auth_service.verify(token.credentials)
 
@@ -116,7 +118,7 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
             @self.router.put("/{id}", response_model=self.output_dto)
             async def update(
                     id: UUID,
-                    item: basic_create_dto,
+                    item: basic_update_dto,
                     user: HTTPBearer = Depends(bearer_auth),
             ):
                 """Basic endpoint to update instance."""

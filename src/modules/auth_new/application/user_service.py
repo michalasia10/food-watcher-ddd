@@ -1,16 +1,23 @@
 import time
+from uuid import UUID
 
 import jwt
 
 from src.core_new.app.service import ICrudService, IAuthService
-from src.modules.auth_new.application.dto import UserInputDto, UserOutputDto, UserAuthInputDto, TokenOutputDto
+from src.modules.auth_new.application.dto import (
+    UserInputDto,
+    UserUpdateDto,
+    UserOutputDto,
+    UserAuthInputDto,
+    TokenOutputDto
+)
 from src.modules.auth_new.domain.errors import InvalidToken, BadCredentials, UserNotFound
 from src.modules.auth_new.domain.user import User
 from src.modules.auth_new.domain.user_repo import IUserRepo
 
 
 class UserCrudService(ICrudService):
-    def __init__(self, user_repository: IUserRepo):
+    def __init__(self, user_repository: [IUserRepo]):
         self._user_repository = user_repository
 
     async def create(self, input_dto: UserInputDto) -> UserOutputDto:
@@ -24,6 +31,29 @@ class UserCrudService(ICrudService):
         await self._user_repository.asave(user)
 
         return UserOutputDto(**user.snapshot)
+
+    async def get(self, user_id: UUID) -> UserOutputDto:
+        user = await self._user_repository.aget_by_id(user_id)
+        return UserOutputDto(**user.snapshot)
+
+    async def update(self, id: UUID, input_dto: UserUpdateDto, user_id: UUID = None) -> UserOutputDto:
+        user = await self._user_repository.aget_by_id(id)
+        user.update(input_dto)
+        await self._user_repository.aupdate(user)
+        updated_user = await self._user_repository.aget_by_id(id)
+        return UserOutputDto(**updated_user.snapshot)
+
+    async def delete(self, id: UUID, user_id: UUID) -> None:
+        pass
+
+    async def get_all(self, skip: int, limit: int) -> list[UserOutputDto]:
+        pass
+
+    async def get_all(self, page: int, per_page: int) -> list[UserOutputDto]:
+        pass
+
+    async def get_by_id(self, id: UUID) -> UserOutputDto:
+        pass
 
 
 class AuthenticationService(IAuthService):
@@ -41,7 +71,6 @@ class AuthenticationService(IAuthService):
             self,
             credentials: UserAuthInputDto
     ) -> TokenOutputDto | BadCredentials | UserNotFound:
-
         user: User = await self._user_repository.aget_first_from_filter(
             username=credentials.username
         )
@@ -81,7 +110,7 @@ class AuthenticationService(IAuthService):
         except jwt.ExpiredSignatureError:
             raise InvalidToken("Token expired.")
         except jwt.InvalidTokenError:
-            raise InvalidToken("Invalid token.")
+            raise InvalidToken("Invalid token. Can't decode.")
 
     async def verify(self, token: str) -> User | BadCredentials:
         decoded_jwt = self._decode_jwt(
@@ -90,9 +119,12 @@ class AuthenticationService(IAuthService):
             credentials=token
         )
         self._verify_time(decoded_jwt)
-        user: User | None = await self._user_repository.aget_first_from_filter(id=decoded_jwt.get("username"))
+        user: User | None = await (
+            self._user_repository
+            .aget_first_from_filter(id=decoded_jwt.get("username"))
+        )
 
         if not user:
-            BadCredentials("User not found.")
+            BadCredentials("Invalid token, User not found.")
 
         return user

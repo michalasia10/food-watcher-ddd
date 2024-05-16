@@ -1,9 +1,10 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, asdict, field
 from datetime import datetime
 from typing import Any
 from uuid import UUID
 
+from pydantic import BaseModel
 from uuid6 import uuid6
 
 from core_new.domain.types import SnapShot
@@ -44,3 +45,14 @@ class Entity(ABC):
     @classmethod
     def create_now_time(cls) -> datetime:
         return datetime.now()
+
+    @classmethod
+    @abstractmethod
+    def create(cls, *args, **kwargs) -> 'Entity':
+        ...
+
+    def update(self, input_dto: BaseModel) -> 'Entity':
+        for _field, value in input_dto.dict().items():
+            if getattr(self, _field) != value:
+                setattr(self, _field, value)
+        return self
