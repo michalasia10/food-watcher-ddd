@@ -16,3 +16,4 @@ python-json-logger
 uuid6
 httpx
 pytest-asyncio
+typer
