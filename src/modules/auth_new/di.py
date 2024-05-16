@@ -6,7 +6,7 @@ from src.modules.auth_new.infra.user_repo import UserTortoiseRepo
 
 class AuthContainer(containers.DeclarativeContainer):
     container_config = providers.Configuration()
-    api_config = providers.DependenciesContainer()
+    api_config = providers.ItemGetter()
 
     auth_service = providers.Factory(
         AuthenticationService,

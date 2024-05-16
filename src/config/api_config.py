@@ -62,7 +62,7 @@ class ApiConfig(BaseSettings):
             'apps': {
                 "auth": {
                     'models': [
-                        "modules.auth_new.infra.model",
+                        "src.modules.auth_new.infra.model",
                         "aerich.models",
                     ],
                     "default_connection": "default"
@@ -75,9 +75,6 @@ class ApiConfig(BaseSettings):
     def TORTOISE_TEST_CONFIG(self) -> dict:
         config = deepcopy(self.TORTOISE_ORM_CONFIG)
         config['connections']['default'] = self.TEST_DATABASE_URL
-
-        for app in config['apps'].values():
-            app['models'] = [f"src.{model}" if 'aerich' not in model else model for model in app['models']]
 
         return config
 

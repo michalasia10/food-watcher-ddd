@@ -2,34 +2,34 @@ from dependency_injector import containers, providers
 
 from src.modules.auth_new.di import AuthContainer
 from src.config.api_config import ApiConfig
-from src.modules.auth.infra.repository.user import SqlUserRepository
-from src.modules.auth.infra.services.authentication import AuthenticationService
-from src.modules.auth.infra.usecases.command.user import UserCommand
-from src.modules.auth.infra.usecases.query.user import UserQuery
-from src.modules.chat.infra.repository.messages import (
-    SqlChannelRepository,
-    SqlMessageRepository,
-    SqlMessageCompositeRepository,
-)
-from src.modules.chat.infra.usecases.command.channel import ChannelCommand
-from src.modules.chat.infra.usecases.query.channel import ChannelQuery
-from src.modules.products.infra.repository.product import (
-    SqlProductRepository,
-    SqlDailyUserConsumptionRepository,
-    SqlDailyUserProductRepository,
-)
-from src.modules.products.infra.usecases.add_meal import AddMealI
-from src.modules.products.infra.usecases.command.product import ProductCommand
-from src.modules.products.infra.usecases.query.product import ProductQuery, UserDayQuery
-from src.modules.recipes.infra.repository.recipe import (
-    SqlRecipeRepository,
-    SqlRecipeProductRepository,
-)
-from src.modules.recipes.infra.usecases.command.recipe import (
-    RecipeCommand,
-    RecipeProductCommand,
-)
-from src.modules.recipes.infra.usecases.query.recipe import RecipeQuery
+# from src.modules.auth.infra.repository.user import SqlUserRepository
+# from src.modules.auth.infra.services.authentication import AuthenticationService
+# from src.modules.auth.infra.usecases.command.user import UserCommand
+# from src.modules.auth.infra.usecases.query.user import UserQuery
+# from src.modules.chat.infra.repository.messages import (
+#     SqlChannelRepository,
+#     SqlMessageRepository,
+#     SqlMessageCompositeRepository,
+# )
+# from src.modules.chat.infra.usecases.command.channel import ChannelCommand
+# from src.modules.chat.infra.usecases.query.channel import ChannelQuery
+# from src.modules.products.infra.repository.product import (
+#     SqlProductRepository,
+#     SqlDailyUserConsumptionRepository,
+#     SqlDailyUserProductRepository,
+# )
+# from src.modules.products.infra.usecases.add_meal import AddMealI
+# from src.modules.products.infra.usecases.command.product import ProductCommand
+# from src.modules.products.infra.usecases.query.product import ProductQuery, UserDayQuery
+# from src.modules.recipes.infra.repository.recipe import (
+#     SqlRecipeRepository,
+#     SqlRecipeProductRepository,
+# )
+# from src.modules.recipes.infra.usecases.command.recipe import (
+#     RecipeCommand,
+#     RecipeProductCommand,
+# )
+# from src.modules.recipes.infra.usecases.query.recipe import RecipeQuery
 
 
 # class Container(containers.DeclarativeContainer):
@@ -137,11 +137,11 @@ from src.modules.recipes.infra.usecases.query.recipe import RecipeQuery
 
 class AppContainer(containers.DeclarativeContainer):
     container_config = providers.Configuration()
-    container_config.from_pydantic(ApiConfig)
+    container_config.from_dict(ApiConfig().model_dump())
 
-    api_config = ApiConfig()
+    api_config = providers.Singleton(ApiConfig)
 
-    auth = providers.Factory(
+    auth = providers.Container(
         AuthContainer,
         container_config=container_config,
         api_config=api_config,

@@ -3,7 +3,7 @@ from typing import Any
 from fastapi import APIRouter
 from fastapi import FastAPI
 
-from api.routers import BaseModelView
+from src.core_new.controller.crud import BaseModelView
 
 
 def include_routers(app: FastAPI, routers: list[BaseModelView | APIRouter | Any]):

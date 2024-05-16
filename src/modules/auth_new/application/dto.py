@@ -18,6 +18,14 @@ class UserInputDto(BaseUserDto):
     last_name: Optional[str] = None
 
 
+class UserUpdateDto(BaseModel):
+    username: Optional[str] = None
+    password: Optional[str] = None
+    email: Optional[EmailStr] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+
+
 class UserOutputDto(BaseModel):
     id: UUID
     username: str

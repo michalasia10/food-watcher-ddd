@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 import jwt
 from passlib.context import CryptContext
+from pydantic import BaseModel
 
 from core_new.domain.entity import Entity
 from modules.auth_new.domain.enums import StatusEnum, TypeEnum
@@ -72,3 +73,9 @@ class User(Entity):
             key=secret_key,
             algorithm=algorithm,
         )
+
+    def update(self, input_dto: BaseModel) -> 'Entity':
+        if input_dto.password:
+            input_dto.password = self._hash_pswd(input_dto.password)
+
+        return super(User, self).update(input_dto)
