@@ -2,6 +2,7 @@ import time
 from uuid import UUID
 
 import jwt
+from tortoise.exceptions import DoesNotExist
 
 from src.core_new.app.service import ICrudService, IAuthService
 from src.modules.auth_new.application.dto import (
@@ -37,23 +38,29 @@ class UserCrudService(ICrudService):
         return UserOutputDto(**user.snapshot)
 
     async def update(self, id: UUID, input_dto: UserUpdateDto, user_id: UUID = None) -> UserOutputDto:
+        # Todo: Check if user is owner to update the user
         user = await self._user_repository.aget_by_id(id)
         user.update(input_dto)
         await self._user_repository.aupdate(user)
         updated_user = await self._user_repository.aget_by_id(id)
         return UserOutputDto(**updated_user.snapshot)
 
-    async def delete(self, id: UUID, user_id: UUID) -> None:
-        pass
+    async def delete(self, id: UUID, user_id: UUID = None) -> None:
+        # Todo: Check if user is owner to delete the user
+        user = await self.get_by_id(id)
+        await self._user_repository.adelete(user)
 
     async def get_all(self, skip: int, limit: int) -> list[UserOutputDto]:
-        pass
-
-    async def get_all(self, page: int, per_page: int) -> list[UserOutputDto]:
-        pass
+        users = await self._user_repository.aget_all(offset=skip, limit=limit)
+        return [UserOutputDto(**user.snapshot) for user in users]
 
     async def get_by_id(self, id: UUID) -> UserOutputDto:
-        pass
+        try:
+            user = await self._user_repository.aget_by_id(id)
+        except  DoesNotExist:
+            raise UserNotFound("User not found.")
+
+        return UserOutputDto(**user.snapshot)
 
 
 class AuthenticationService(IAuthService):
