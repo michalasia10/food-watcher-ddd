@@ -66,7 +66,7 @@ class UserCrudService(ICrudService):
 class AuthenticationService(IAuthService):
     def __init__(
             self,
-            user_repository: IUserRepo,
+            user_repository: [IUserRepo],
             secret_key: str,
             algorithm: str,
     ):
