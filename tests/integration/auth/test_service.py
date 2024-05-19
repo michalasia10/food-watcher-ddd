@@ -131,6 +131,7 @@ async def test_user_service_delete_user_not_owner(user_service: UserCrudService,
     assert user is not None
     assert user.id == user_record.id
 
+
 @pytest.mark.asyncio
 async def test_user_service_get_all(user_service: UserCrudService, user_record):
     # when
@@ -170,7 +171,7 @@ async def test_auth_service_correct_pswd(auth_service: AuthenticationService, us
 @pytest.mark.asyncio
 async def test_auth_service_bad_username(auth_service: AuthenticationService, user_record, user_password):
     # when/then
-    with pytest.raises(UserNotFound):
+    with pytest.raises(BadCredentials):
         await auth_service.authenticate(
             credentials=UserAuthInputDto(
                 username="bad_username",

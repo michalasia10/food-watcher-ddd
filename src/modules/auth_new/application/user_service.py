@@ -81,12 +81,12 @@ class AuthenticationService(IAuthService):
     async def authenticate(
             self,
             credentials: UserAuthInputDto
-    ) -> TokenOutputDto | BadCredentials | UserNotFound:
+    ) -> TokenOutputDto | BadCredentials:
         user: User = await self._user_repository.aget_first_from_filter(
             username=credentials.username
         )
         if not user:
-            raise UserNotFound("User not found.")
+            raise BadCredentials("User not found for given credentials.")
 
         if user.correct_password(credentials.password):
             return TokenOutputDto(

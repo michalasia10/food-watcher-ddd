@@ -123,6 +123,10 @@ class TestAsyncClient(AsyncClient):
     def check_correct_keys_in_error_response(response: dict) -> None:
         assert all(key in ["error", "status_code"] for key in response.keys())
 
+    @staticmethod
+    def check_status_code_in_error_response(response: dict, status_code: int) -> None:
+        assert response["status_code"] == status_code
+
 
 @pytest_asyncio.fixture(scope="function", autouse=True)
 async def api_client():
