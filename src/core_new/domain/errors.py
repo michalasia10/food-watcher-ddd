@@ -20,3 +20,7 @@ class DBError(Error): ...
 
 class DBErrorNotFound(DBError):
     STATUS_CODE = HTTPStatus.NOT_FOUND
+
+
+class BadPermissions(DomainError):
+    STATUS_CODE = HTTPStatus.FORBIDDEN
