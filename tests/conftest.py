@@ -3,7 +3,8 @@ from enum import Enum
 
 import pytest
 import pytest_asyncio
-from httpx import AsyncClient, BasicAuth
+from httpx import AsyncClient
+from httpx import Response
 from tortoise import Tortoise
 
 from src.api.main import app
@@ -120,12 +121,14 @@ class TestAsyncClient(AsyncClient):
         }
 
     @staticmethod
-    def check_correct_keys_in_error_response(response: dict) -> None:
-        assert all(key in ["error", "status_code"] for key in response.keys())
+    def check_correct_keys_in_error_response(response: Response) -> None:
+        assert all(key in ["error", "status_code"] for key in response.json().keys())
 
-    @staticmethod
-    def check_status_code_in_error_response(response: dict, status_code: int) -> None:
-        assert response["status_code"] == status_code
+    @classmethod
+    def check_status_code_in_error_response(cls, response: Response, status_code: int) -> None:
+        cls.check_correct_keys_in_error_response(response)
+        assert response.status_code == status_code
+        assert response.json()["status_code"] == status_code
 
 
 @pytest_asyncio.fixture(scope="function", autouse=True)

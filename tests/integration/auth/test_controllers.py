@@ -105,11 +105,9 @@ async def test_user_controller_update_user_dummy_token(api_client, endpoint_enum
     )
 
     # then
-    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    api_client.check_status_code_in_error_response(response, HTTPStatus.UNAUTHORIZED)
     user_from_db = await UserTortoiseRepo.aget_by_id(user_record.id)
     assert user_from_db.email != new_email
-    api_client.check_correct_keys_in_error_response(response.json())
-    api_client.check_status_code_in_error_response(response.json(), HTTPStatus.UNAUTHORIZED)
 
 
 @pytest.mark.asyncio
@@ -128,10 +126,9 @@ async def test_user_controller_update_requestor_not_owner_of_record(
     )
 
     # then
-    assert response.status_code == HTTPStatus.FORBIDDEN
+    api_client.check_status_code_in_error_response(response, HTTPStatus.FORBIDDEN)
     user_from_db = await UserTortoiseRepo.aget_by_id(user_record.id)
     assert user_from_db.email != new_email
-    api_client.check_correct_keys_in_error_response(response.json())
 
 
 @pytest.mark.asyncio
@@ -157,11 +154,9 @@ async def test_user_controller_delete_user_dummy_token(api_client, endpoint_enum
     response = await api_client.delete(endpoint_enum.USERS.get_detail(user_record.id))
 
     # then
-    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    api_client.check_status_code_in_error_response(response, HTTPStatus.UNAUTHORIZED)
     users = await UserTortoiseRepo.aget_all()
     assert len(users) == 1
-    api_client.check_correct_keys_in_error_response(response.json())
-    api_client.check_status_code_in_error_response(response.json(), HTTPStatus.UNAUTHORIZED)
 
 
 @pytest.mark.asyncio
@@ -175,11 +170,9 @@ async def test_user_controller_delete_requestor_not_owner_of_record(
     response = await api_client.delete(endpoint_enum.USERS.get_detail(user_record.id))
 
     # then
-    assert response.status_code == HTTPStatus.FORBIDDEN
+    api_client.check_status_code_in_error_response(response, HTTPStatus.FORBIDDEN)
     users = await UserTortoiseRepo.aget_all()
     assert len(users) == 2
-    api_client.check_correct_keys_in_error_response(response.json())
-    api_client.check_status_code_in_error_response(response.json(), HTTPStatus.FORBIDDEN)
 
 
 @pytest.mark.asyncio
@@ -234,9 +227,7 @@ async def test_user_login_wrong_password(api_client, endpoint_enum, user_record)
     )
 
     # then
-    assert response.status_code == HTTPStatus.UNAUTHORIZED
-    api_client.check_correct_keys_in_error_response(response.json())
-    api_client.check_status_code_in_error_response(response.json(), HTTPStatus.UNAUTHORIZED)
+    api_client.check_status_code_in_error_response(response, HTTPStatus.UNAUTHORIZED)
 
 
 @pytest.mark.asyncio
@@ -251,6 +242,4 @@ async def test_user_login_wrong_username(api_client, endpoint_enum, user_record,
     )
 
     # then
-    assert response.status_code == HTTPStatus.UNAUTHORIZED
-    api_client.check_correct_keys_in_error_response(response.json())
-    api_client.check_status_code_in_error_response(response.json(), HTTPStatus.UNAUTHORIZED)
+    api_client.check_status_code_in_error_response(response, HTTPStatus.UNAUTHORIZED)
