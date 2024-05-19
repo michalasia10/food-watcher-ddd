@@ -1,10 +1,12 @@
+import uuid
+
 import pytest
 from tortoise.exceptions import DoesNotExist
 
 from src.core_new.infra.tortoiserepo import TortoiseRepo
 from src.modules.auth_new.application.dto import UserInputDto, UserUpdateDto, UserAuthInputDto
 from src.modules.auth_new.application.user_service import UserCrudService, AuthenticationService
-from src.modules.auth_new.domain.errors import UserNotFound, BadCredentials
+from src.modules.auth_new.domain.errors import UserNotFound, BadCredentials, UserNotRecordOwner
 from src.modules.auth_new.domain.user import User
 
 
@@ -32,13 +34,17 @@ async def test_user_service_create_user(user_service: UserCrudService, user_repo
 
 
 @pytest.mark.asyncio
-async def test_user_service_update_user(user_service: UserCrudService, user_repo: TortoiseRepo, user_record):
+async def test_user_service_update_user_owner(user_service: UserCrudService, user_repo: TortoiseRepo, user_record):
     # given
-    u = await user_record
     user_dto = UserUpdateDto(email="sth@a.com")
 
     # when
-    user = await user_service.update(u.id, user_dto)
+    user = await user_service.update(
+        id=user_record.id,
+        input_dto=user_dto,
+        user_id=user_record.id,
+        is_admin=False
+    )
     user_from_db = await user_repo.aget_by_id(user.id)
 
     # then
@@ -46,68 +52,123 @@ async def test_user_service_update_user(user_service: UserCrudService, user_repo
 
 
 @pytest.mark.asyncio
-async def test_user_service_delete_user(user_service: UserCrudService, user_repo: TortoiseRepo, user_record):
+async def test_user_service_update_user_not_owner(user_service: UserCrudService, user_repo: TortoiseRepo, user_record):
     # given
-    u = await user_record
+    user_dto = UserUpdateDto(email="sth@a.com")
 
-    # when
-    await user_service.delete(u.id)
+    # then/when
+    with pytest.raises(UserNotRecordOwner):
+        await user_service.update(
+            id=user_record.id,
+            input_dto=user_dto,
+            user_id=uuid.uuid4(),
+            is_admin=False
+        )
 
-    # then
-    with pytest.raises(DoesNotExist):
-        await user_repo.aget_by_id(u.id)
+    user_from_db = await user_repo.aget_by_id(user_record.id)
+    assert user_from_db.email != user_dto.email
 
 
 @pytest.mark.asyncio
-async def test_user_service_get_all(user_service: UserCrudService, user_record):
+async def test_user_service_update_user_admin(user_service: UserCrudService, user_repo: TortoiseRepo, user_record):
     # given
-    u = await user_record
+    user_dto = UserUpdateDto(email="sth@a.com")
 
+    # when
+    user = await user_service.update(
+        id=user_record.id,
+        input_dto=user_dto,
+        user_id=uuid.uuid4(),
+        is_admin=True,
+    )
+    user_from_db = await user_repo.aget_by_id(user.id)
+
+    # then
+    assert user_from_db.email == user_dto.email
+
+
+@pytest.mark.asyncio
+async def test_user_service_delete_user_owner(user_service: UserCrudService, user_repo: TortoiseRepo, user_record):
+    # when
+    await user_service.delete(
+        id=user_record.id,
+        user_id=user_record.id,
+        is_admin=False
+    )
+
+    # then
+    with pytest.raises(DoesNotExist):
+        await user_repo.aget_by_id(user_record.id)
+
+
+@pytest.mark.asyncio
+async def test_user_service_delete_user_admin(user_service: UserCrudService, user_repo: TortoiseRepo, user_record):
+    # when
+    await user_service.delete(
+        id=user_record.id,
+        user_id=uuid.uuid4(),
+        is_admin=True
+    )
+
+    # then
+    with pytest.raises(DoesNotExist):
+        await user_repo.aget_by_id(user_record.id)
+
+
+@pytest.mark.asyncio
+async def test_user_service_delete_user_not_owner(user_service: UserCrudService, user_repo: TortoiseRepo, user_record):
+    # when
+
+    # then
+    with pytest.raises(UserNotRecordOwner):
+        await user_service.delete(
+            id=user_record.id,
+            user_id=uuid.uuid4(),
+            is_admin=False
+        )
+
+    user = await user_repo.aget_by_id(user_record.id)
+    assert user is not None
+    assert user.id == user_record.id
+
+@pytest.mark.asyncio
+async def test_user_service_get_all(user_service: UserCrudService, user_record):
     # when
     users = await user_service.get_all(limit=10, skip=0)
 
     # then
     assert len(users) > 0
-    assert u in users
+    assert user_record in users
 
 
 @pytest.mark.asyncio
 async def test_user_service_get_all(user_service: UserCrudService, user_record):
-    # given
-    u = await user_record
-
     # when
-    user_db = await user_service.get_by_id(u.id)
+    user_db = await user_service.get_by_id(user_record.id)
 
     # then
-    assert user_db == u
+    assert user_db == user_record
 
 
 @pytest.mark.asyncio
 async def test_auth_service_correct_pswd(auth_service: AuthenticationService, user_record, user_password):
-    # given
-    u = await user_record
-
     # when
     token = await auth_service.authenticate(
         credentials=UserAuthInputDto(
-            username=u.username,
+            username=user_record.username,
             password=user_password,
         )
     )
 
     # then
     assert token is not None
-    assert token.user_id == u.id
+    assert token.user_id == user_record.id
     assert token.api_token is not None
     assert isinstance(token.api_token, str)
 
 
 @pytest.mark.asyncio
 async def test_auth_service_bad_username(auth_service: AuthenticationService, user_record, user_password):
-    # given
-    await user_record
-
     # when/then
     with pytest.raises(UserNotFound):
         await auth_service.authenticate(
@@ -120,14 +181,11 @@ async def test_auth_service_bad_username(auth_service: AuthenticationService, us
 
 @pytest.mark.asyncio
 async def test_auth_service_bad_pswd(auth_service: AuthenticationService, user_record):
-    # given
-    u = await user_record
-
     # when/then
     with pytest.raises(BadCredentials):
         await auth_service.authenticate(
             credentials=UserAuthInputDto(
-                username=u.username,
+                username=user_record.username,
                 password='bad_password',
             )
         )
@@ -138,7 +196,6 @@ async def test_auth_service_user_not_found_bad_token(
         auth_service: AuthenticationService, user_record, secret_key: str, algorithm: str
 ):
     # given
-    u = await user_record
     dummy_user_not_in_db = User.create(
         username="dummy",
         password="dummy",
@@ -153,7 +210,7 @@ async def test_auth_service_user_not_found_bad_token(
 
     # sanity check
     assert dumy_token is not None
-    assert u.id != dummy_user_not_in_db.id
+    assert user_record.id != dummy_user_not_in_db.id
 
     # when/then
     with pytest.raises(BadCredentials):
@@ -163,20 +220,19 @@ async def test_auth_service_user_not_found_bad_token(
 @pytest.mark.asyncio
 async def test_auth_service_correct_token(auth_service: AuthenticationService, user_record, user_password):
     # given
-    user = await user_record
     token = await auth_service.authenticate(
         credentials=UserAuthInputDto(
-            username=user.username,
+            username=user_record.username,
             password=user_password
         )
     )
     # sanity check
     assert token is not None
-    assert token.user_id == user.id
+    assert token.user_id == user_record.id
     assert token.api_token is not None
 
     # when
     user_from_token = await auth_service.verify(token=token.api_token)
 
     # then
-    assert user_from_token.id == user.id
+    assert user_from_token.id == user_record.id

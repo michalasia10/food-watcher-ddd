@@ -2,11 +2,28 @@ import asyncio
 from enum import Enum
 
 import pytest
-from httpx import AsyncClient
+import pytest_asyncio
+from httpx import AsyncClient, BasicAuth
 from tortoise import Tortoise
 
 from src.api.main import app
 from src.config import TORTOISE_TEST_CONFIG
+
+
+@pytest.fixture(scope="function", autouse=True)
+def endpoint_enum():
+    class EndpointEnum(str, Enum):
+        USERS = "/users/"
+        AUTH = "/auth/"
+        PRODUCTS = "/products/"
+        CHAT = "/chat/"
+        CONSUMPTION = "/consumption/"
+        RECIPE = "/recipe/"
+
+        def get_detail(self, id: int):
+            return f"{self.value}{id}"
+
+    return EndpointEnum
 
 
 class AnsciColorEnum(str, Enum):
@@ -95,9 +112,21 @@ def event_loop():
     loop.close()
 
 
-@pytest.fixture(scope="session")
-async def client():
-    async with AsyncClient(app=app, base_url="http://test") as client:
+class TestAsyncClient(AsyncClient):
+
+    def set_token(self, token: str):
+        self.headers = {
+            "Authorization": f"Bearer {token}"
+        }
+
+    @staticmethod
+    def check_correct_keys_in_error_response(response: dict) -> None:
+        assert all(key in ["error", "status_code"] for key in response.keys())
+
+
+@pytest_asyncio.fixture(scope="function", autouse=True)
+async def api_client():
+    async with TestAsyncClient(app=app, base_url="http://test") as client:
         yield client
 
 
@@ -118,6 +147,7 @@ def db(request, event_loop):
             # Close the connection
             await conn.close()
             await Tortoise.close_connections()
+            Printer.teardown("Connection closed.")
 
     def __drop():
         event_loop.run_until_complete(_drop_db())
