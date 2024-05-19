@@ -4,7 +4,7 @@ from typing import Any, Tuple, Dict, cast, Literal
 from typing import List, TypeVar, Generic
 from typing import Type
 from uuid import UUID
-
+from http import HTTPStatus
 from classy_fastapi.route_args import EndpointDefinition
 from dependency_injector.wiring import inject
 from fastapi import APIRouter, Depends
@@ -98,7 +98,7 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
         if "create" in self.crud_methods:
             assert self.create_dto is not None and self._service is not None
 
-            @self.router.post("/", response_model=self.output_dto)
+            @self.router.post("/", response_model=self.output_dto, status_code=HTTPStatus.CREATED)
             async def create(item: basic_create_dto):
                 """Basic endpoint to create instance"""
 
@@ -107,7 +107,7 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
         if "read" in self.crud_methods:
             assert self.output_dto is not None and self._service is not None
 
-            @self.router.get("/{id}", response_model=self.output_dto)
+            @self.router.get("/{id}", response_model=self.output_dto, status_code=HTTPStatus.OK)
             async def read(id: UUID):
                 """Basic endpoint to get instance by id."""
                 return await self._service.get_by_id(id)
@@ -115,7 +115,7 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
         if "update" in self.crud_methods:
             assert self.create_dto is not None and self._service is not None
 
-            @self.router.put("/{id}", response_model=self.output_dto)
+            @self.router.put("/{id}", response_model=self.output_dto, status_code=HTTPStatus.OK)
             async def update(
                     id: UUID,
                     item: basic_update_dto,
@@ -126,7 +126,7 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
                 return await self._service.update(id, item, user_id=user.id, is_admin=user.is_admin)
 
         if "delete" in self.crud_methods:
-            @self.router.delete("/{id}")
+            @self.router.delete("/{id}", status_code=HTTPStatus.NO_CONTENT)
             async def delete(id: UUID, user: HTTPBearer = Depends(bearer_auth)):
                 "Basic endpoint to delete instance by id."
                 return await self._service.delete(id, user_id=user.id, is_admin=user.is_admin)

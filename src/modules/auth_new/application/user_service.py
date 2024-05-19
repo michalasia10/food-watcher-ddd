@@ -12,7 +12,7 @@ from src.modules.auth_new.application.dto import (
     UserAuthInputDto,
     TokenOutputDto
 )
-from src.modules.auth_new.domain.errors import InvalidToken, BadCredentials, UserNotFound
+from src.modules.auth_new.domain.errors import InvalidToken, BadCredentials, UserNotFound, UserNotRecordOwner
 from src.modules.auth_new.domain.user import User
 from src.modules.auth_new.domain.user_repo import IUserRepo
 
@@ -37,16 +37,20 @@ class UserCrudService(ICrudService):
         user = await self._user_repository.aget_by_id(user_id)
         return UserOutputDto(**user.snapshot)
 
-    async def update(self, id: UUID, input_dto: UserUpdateDto, user_id: UUID = None) -> UserOutputDto:
-        # Todo: Check if user is owner to update the user
+    async def update(self, id: UUID, input_dto: UserUpdateDto, user_id: UUID = None, is_admin=False) -> UserOutputDto:
+        if not is_admin and user_id != id:
+            raise UserNotRecordOwner("You are not allowed to update this user.")
+
         user = await self._user_repository.aget_by_id(id)
         user.update(input_dto)
         await self._user_repository.aupdate(user)
         updated_user = await self._user_repository.aget_by_id(id)
         return UserOutputDto(**updated_user.snapshot)
 
-    async def delete(self, id: UUID, user_id: UUID = None) -> None:
-        # Todo: Check if user is owner to delete the user
+    async def delete(self, id: UUID, user_id: UUID = None, is_admin=False) -> None:
+        if not is_admin and user_id != id:
+            raise UserNotRecordOwner("You are not allowed to delete this user.")
+
         user = await self.get_by_id(id)
         await self._user_repository.adelete(user)
 
