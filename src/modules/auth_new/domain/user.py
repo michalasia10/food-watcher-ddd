@@ -67,12 +67,16 @@ class User(Entity):
     ) -> str:
         return jwt.encode(
             payload={
-                "username": self.username,
+                "user_id": str(self.id),
                 "expires": time.time() + 2400,
             },
             key=secret_key,
             algorithm=algorithm,
         )
+
+    @staticmethod
+    def get_user_filter_by_decoded_token(token: dict) -> dict:
+        return dict(id=token.get("user_id"))
 
     def update(self, input_dto: BaseModel) -> 'Entity':
         if input_dto.password:

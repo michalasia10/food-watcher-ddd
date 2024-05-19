@@ -11,11 +11,21 @@ def user_service():
 
 
 @pytest.fixture
-def auth_service():
+def secret_key():
+    return "test"
+
+
+@pytest.fixture
+def algorithm():
+    return "HS256"
+
+
+@pytest.fixture
+def auth_service(secret_key, algorithm):
     return AuthenticationService(
         user_repository=UserTortoiseRepo,
-        secret_key="test",
-        algorithm="HS256",
+        secret_key=secret_key,
+        algorithm=algorithm,
     )
 
 

@@ -128,10 +128,10 @@ class AuthenticationService(IAuthService):
         self._verify_time(decoded_jwt)
         user: User | None = await (
             self._user_repository
-            .aget_first_from_filter(id=decoded_jwt.get("username"))
+            .aget_first_from_filter(**User.get_user_filter_by_decoded_token(decoded_jwt))
         )
 
         if not user:
-            BadCredentials("Invalid token, User not found.")
+            raise BadCredentials("Invalid token, User not found.")
 
         return user

@@ -5,6 +5,7 @@ from src.core_new.infra.tortoiserepo import TortoiseRepo
 from src.modules.auth_new.application.dto import UserInputDto, UserUpdateDto, UserAuthInputDto
 from src.modules.auth_new.application.user_service import UserCrudService, AuthenticationService
 from src.modules.auth_new.domain.errors import UserNotFound, BadCredentials
+from src.modules.auth_new.domain.user import User
 
 
 @pytest.mark.asyncio
@@ -130,3 +131,52 @@ async def test_auth_service_bad_pswd(auth_service: AuthenticationService, user_r
                 password='bad_password',
             )
         )
+
+
+@pytest.mark.asyncio
+async def test_auth_service_user_not_found_bad_token(
+        auth_service: AuthenticationService, user_record, secret_key: str, algorithm: str
+):
+    # given
+    u = await user_record
+    dummy_user_not_in_db = User.create(
+        username="dummy",
+        password="dummy",
+        email="dummy@wp.pl",
+        first_name="dummy",
+        last_name="dummy"
+    )
+    dumy_token = dummy_user_not_in_db.create_token(
+        secret_key=secret_key,
+        algorithm=algorithm
+    )
+
+    # sanity check
+    assert dumy_token is not None
+    assert u.id != dummy_user_not_in_db.id
+
+    # when/then
+    with pytest.raises(BadCredentials):
+        await auth_service.verify(token=dumy_token)
+
+
+@pytest.mark.asyncio
+async def test_auth_service_correct_token(auth_service: AuthenticationService, user_record, user_password):
+    # given
+    user = await user_record
+    token = await auth_service.authenticate(
+        credentials=UserAuthInputDto(
+            username=user.username,
+            password=user_password
+        )
+    )
+    # sanity check
+    assert token is not None
+    assert token.user_id == user.id
+    assert token.api_token is not None
+
+    # when
+    user_from_token = await auth_service.verify(token=token.api_token)
+
+    # then
+    assert user_from_token.id == user.id
