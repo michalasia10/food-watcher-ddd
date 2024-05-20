@@ -5,7 +5,7 @@ import pytest_asyncio
 
 from src.config import settings
 from src.modules.auth_new.application.dto import UserInputDto, UserAuthInputDto, TokenOutputDto
-from src.modules.auth_new.application.user_service import UserCrudService, AuthenticationService
+from src.modules.auth_new.application.services import UserCrudService, AuthenticationService
 from src.modules.auth_new.infra.user_repo import UserTortoiseRepo
 
 

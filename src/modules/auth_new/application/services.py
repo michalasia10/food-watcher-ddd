@@ -1,13 +1,11 @@
 import time
-from uuid import UUID
 
 import jwt
 from tortoise.exceptions import DoesNotExist
 
-from src.core_new.app.service import ICrudService, IAuthService
+from src.core_new.app.service import IAuthService, BaseCrudService
 from src.modules.auth_new.application.dto import (
     UserInputDto,
-    UserUpdateDto,
     UserOutputDto,
     UserAuthInputDto,
     TokenOutputDto
@@ -17,9 +15,11 @@ from src.modules.auth_new.domain.user import User
 from src.modules.auth_new.domain.user_repo import IUserRepo
 
 
-class UserCrudService(ICrudService):
-    def __init__(self, user_repository: [IUserRepo]):
-        self._user_repository = user_repository
+class UserCrudService(BaseCrudService):
+    OUTPUT_DTO = UserOutputDto
+    NOT_RECORD_OWNER_ERROR = UserNotRecordOwner("You are not allowed to update this user.")
+    NOT_FOUND_ERROR = UserNotFound("User not found.")
+    DOES_NOT_EXIST_ERROR = DoesNotExist
 
     async def create(self, input_dto: UserInputDto) -> UserOutputDto:
         user = User.create(
@@ -29,40 +29,7 @@ class UserCrudService(ICrudService):
             first_name=input_dto.first_name,
             last_name=input_dto.last_name
         )
-        await self._user_repository.asave(user)
-
-        return UserOutputDto(**user.snapshot)
-
-    async def get(self, user_id: UUID) -> UserOutputDto:
-        user = await self._user_repository.aget_by_id(user_id)
-        return UserOutputDto(**user.snapshot)
-
-    async def update(self, id: UUID, input_dto: UserUpdateDto, user_id: UUID = None, is_admin=False) -> UserOutputDto:
-        if not is_admin and user_id != id:
-            raise UserNotRecordOwner("You are not allowed to update this user.")
-
-        user = await self._user_repository.aget_by_id(id)
-        user.update(input_dto)
-        await self._user_repository.aupdate(user)
-        updated_user = await self._user_repository.aget_by_id(id)
-        return UserOutputDto(**updated_user.snapshot)
-
-    async def delete(self, id: UUID, user_id: UUID = None, is_admin=False) -> None:
-        if not is_admin and user_id != id:
-            raise UserNotRecordOwner("You are not allowed to delete this user.")
-
-        user = await self.get_by_id(id)
-        await self._user_repository.adelete(user)
-
-    async def get_all(self, skip: int, limit: int) -> list[UserOutputDto]:
-        users = await self._user_repository.aget_all(offset=skip, limit=limit)
-        return [UserOutputDto(**user.snapshot) for user in users]
-
-    async def get_by_id(self, id: UUID) -> UserOutputDto:
-        try:
-            user = await self._user_repository.aget_by_id(id)
-        except  DoesNotExist:
-            raise UserNotFound("User not found.")
+        await self._repository.asave(user)
 
         return UserOutputDto(**user.snapshot)
 
@@ -82,6 +49,15 @@ class AuthenticationService(IAuthService):
             self,
             credentials: UserAuthInputDto
     ) -> TokenOutputDto | BadCredentials:
+        """
+        Authenticate user with given credentials.
+
+        Args:
+            credentials: UserAuthInputDto: User credentials.
+
+        Returns: TokenOutputDto | BadCredentials
+
+        """
         user: User = await self._user_repository.aget_first_from_filter(
             username=credentials.username
         )
@@ -101,6 +77,15 @@ class AuthenticationService(IAuthService):
 
     @classmethod
     def _verify_time(cls, decoded_jwt: dict):
+        """
+        Verify if token is expired.
+
+        Args:
+            decoded_jwt: dict: Decoded JWT token.
+
+        Returns: None | InvalidToken
+
+        """
         expires = decoded_jwt.get("expires")
         if expires < time.time():
             raise InvalidToken("Token expired.")
@@ -112,6 +97,18 @@ class AuthenticationService(IAuthService):
             algorithm: str,
             credentials: str
     ) -> dict:
+        """
+        Decode JWT token.
+
+        Args:
+            secret_key: str: Secret key.
+            algorithm:  str: Algorithm.
+            credentials: str: JWT token.
+
+        Returns: dict
+
+        """
+
         try:
             return jwt.decode(
                 jwt=credentials,
@@ -124,6 +121,16 @@ class AuthenticationService(IAuthService):
             raise InvalidToken("Invalid token. Can't decode.")
 
     async def verify(self, token: str) -> User | BadCredentials:
+        """
+        Verify token and return user.
+
+        Args:
+            token: str: JWT token.
+
+        Returns: User | BadCredentials
+
+        """
+
         decoded_jwt = self._decode_jwt(
             secret_key=self._secret_key,
             algorithm=self._algorithm,

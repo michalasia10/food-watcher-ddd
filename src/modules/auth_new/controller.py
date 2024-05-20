@@ -11,7 +11,7 @@ from src.modules.auth_new.application.dto import (
     UserOutputDto,
     UserUpdateDto
 )
-from src.modules.auth_new.application.user_service import AuthenticationService
+from src.modules.auth_new.application.services import AuthenticationService
 
 
 class UserViewSet(BaseModelView[UserInputDto, UserOutputDto]):
