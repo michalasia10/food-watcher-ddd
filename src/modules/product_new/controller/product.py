@@ -14,7 +14,7 @@ class ProductViewSet(BaseModelView[ProductInputDto, ProductOutputDto]):
     @inject
     def __init__(
             self,
-            crud_service=dependency(AppContainer.product.product_service),
+            crud_service=dependency(AppContainer.product.service),
             auth_service=dependency(AppContainer.auth.auth_service),
     ) -> None:
         super(ProductViewSet, self).__init__(

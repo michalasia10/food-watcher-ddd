@@ -4,7 +4,13 @@ from uuid6 import uuid6
 
 
 class BaseModel(Model):
-    id = fields.UUIDField(pk=True, default=uuid6, generated=False)
+    id = fields.UUIDField(
+        pk=True,
+        default=uuid6,
+        null=False,
+        generated=False,
+        unique=True,
+    )
     created_at = fields.DatetimeField(auto_now_add=True)
     updated_at = fields.DatetimeField(auto_now=True)
 

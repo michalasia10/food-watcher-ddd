@@ -11,6 +11,7 @@ from src.config import TORTOISE_CONFIG, settings
 from src.config.di import AppContainer
 from src.core_new.domain.errors import Error
 from src.modules.auth_new.controller import UserViewSet
+from src.modules.product_new.controller.product import ProductViewSet
 
 ####################################
 ######### Container CONFIG #########
@@ -21,7 +22,7 @@ container.wire(
     modules=[
         # "api.routers.users",
         "src.modules.auth_new.controller",
-        # "api.routers.products",
+        "src.modules.product_new.controller.product",
         # "api.routers.base",
         # "api.routers.chat",
         # "api.routers.consumption",
@@ -46,8 +47,8 @@ app = FastAPI(
 include_routers(
     app,
     [
-        # ProductViewSet(),
         UserViewSet(),
+        ProductViewSet(),
         # ChannelsViewSet(),
         # ChatRouter,
         # ConsumptionRouter,

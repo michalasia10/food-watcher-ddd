@@ -11,7 +11,7 @@ from src.modules.auth_new.infra.user_repo import UserTortoiseRepo
 
 @pytest.fixture
 def user_service():
-    return UserCrudService(user_repository=UserTortoiseRepo)
+    return UserCrudService(repository=UserTortoiseRepo)
 
 
 @pytest.fixture

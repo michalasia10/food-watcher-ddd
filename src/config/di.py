@@ -2,7 +2,7 @@ from dependency_injector import containers, providers
 
 from src.config.api_config import ApiConfig
 from src.modules.auth_new.di import AuthContainer
-from src.modules.product_new.di import ProductContainer
+from src.modules.product_new.di import ProductContainer, ConsumptionContainer
 
 
 # from src.modules.auth.infra.repository.user import SqlUserRepository
@@ -155,3 +155,10 @@ class AppContainer(containers.DeclarativeContainer):
         container_config=container_config,
         api_config=api_config,
     )
+    consumption = providers.Container(
+        ConsumptionContainer,
+        container_config=container_config,
+        api_config=api_config,
+    )
+
+

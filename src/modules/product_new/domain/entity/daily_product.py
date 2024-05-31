@@ -42,6 +42,7 @@ class DailyUserProduct(Entity):
             type=type,
         )
         entity.set_makros()
+        day.add_product(entity)
         entity.clear_related_entities()
         return entity
 
