@@ -10,6 +10,7 @@ from tortoise.models import Model
 from tortoise.queryset import QuerySet, QuerySetSingle
 from tortoise.transactions import in_transaction
 
+from src.core_new.domain.value_object import PrecisedFloat
 from src.core_new.domain.entity import Entity
 from src.core_new.domain.errors import DBError
 from src.core_new.domain.repo import IRepository
@@ -24,7 +25,15 @@ class TortoiseRepo(Generic[ModelType, EntityType], IRepository, metaclass=ABCMet
 
     @classmethod
     def _to_entity(cls, record: ModelType) -> EntityType | None:
-        return cls.entity(**dict(record)) if record else None
+        if record:
+            _dict = {
+                key: PrecisedFloat(value) if isinstance(value, float) else value
+                for key, value in dict(record).items()
+            }
+
+            return cls.entity(**_dict)
+
+        return None
 
     @classmethod
     async def _prefetch(cls, queryset: QuerySet | QuerySetSingle):
@@ -41,7 +50,6 @@ class TortoiseRepo(Generic[ModelType, EntityType], IRepository, metaclass=ABCMet
                 return await cls.model.create(**entity.snapshot)
         except (BaseORMException, ObjectInUseError) as e:
             raise DBError(e)
-
 
     @classmethod
     async def aget_by_id(cls, id: UUID) -> EntityType | None:

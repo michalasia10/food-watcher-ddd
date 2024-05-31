@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any
 
 from pydantic import BaseModel
-from uuid6 import UUID
+from uuid import UUID
 
 from src.modules.product_new.application.dto.product import ProductOutputDto
 from src.modules.product_new.domain.enum import UserProductType

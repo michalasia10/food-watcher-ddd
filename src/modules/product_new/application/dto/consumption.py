@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from pydantic import BaseModel
-from uuid6 import UUID
+from uuid import UUID
 
 from src.modules.product_new.application.dto.daily_product import DailyUserProductOutputDto
 

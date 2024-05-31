@@ -1,9 +1,10 @@
 from dataclasses import dataclass, field
 from uuid import UUID
 
-from modules.common.macro.factory import MacroCalculatorType, MacroCalculatorFactory
-from modules.common.macro.strategies import MacroCalculatorStrategy
 from src.core_new.domain.entity import Entity
+from src.core_new.domain.value_object import PrecisedFloat
+from src.modules.common.macro.factory import MacroCalculatorType, MacroCalculatorFactory
+from src.modules.common.macro.strategies import MacroCalculatorStrategy
 from src.modules.product_new.domain.entity.consumption import DailyUserConsumption
 from src.modules.product_new.domain.entity.product import Product
 from src.modules.product_new.domain.enum import UserProductType
@@ -15,19 +16,19 @@ class DailyUserProduct(Entity):
     day: DailyUserConsumption | None = None
     day_id: UUID | None = None
     product_id: UUID | None = None
-    weight_in_grams: float | None = None
+    weight_in_grams: PrecisedFloat | None = None
     type: UserProductType = field(kw_only=True, default=UserProductType.LUNCH)
-    calories: float | None = None
-    proteins: float | None = None
-    fats: float | None = None
-    carbohydrates: float | None = None
+    calories: PrecisedFloat | None = None
+    proteins: PrecisedFloat | None = None
+    fats: PrecisedFloat | None = None
+    carbohydrates: PrecisedFloat | None = None
 
     @classmethod
     def create(
             cls,
             product: Product,
             day: DailyUserConsumption,
-            weight_in_grams: float | None = None,
+            weight_in_grams: float | PrecisedFloat | None = None,
             type: UserProductType = UserProductType.LUNCH,
     ) -> 'DailyUserProduct':
         entity = cls(
@@ -38,7 +39,7 @@ class DailyUserProduct(Entity):
             product_id=product.id,
             day=day,
             day_id=day.id,
-            weight_in_grams=weight_in_grams,
+            weight_in_grams=PrecisedFloat(weight_in_grams),
             type=type,
         )
         entity.set_makros()

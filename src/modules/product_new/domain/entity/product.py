@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from core_new.domain.value_object import PrecisedFloat
 from src.core_new.domain.entity import Entity
 
 
@@ -12,18 +13,21 @@ class Product(Entity):
     size: str | None = None
     groups: str | None = None
     category: str | None = None
-    energy_kcal_100g: float | None = None
-    fat_100g: float | None = None
-    carbohydrates_100g: float | None = None
-    sugars_100g: float | None = None
-    proteins_100g: float | None = None
+    energy_kcal_100g: PrecisedFloat | None = None
+    fat_100g: PrecisedFloat | None = None
+    carbohydrates_100g: PrecisedFloat | None = None
+    sugars_100g: PrecisedFloat | None = None
+    proteins_100g: PrecisedFloat | None = None
 
     @classmethod
     def create(cls, *args, **kwargs) -> 'Product':
+        _args = [PrecisedFloat(arg) if isinstance(arg, float) else arg for arg in args]
+        _kwargs = {k: PrecisedFloat(v) if isinstance(v, float) else v for k, v in kwargs.items()}
+
         return cls(
             id=cls.create_id(),
             updated_at=cls.create_now_time(),
             created_at=cls.create_now_time(),
-            *args,
-            **kwargs
+            *_args,
+            **_kwargs
         )
