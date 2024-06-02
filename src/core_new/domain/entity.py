@@ -39,7 +39,19 @@ class Entity(ABC):
 
     @property
     def snapshot(self) -> SnapShot:
-        _snapshot = asdict(self, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
+        def filter(value):
+            if isinstance(value, list):
+                """
+                check if value is empty list
+                """
+                return value if value else False
+
+            """
+            otherwise check if value is None
+            """
+            return value is not None
+
+        _snapshot = asdict(self, dict_factory=lambda x: {k: v for (k, v) in x if filter(v)})
         return convert_uuid_to_str(_snapshot)
 
     @classmethod

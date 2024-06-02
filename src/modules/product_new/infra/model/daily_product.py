@@ -1,4 +1,5 @@
 from tortoise import fields
+from uuid6 import uuid6
 
 from src.core_new.infra.model import BaseModel
 from src.modules.product_new.domain.enum import UserProductType
@@ -13,8 +14,20 @@ class DailyUserProduct(BaseModel):
     calories = fields.FloatField(null=False)
 
     # relationships
-    day = fields.ForeignKeyField('product.DailyUserConsumption', related_name='products')
-    product = fields.ForeignKeyField('product.Product', related_name='daily_user_products')
+    day = fields.ForeignKeyField(
+        'product.DailyUserConsumption',
+        related_name='products',
+        to_field='id',
+        default=uuid6,
+        db_constraint=True,
+    )
+    product = fields.ForeignKeyField(
+        'product.Product',
+        related_name='daily_user_products',
+        to_field='id',
+        default=uuid6,
+        db_constraint=True,
+    )
 
     class Meta:
         app = 'product'

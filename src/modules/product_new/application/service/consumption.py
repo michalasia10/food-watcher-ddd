@@ -42,7 +42,9 @@ class ConsumptionService:
         Returns: list[DailyUserConsumptionOutputDto]
 
         """
-        return await self._consumption_repository.aget_all_from_filter(user_id=user_id, skip=skip, limit=limit)
+        days = await self._consumption_repository.aget_all_from_filter(user_id=user_id, skip=skip, limit=limit)
+
+        return [DailyUserConsumptionOutputDto(**day.snapshot) for day in days]
 
     async def get_day_by_id(self, day_id: UUID) -> DailyUserConsumptionOutputDto:
         """
@@ -54,7 +56,9 @@ class ConsumptionService:
         Returns: DailyUserConsumptionOutputDto
 
         """
-        return await self._consumption_repository.aget_by_id(day_id)
+        day = await self._consumption_repository.aget_by_id(day_id)
+
+        return DailyUserConsumptionOutputDto(**day.snapshot)
 
     async def get_day_by_datetime(self, datetime: datetime, user_id: UUID) -> DailyUserConsumptionOutputDto:
         """
@@ -67,7 +71,9 @@ class ConsumptionService:
         Returns: DailyUserConsumptionOutputDto
 
         """
-        return await self._consumption_repository.aget_first_from_filter(user_id=user_id, date=datetime)
+        day = await self._consumption_repository.aget_first_from_filter(user_id=user_id, date=datetime)
+
+        return DailyUserConsumptionOutputDto(**day.snapshot)
 
     async def add_meal(self, user_id: UUID, input_dto: DailyUserProductInputDto) -> DailyUserConsumptionOutputDto:
         """
@@ -95,10 +101,12 @@ class ConsumptionService:
             user_id=user_id,
             date=input_dto.date,
         )
+
         if day is None:
             entity = DailyUserConsumption.create(user_id=user_id)
             await self._consumption_repository.asave(entity=entity)
             day: DailyUserConsumption = await self._consumption_repository.aget_by_id(entity.id)
+
         elif day.user_id != user_id:
             raise DailyUserConsumptionNotRecordOwner(
                 f"User with id {user_id} is not the owner of the day with id {day.id}"
@@ -114,4 +122,13 @@ class ConsumptionService:
         await self._daily_product_repository.asave(entity=daily_product)
         await self._consumption_repository.aupdate(entity=day)
 
-        return DailyUserConsumptionOutputDto(**day.snapshot)
+        updated_day: DailyUserConsumption = await self._consumption_repository.aget_by_id(
+            id=day.id,
+            fetch_fields=['products', 'products__product'],
+        )
+
+        return DailyUserConsumptionOutputDto(
+            **self._consumption_repository.convert_snapshot_with_reverse_relations(
+                snapshot=updated_day.snapshot
+            )
+        )

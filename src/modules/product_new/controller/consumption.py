@@ -60,6 +60,9 @@ async def get_day_by_datetime(
         service: ConsumptionService = dependency(AppContainer.consumption.service),
         auth_service: IAuthService = dependency(AppContainer.auth.auth_service),
 ) -> DailyUserConsumptionOutputDto:
+    """
+    Get a day by its datetime for a user.
+    """
     user = await auth_service.verify(token.credentials)
 
     return await service.get_day_by_datetime(user_id=user.id, datetime=datetime)
@@ -72,7 +75,12 @@ async def add_meal(
         token: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
         service: ConsumptionService = dependency(AppContainer.consumption.service),
         auth_service: IAuthService = dependency(AppContainer.auth.auth_service),
-):
+) -> Response:
+    """
+    Add a meal for a user's day.
+
+    """
+
     user = await auth_service.verify(token.credentials)
 
     await service.add_meal(user_id=user.id, input_dto=dto)

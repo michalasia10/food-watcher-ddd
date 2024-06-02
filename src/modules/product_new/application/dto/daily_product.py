@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from typing import Any
 
 from pydantic import BaseModel
@@ -15,7 +15,13 @@ class DailyUserProductDto(BaseModel):
 
 
 class DailyUserProductInputDto(DailyUserProductDto):
-    date: datetime
+    date: datetime | date
+
+    def model_post_init(self, __context: Any) -> None:
+        """
+        Method to reset datetime for hours,minutes,seconds and microseconds.
+        """
+        self.date = date(self.date.year, self.date.month, self.date.day)
 
 
 class DailyUserProductOutputDto(DailyUserProductDto):

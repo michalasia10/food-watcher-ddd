@@ -71,7 +71,7 @@ class ApiConfig(BaseSettings):
                     'models': [
                         "src.modules.product_new.infra.model.product",
                         "src.modules.product_new.infra.model.consumption",
-                        # "src.modules.product_new.infra.model.daily_product",
+                        "src.modules.product_new.infra.model.daily_product",
                         "aerich.models",
                     ],
                     "default_connection": "default"

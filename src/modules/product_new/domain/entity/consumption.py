@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, date
 from uuid import UUID
 
 from src.core_new.domain.entity import Entity
@@ -10,7 +10,7 @@ from src.modules.common.macro.strategies import MacroCalculatorStrategy
 
 @dataclass
 class DailyUserConsumption(Entity):
-    date: datetime
+    date: datetime | date
     user_id: UUID | None = None
     products: list['DailyUserProduct'] = field(default_factory=list)
     summary_proteins: PrecisedFloat = PrecisedFloat(.0)
@@ -20,12 +20,13 @@ class DailyUserConsumption(Entity):
 
     @classmethod
     def create(cls, user_id: UUID) -> 'DailyUserConsumption':
+        now = cls.create_now_time()
         entity = cls(
             id=cls.create_id(),
-            updated_at=cls.create_now_time(),
-            created_at=cls.create_now_time(),
+            updated_at=now,
+            created_at=now,
             user_id=user_id,
-            date=cls.create_now_time(),
+            date=date(now.year, now.month, now.day),
         )
         return entity
 

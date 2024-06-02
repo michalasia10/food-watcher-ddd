@@ -7,7 +7,7 @@ class IRepository(ABC):
 
     @classmethod
     @abstractmethod
-    async def aget_by_id(cls, id: UUID) -> Optional[Any]:
+    async def aget_by_id(cls, id: UUID, *args, **kwargs) -> Optional[Any]:
         pass
 
     @classmethod
@@ -16,6 +16,8 @@ class IRepository(ABC):
             cls,
             limit=100,
             offset=0,
+            *args,
+            **kwargs
     ) -> list[Any]:
         pass
 
@@ -36,10 +38,10 @@ class IRepository(ABC):
 
     @classmethod
     @abstractmethod
-    async def aget_first_from_filter(cls, **kwargs) -> Any:
+    async def aget_first_from_filter(cls, *args, **kwargs) -> Any:
         pass
 
     @classmethod
     @abstractmethod
-    async def aget_all_from_filter(cls, **kwargs) -> list[Any]:
+    async def aget_all_from_filter(cls, *args, **kwargs) -> list[Any]:
         pass
