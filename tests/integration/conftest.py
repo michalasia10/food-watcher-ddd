@@ -52,3 +52,16 @@ async def user_record(user_service, user_password):
             last_name="test"
         )
     )
+
+
+@pytest_asyncio.fixture(scope="function")
+async def user_record2(user_service, user_password):
+    return await user_service.create(
+        UserInputDto(
+            username="test2",
+            password=user_password,
+            email="test2@no.com",
+            first_name="test2",
+            last_name="test2"
+        )
+    )

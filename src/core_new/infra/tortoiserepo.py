@@ -44,8 +44,6 @@ class TortoiseRepo(Generic[ModelType, EntityType], IRepository, metaclass=ABCMet
     def _convert_key(key: str) -> str:
         return key[1:] if key.startswith('_') else key
 
-
-
     @classmethod
     def _to_entity(cls, record: ModelType) -> EntityType | None:
 
@@ -84,7 +82,7 @@ class TortoiseRepo(Generic[ModelType, EntityType], IRepository, metaclass=ABCMet
             await queryset.fetch_related(field)
 
     @classmethod
-    def convert_snapshot_with_reverse_relations(cls, snapshot: dict) -> dict:
+    def convert_snapshot(cls, snapshot: dict) -> dict:
         snapshot = deepcopy(snapshot)
 
         def _convert_value(value: Any):

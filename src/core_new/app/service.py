@@ -39,12 +39,8 @@ class BaseCrudService(ICrudService):
     async def create(self, input_dto):
         ...
 
-    async def get(self, id: UUID) -> BaseModel:
-        entity: Entity = await self._repository.aget_by_id(id)
-        return self.OUTPUT_DTO(**entity.snapshot)
-
     async def update(self, id: UUID, input_dto: BaseModel, user_id: UUID = None, is_admin=False) -> BaseModel:
-        if not is_admin and user_id != id:
+        if not is_admin and (user_id and user_id != id):
             raise self.NOT_RECORD_OWNER_ERROR
 
         entity: Entity = await self._repository.aget_by_id(id)
@@ -56,7 +52,7 @@ class BaseCrudService(ICrudService):
         return self.OUTPUT_DTO(**fresh_entity.snapshot)
 
     async def delete(self, id: UUID, user_id: UUID = None, is_admin=False) -> None:
-        if not is_admin and user_id != id:
+        if not is_admin and (user_id and user_id != id):
             raise self.NOT_RECORD_OWNER_ERROR
 
         entity: Entity = await self.get_by_id(id)

@@ -12,6 +12,11 @@ class IRepository(ABC):
 
     @classmethod
     @abstractmethod
+    def convert_snapshot(cls, snapshot: dict) -> Any:
+        pass
+
+    @classmethod
+    @abstractmethod
     async def aget_all(
             cls,
             limit=100,

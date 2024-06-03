@@ -2,6 +2,7 @@ import pytest
 import pytest_asyncio
 
 from src.modules.product_new.application.service.consumption import ConsumptionService
+from src.modules.product_new.application.service.product import ProductCrudService
 from src.modules.product_new.domain.entity.consumption import DailyUserConsumption
 from src.modules.product_new.domain.entity.daily_product import DailyUserProduct
 from src.modules.product_new.domain.entity.product import Product
@@ -16,6 +17,13 @@ def consumption_service(secret_key, algorithm):
         product_repository=ProductTortoiseRepo,
         daily_product_repository=DailyUserProductTortoiseRepo,
         consumption_repository=DailyUserConsumptionTortoiseRepo,
+    )
+
+
+@pytest.fixture
+def product_service():
+    return ProductCrudService(
+        repository=ProductTortoiseRepo
     )
 
 

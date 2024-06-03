@@ -21,4 +21,3 @@ class ProductInputDto(BaseModel):
 
 class ProductOutputDto(ProductInputDto):
     id: UUID
-
