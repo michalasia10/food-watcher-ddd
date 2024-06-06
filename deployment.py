@@ -9,8 +9,6 @@ from typing import Optional
 import typer
 from typer import progressbar
 
-from src.config.api_config import ApiConfig
-
 app = typer.Typer()
 
 COMMANDS: dict[str, list[str]] = {
@@ -114,6 +112,8 @@ def migrate_manual(migration: str):
             raise AttributeError(f"Migration class not found in {module}")
 
         def apply(self):
+            from src.config.api_config import ApiConfig
+
             migration_class = self.get_migration_class()
             migration = migration_class(ApiConfig().DATABASE_URL)
             asyncio.run(migration.run())
