@@ -1,1 +1,0 @@
-### Component for long and complicated business logic

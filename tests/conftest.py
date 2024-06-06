@@ -1,11 +1,14 @@
 import asyncio
 from enum import Enum
-
+from typing import Any
+from uuid import UUID
+import json
 import pytest
 import pytest_asyncio
 from httpx import AsyncClient
 from httpx import Response
 from tortoise import Tortoise
+from uuid6 import UUID as UUIDv6
 
 from src.api.main import app
 from src.config import TORTOISE_TEST_CONFIG
@@ -120,6 +123,17 @@ class TestAsyncClient(AsyncClient):
             "Authorization": f"Bearer {token}"
         }
 
+    def _convert_json(self, json_data: str | dict) -> dict:
+        if isinstance(json_data, str):
+            return json.loads(json_data)
+        return json_data
+
+    def post(self, url, json_data: str | dict, *args, **kwargs):
+        return super().post(url=url, json=self._convert_json(json_data), *args, **kwargs)
+
+    def put(self, url, json_data: str | dict, *args, **kwargs):
+        return super().put(url=url, json=self._convert_json(json_data), *args, **kwargs)
+
     @staticmethod
     def check_correct_keys_in_error_response(response: Response) -> None:
         assert all(key in ["error", "status_code"] for key in response.json().keys())
@@ -129,6 +143,29 @@ class TestAsyncClient(AsyncClient):
         cls.check_correct_keys_in_error_response(response)
         assert response.status_code == status_code
         assert response.json()["status_code"] == status_code
+
+    @classmethod
+    def compare_response_object_with_db(
+            cls,
+            response_json: dict,
+            db_object: object,
+            other_object: None | object = None
+    ) -> None:
+        def _transform_uuid_to_str(value: Any) -> Any:
+            if isinstance(value, (UUIDv6, UUID)):
+                return str(value)
+            return value
+
+        any_ok = False
+        for key, value in response_json.items():
+            if hasattr(db_object, key):
+                assert _transform_uuid_to_str(getattr(db_object, key)) == _transform_uuid_to_str(value)
+                any_ok = True
+
+            if other_object and hasattr(other_object, key):
+                assert _transform_uuid_to_str(getattr(other_object, key)) == _transform_uuid_to_str(value)
+
+        assert any_ok, "No key matched with the db object."
 
 
 @pytest_asyncio.fixture(scope="function", autouse=True)

@@ -1,21 +1,20 @@
 import dataclasses
 from functools import partial
-from typing import Any, Tuple, Dict, cast, Literal
-from typing import List, TypeVar, Generic
-from typing import Type
-from uuid import UUID
 from http import HTTPStatus
+from typing import List, TypeVar, Generic, Any, Tuple, Dict, cast, Literal, Type
+from uuid import UUID
+
 from classy_fastapi.route_args import EndpointDefinition
 from dependency_injector.wiring import inject
 from fastapi import APIRouter, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPBearer
 from pydantic import BaseModel
 
-from core_new.app.service import ICrudService, IAuthService
+from src.core_new.app.service import ICrudService, IAuthService
+from src.core_new.controller.auth import AuthController
 
 OutPutModel = TypeVar("OutPutModel", bound=BaseModel)
 InPutModel = TypeVar("InPutModel", bound=BaseModel)
-http_bearer = HTTPBearer()
 
 
 class RoutableMetav2(type):
@@ -62,7 +61,7 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
             output_dto: InPutModel | None = None,
     ) -> None:
         self._service = crud_service
-        self._auth_service = auth_service
+        self._auth_service = AuthController(auth_service)
         self.output_dto = output_dto
         self.create_dto = create_dto
         self.update_dto = update_dto
@@ -81,8 +80,6 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
         return self._router
 
     def register_basic_crud_endpoints(self, basic_create_dto, basic_update_dto):
-        async def bearer_auth(token: HTTPAuthorizationCredentials = Depends(http_bearer)):
-            return await self._auth_service.verify(token.credentials)
 
         if "list" in self.crud_methods:
             assert self.output_dto is not None and self._service is not None
@@ -119,7 +116,7 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
             async def update(
                     id: UUID,
                     item: basic_update_dto,
-                    user: HTTPBearer = Depends(bearer_auth),
+                    user: HTTPBearer = Depends(self._auth_service.bearer_auth),
             ):
                 """Basic endpoint to update instance."""
 
@@ -127,6 +124,6 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
 
         if "delete" in self.crud_methods:
             @self.router.delete("/{id}", status_code=HTTPStatus.NO_CONTENT)
-            async def delete(id: UUID, user: HTTPBearer = Depends(bearer_auth)):
+            async def delete(id: UUID, user: HTTPBearer = Depends(self._auth_service.bearer_auth)):
                 "Basic endpoint to delete instance by id."
                 return await self._service.delete(id, user_id=user.id, is_admin=user.is_admin)

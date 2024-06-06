@@ -55,7 +55,7 @@ class ApiConfig(BaseSettings):
     @property
     def TORTOISE_ORM_CONFIG(self) -> dict:
         return {
-            "routers": ["config.api_config.Router"],
+            "routers": ["src.config.api_config.Router"],
             'connections': {
                 'default': self.DATABASE_URL,
             },
@@ -63,6 +63,15 @@ class ApiConfig(BaseSettings):
                 "auth": {
                     'models': [
                         "src.modules.auth_new.infra.model",
+                        "aerich.models",
+                    ],
+                    "default_connection": "default"
+                },
+                "product": {
+                    'models': [
+                        "src.modules.product_new.infra.model.product",
+                        "src.modules.product_new.infra.model.consumption",
+                        "src.modules.product_new.infra.model.daily_product",
                         "aerich.models",
                     ],
                     "default_connection": "default"

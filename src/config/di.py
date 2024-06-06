@@ -1,7 +1,10 @@
 from dependency_injector import containers, providers
 
-from src.modules.auth_new.di import AuthContainer
 from src.config.api_config import ApiConfig
+from src.modules.auth_new.di import AuthContainer
+from src.modules.product_new.di import ProductContainer, ConsumptionContainer
+
+
 # from src.modules.auth.infra.repository.user import SqlUserRepository
 # from src.modules.auth.infra.services.authentication import AuthenticationService
 # from src.modules.auth.infra.usecases.command.user import UserCommand
@@ -146,4 +149,16 @@ class AppContainer(containers.DeclarativeContainer):
         container_config=container_config,
         api_config=api_config,
     )
+
+    product = providers.Container(
+        ProductContainer,
+        container_config=container_config,
+        api_config=api_config,
+    )
+    consumption = providers.Container(
+        ConsumptionContainer,
+        container_config=container_config,
+        api_config=api_config,
+    )
+
 

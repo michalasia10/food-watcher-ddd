@@ -18,7 +18,7 @@ async def test_user_controller_create_user(api_client, endpoint_enum):
         last_name="test_api"
     )
     # when
-    response = await api_client.post(endpoint_enum.USERS.value, json=user_input.dict())
+    response = await api_client.post(endpoint_enum.USERS.value, json_data=user_input.model_dump_json())
 
     # then
     assert response.status_code == HTTPStatus.CREATED
@@ -80,7 +80,7 @@ async def test_user_controller_update_user(api_client, endpoint_enum, user_recor
     # when
     response = await api_client.put(
         endpoint_enum.USERS.get_detail(user_token.user_id),
-        json=update_dto.dict(),
+        json_data=update_dto.model_dump_json(),
     )
 
     # then
@@ -101,7 +101,7 @@ async def test_user_controller_update_user_dummy_token(api_client, endpoint_enum
     # when
     response = await api_client.put(
         endpoint_enum.USERS.get_detail(user_record.id),
-        json=update_dto.dict(),
+        json_data=update_dto.model_dump_json(),
     )
 
     # then
@@ -122,7 +122,7 @@ async def test_user_controller_update_requestor_not_owner_of_record(
     # when
     response = await api_client.put(
         endpoint_enum.USERS.get_detail(user_record.id),
-        json=update_dto.dict(),
+        json_data=update_dto.model_dump_json(),
     )
 
     # then
@@ -203,7 +203,7 @@ async def test_user_login(api_client, endpoint_enum, user_record, user_password)
     # when
     response = await api_client.post(
         f'{endpoint_enum.USERS.value}login',
-        json=login_dto.dict(),
+        json_data=login_dto.model_dump_json(),
     )
 
     # then
@@ -223,7 +223,7 @@ async def test_user_login_wrong_password(api_client, endpoint_enum, user_record)
     # when
     response = await api_client.post(
         f'{endpoint_enum.USERS.value}login',
-        json=login_dto.dict(),
+        json_data=login_dto.model_dump_json(),
     )
 
     # then
@@ -238,7 +238,7 @@ async def test_user_login_wrong_username(api_client, endpoint_enum, user_record,
     # when
     response = await api_client.post(
         f'{endpoint_enum.USERS.value}login',
-        json=login_dto.dict(),
+        json_data=login_dto.model_dump_json(),
     )
 
     # then

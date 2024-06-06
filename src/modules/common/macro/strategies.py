@@ -16,7 +16,7 @@ class MacroCalculatorWeightStrategy(MacroCalculatorStrategy):
         assert hasattr(object_to_set, "calories"), "Object must have calories attribute"
 
         object_to_set.calories = (
-            object_to_set.weight_in_grams * product.energy_kcal_100g / 100
+            object_to_set.weight_in_grams * (product.energy_kcal_100g / 100.0)
             if product.energy_kcal_100g
             else 0
         )
@@ -29,7 +29,7 @@ class MacroCalculatorWeightStrategy(MacroCalculatorStrategy):
         assert hasattr(object_to_set, "proteins"), "Object must have proteins attribute"
 
         object_to_set.proteins = (
-            object_to_set.weight_in_grams * product.proteins_100g / 100
+            object_to_set.weight_in_grams * (product.proteins_100g / 100)
             if product.proteins_100g
             else 0
         )
@@ -42,7 +42,7 @@ class MacroCalculatorWeightStrategy(MacroCalculatorStrategy):
         assert hasattr(object_to_set, "fats"), "Object must have fats attribute"
 
         object_to_set.fats = (
-            object_to_set.weight_in_grams * product.fat_100g / 100
+            object_to_set.weight_in_grams * (product.fat_100g / 100)
             if product.fat_100g
             else 0
         )
@@ -57,7 +57,7 @@ class MacroCalculatorWeightStrategy(MacroCalculatorStrategy):
         ), "Object must have carbohydrates attribute"
 
         object_to_set.carbohydrates = (
-            object_to_set.weight_in_grams * product.carbohydrates_100g / 100
+            object_to_set.weight_in_grams * (product.carbohydrates_100g / 100)
             if product.carbohydrates_100g
             else 0
         )

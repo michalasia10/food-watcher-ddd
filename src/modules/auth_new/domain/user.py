@@ -5,8 +5,8 @@ import jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
 
-from core_new.domain.entity import Entity
-from modules.auth_new.domain.enums import StatusEnum, TypeEnum
+from src.core_new.domain.entity import Entity
+from src.modules.auth_new.domain.enums import StatusEnum, TypeEnum
 
 hash_helper = CryptContext(schemes=["bcrypt"])
 
