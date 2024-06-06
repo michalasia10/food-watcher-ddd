@@ -1,14 +1,14 @@
 from datetime import datetime
 from http import HTTPStatus
+from uuid import UUID
 
 from dependency_injector.wiring import inject
 from fastapi import APIRouter, Response, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from uuid6 import UUID
 
-from core_new.app.service import IAuthService
 from src.api.shared import dependency
 from src.config.di import AppContainer
+from src.core_new.app.service import IAuthService
 from src.modules.product_new.application.dto.consumption import DailyUserConsumptionOutputDto
 from src.modules.product_new.application.dto.daily_product import DailyUserProductInputDto
 from src.modules.product_new.application.service.consumption import ConsumptionService
@@ -65,7 +65,7 @@ async def get_day_by_datetime(
     """
     user = await auth_service.verify(token.credentials)
 
-    return await service.get_day_by_datetime(user_id=user.id, datetime=datetime)
+    return await service.get_day_by_datetime(date=datetime, user_id=user.id)
 
 
 @router.post("/")

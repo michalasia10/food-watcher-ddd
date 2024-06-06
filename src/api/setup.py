@@ -6,12 +6,25 @@ from fastapi import FastAPI
 from src.core_new.controller.crud import BaseModelView
 
 
-def include_routers(app: FastAPI, routers: list[BaseModelView | APIRouter | Any]):
+def include_routers(app: FastAPI, routers: list[BaseModelView | APIRouter | Any]) -> None:
+    """
+    Include routers in the FastAPI app.
+
+    Function can handle Type[BaseModelView] and get router from it, and also APIRouter.
+
+    Args:
+        app: FastAPI
+        routers: list[BaseModelView | APIRouter | Any]
+
+    Returns:
+
+    """
     router: BaseModelView | APIRouter
     for router in routers:
-        if isinstance(router, BaseModelView):
-            app.include_router(router.router)
-        elif isinstance(router, APIRouter):
-            app.include_router(router)
-        else:
-            raise Exception("Invalid router type")
+        match router:
+            case BaseModelView():
+                app.include_router(router.router)
+            case APIRouter():
+                app.include_router(router)
+            case _:
+                raise Exception("Invalid router type")

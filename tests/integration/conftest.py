@@ -2,7 +2,7 @@ import pytest
 import pytest_asyncio
 
 from src.config import settings
-from src.modules.auth_new.application.dto import UserInputDto
+from src.modules.auth_new.application.dto import UserInputDto, UserAuthInputDto
 from src.modules.auth_new.application.services import UserCrudService, AuthenticationService
 from src.modules.auth_new.infra.user_repo import UserTortoiseRepo
 
@@ -63,5 +63,25 @@ async def user_record2(user_service, user_password):
             email="test2@no.com",
             first_name="test2",
             last_name="test2"
+        )
+    )
+
+
+@pytest_asyncio.fixture(scope="function")
+async def user_token(auth_service, user_password, user_record):
+    return await auth_service.authenticate(
+        UserAuthInputDto(
+            username=user_record.username,
+            password=user_password
+        )
+    )
+
+
+@pytest_asyncio.fixture(scope="function")
+async def user_token2(auth_service, user_password, user_record2):
+    return await auth_service.authenticate(
+        UserAuthInputDto(
+            username=user_record2.username,
+            password=user_password
         )
     )

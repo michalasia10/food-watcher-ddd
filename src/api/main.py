@@ -1,3 +1,4 @@
+# libs
 from http import HTTPStatus
 
 from fastapi import FastAPI
@@ -5,13 +6,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.requests import Request
 from tortoise.contrib.fastapi import register_tortoise
 
+# important stuff
 from src.api.response import ErrorResponse
 from src.api.setup import include_routers
 from src.config import TORTOISE_CONFIG, settings
 from src.config.di import AppContainer
 from src.core_new.domain.errors import Error
+# controllers
 from src.modules.auth_new.controller import UserViewSet
 from src.modules.product_new.controller.product import ProductViewSet
+from src.modules.product_new.controller.consumption import router as consumption_router
 
 ####################################
 ######### Container CONFIG #########
@@ -23,6 +27,7 @@ container.wire(
         # "api.routers.users",
         "src.modules.auth_new.controller",
         "src.modules.product_new.controller.product",
+        "src.modules.product_new.controller.consumption",
         # "api.routers.base",
         # "api.routers.chat",
         # "api.routers.consumption",
@@ -47,11 +52,13 @@ app = FastAPI(
 include_routers(
     app,
     [
+        # ViewSets
         UserViewSet(),
         ProductViewSet(),
+        # Routers
+        consumption_router,
         # ChannelsViewSet(),
         # ChatRouter,
-        # ConsumptionRouter,
         # RecipeViewSet(),
         # RecipeProductViewSet(),
     ],
@@ -59,7 +66,7 @@ include_routers(
 
 
 ####################################
-######## App Exception Handlers ###
+######## App Exception Handlers ####
 ####################################
 
 @app.exception_handler(Error)
@@ -79,7 +86,7 @@ async def unknown_exception_handler(request: Request, exc: Exception) -> ErrorRe
 
 
 ####################################
-######## App Middlewares ###
+######## App Middlewares ###########
 ####################################
 
 
@@ -95,8 +102,10 @@ app.add_middleware(
 ######## Registration Extra to App #
 ####################################
 
-
+###  Container DI ######
 app.container = container
+
+###  Tortoise ORM ######
 register_tortoise(
     app,
     config=TORTOISE_CONFIG,
