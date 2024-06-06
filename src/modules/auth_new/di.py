@@ -1,6 +1,6 @@
 from dependency_injector import containers, providers
 
-from src.modules.auth_new.application.user_service import AuthenticationService, UserCrudService
+from src.modules.auth_new.application.services import AuthenticationService, UserCrudService
 from src.modules.auth_new.infra.user_repo import UserTortoiseRepo
 
 
@@ -17,5 +17,5 @@ class AuthContainer(containers.DeclarativeContainer):
 
     user_service = providers.Factory(
         UserCrudService,
-        user_repository=UserTortoiseRepo,
+        repository=UserTortoiseRepo,
     )
