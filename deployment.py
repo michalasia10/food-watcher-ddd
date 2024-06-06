@@ -5,10 +5,10 @@ import subprocess
 import sys
 from time import sleep
 from typing import Optional
-from urllib.parse import urlparse, unquote
 
 import typer
 from typer import progressbar
+
 from src.config.api_config import ApiConfig
 
 app = typer.Typer()
