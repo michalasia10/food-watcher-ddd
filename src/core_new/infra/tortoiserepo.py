@@ -3,10 +3,11 @@ from copy import deepcopy
 from typing import TypeVar, Generic, Type, List, Optional, Any
 from uuid import UUID
 
-from tortoise.contrib.pydantic.base import _get_fetch_fields
-from tortoise.fields import Field, ReverseRelation
 from asyncpg import ObjectInUseError
+from loguru import logger
+from tortoise.contrib.pydantic.base import _get_fetch_fields
 from tortoise.exceptions import BaseORMException
+from tortoise.fields import Field, ReverseRelation
 from tortoise.models import Model
 from tortoise.queryset import QuerySet, QuerySetSingle
 from tortoise.transactions import in_transaction
@@ -99,7 +100,10 @@ class TortoiseRepo(Generic[ModelType, EntityType], IRepository, metaclass=ABCMet
     async def asave(cls, entity: EntityType) -> EntityType:
         try:
             async with in_transaction():
-                return await cls.model.create(**entity.snapshot)
+                entity = await cls.model.create(**entity.snapshot)
+                logger.info("Object {entity} saved in db", entity=entity)
+                return entity
+
         except (BaseORMException, ObjectInUseError) as e:
             raise DBError(e)
 

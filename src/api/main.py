@@ -4,18 +4,21 @@ from http import HTTPStatus
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.requests import Request
+from logfire import instrument_fastapi
+from loguru import logger
 from tortoise.contrib.fastapi import register_tortoise
 
 # important stuff
 from src.api.response import ErrorResponse
-from src.api.setup import include_routers
+from src.api.router_util import include_routers
 from src.config import TORTOISE_CONFIG, settings
 from src.config.di import AppContainer
 from src.core_new.domain.errors import Error
 # controllers
 from src.modules.auth_new.controller import UserViewSet
-from src.modules.product_new.controller.product import ProductViewSet
 from src.modules.product_new.controller.consumption import router as consumption_router
+from src.modules.product_new.controller.product import ProductViewSet
+from src.modules.recipe_new.controller import RecipeViewSet
 
 ####################################
 ######### Container CONFIG #########
@@ -24,11 +27,10 @@ from src.modules.product_new.controller.consumption import router as consumption
 container = AppContainer()
 container.wire(
     modules=[
-        # "api.routers.users",
         "src.modules.auth_new.controller",
         "src.modules.product_new.controller.product",
         "src.modules.product_new.controller.consumption",
-        # "api.routers.base",
+        "src.modules.recipe_new.controller",
         # "api.routers.chat",
         # "api.routers.consumption",
         # "api.routers.recipe",
@@ -55,6 +57,7 @@ include_routers(
         # ViewSets
         UserViewSet(),
         ProductViewSet(),
+        RecipeViewSet(),
         # Routers
         consumption_router,
         # ChannelsViewSet(),
@@ -79,6 +82,7 @@ async def default_handler(request: Request, exc: Error) -> ErrorResponse:
 
 @app.exception_handler(Exception)
 async def unknown_exception_handler(request: Request, exc: Exception) -> ErrorResponse:
+    logger.error(f"Unknown error occurred: {exc}", request=request)
     return ErrorResponse(
         status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
         message="Unknown error occurred. Please try again later or create issue ticket."
@@ -98,6 +102,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ToDo: Figure out middleware for ws
+
 ####################################
 ######## Registration Extra to App #
 ####################################
@@ -112,8 +118,9 @@ register_tortoise(
     generate_schemas=False,
     add_exception_handlers=False,
 )
-# ToDo: Figure out middleware for ws
+### LogFire ######
 
+instrument_fastapi(app=app)
 
 ####################################
 ############## END #################

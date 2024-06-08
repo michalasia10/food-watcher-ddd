@@ -112,7 +112,7 @@ def migrate_manual(migration: str):
             raise AttributeError(f"Migration class not found in {module}")
 
         def apply(self):
-            from src.config.api_config import ApiConfig
+            from src.config.config import ApiConfig
 
             migration_class = self.get_migration_class()
             migration = migration_class(ApiConfig().DATABASE_URL)

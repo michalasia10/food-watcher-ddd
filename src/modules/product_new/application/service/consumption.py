@@ -8,7 +8,12 @@ from src.modules.product_new.application.dto.consumption import DailyUserConsump
 from src.modules.product_new.application.dto.daily_product import DailyUserProductInputDto
 from src.modules.product_new.domain.entity.consumption import DailyUserConsumption
 from src.modules.product_new.domain.entity.daily_product import DailyUserProduct
-from src.modules.product_new.domain.errors import ProductNotFound, DailyUserConsumptionNotFound
+from src.modules.product_new.domain.errors import (
+    ProductNotFound,
+    DailyUserConsumptionNotFound,
+    DailyProductNotFound,
+    DailyUserConsumptionNotRecordOwner
+)
 
 
 class ConsumptionService:
@@ -152,6 +157,38 @@ class ConsumptionService:
         )
 
         await self._daily_product_repository.asave(entity=daily_product)
+        await self._consumption_repository.aupdate(entity=day)
+
+        updated_day: DailyUserConsumption = await self._consumption_repository.aget_by_id(
+            id=day.id,
+            fetch_fields=['products', 'products__product'],
+        )
+
+        return DailyUserConsumptionOutputDto(
+            **self._consumption_repository.convert_snapshot(
+                snapshot=updated_day.snapshot
+            )
+        )
+
+    async def delete_meal(self, user_id: UUID, daily_product_id: UUID) -> DailyUserConsumptionOutputDto:
+        try:
+            product = await self._daily_product_repository.aget_by_id(daily_product_id)
+        except DoesNotExist:
+            raise DailyProductNotFound(
+                f"Product with id {daily_product_id} not found"
+            )
+
+        day: DailyUserConsumption = await self._consumption_repository.aget_by_id(
+            id=product.day_id,
+        )
+
+        if day.user_id != user_id:
+            raise DailyUserConsumptionNotRecordOwner(
+                f'Daily consumption with id {day.id} does not belong to user {user_id}.'
+            )
+
+        day.delete_product(product)
+        await self._daily_product_repository.adelete(entity=product)
         await self._consumption_repository.aupdate(entity=day)
 
         updated_day: DailyUserConsumption = await self._consumption_repository.aget_by_id(

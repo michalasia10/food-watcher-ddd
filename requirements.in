@@ -1,4 +1,4 @@
-fastapi
+fastapi==0.110.3
 tortoise-orm[asyncpg]
 pydantic
 pydantic-settings
@@ -17,3 +17,5 @@ uuid6
 httpx
 pytest-asyncio
 typer
+loguru
+logfire[fastapi]

@@ -1,10 +1,12 @@
 import asyncio
+import json
 from enum import Enum
 from typing import Any
 from uuid import UUID
-import json
+
 import pytest
 import pytest_asyncio
+import tortoise.fields
 from httpx import AsyncClient
 from httpx import Response
 from tortoise import Tortoise
@@ -12,6 +14,13 @@ from uuid6 import UUID as UUIDv6
 
 from src.api.main import app
 from src.config import TORTOISE_TEST_CONFIG
+
+
+class UUIDEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (UUID, UUIDv6)):
+            return obj.hex
+        return json.JSONEncoder.default(self, obj)
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -22,7 +31,7 @@ def endpoint_enum():
         PRODUCTS = "/products/"
         CHAT = "/chat/"
         CONSUMPTION = "/consumption/"
-        RECIPE = "/recipe/"
+        RECIPE = "/recipes/"
 
         def get_detail(self, id: int):
             return f"{self.value}{id}"
@@ -43,6 +52,7 @@ class AnsciColorEnum(str, Enum):
 class LogLevelEnum(str, Enum):
     SETUP = "[SETUP-PYTEST]"
     TEARDOWN = "[TEARDOWN-PYTEST]"
+    API_TEST = "[API-TEST]"
 
 
 class Printer:
@@ -67,6 +77,8 @@ class Printer:
                 color = AnsciColorEnum.GREEN
             case LogLevelEnum.TEARDOWN.value:
                 color = AnsciColorEnum.RED
+            case LogLevelEnum.API_TEST.value:
+                color = AnsciColorEnum.MAGENTA
             case _:
                 color = AnsciColorEnum.YELLOW
 
@@ -100,6 +112,20 @@ class Printer:
         """
         cls._printl(LogLevelEnum.SETUP, text)
 
+    @classmethod
+    def api_test(cls, text: str):
+        """
+        Print api test message.
+
+        e.g
+
+        text: Testing /users/ endpoint...
+        ->>
+        [API-TEST] Testing /users/ endpoint...
+
+        """
+        cls._printl(LogLevelEnum.API_TEST, text)
+
 
 @pytest.fixture(scope="session")
 def anyio_backend():
@@ -126,7 +152,8 @@ class TestAsyncClient(AsyncClient):
     def _convert_json(self, json_data: str | dict) -> dict:
         if isinstance(json_data, str):
             return json.loads(json_data)
-        return json_data
+
+        return json.loads(json.dumps(json_data, cls=UUIDEncoder))
 
     def post(self, url, json_data: str | dict, *args, **kwargs):
         return super().post(url=url, json=self._convert_json(json_data), *args, **kwargs)
@@ -156,14 +183,39 @@ class TestAsyncClient(AsyncClient):
                 return str(value)
             return value
 
+        def ok(key, db_object, value):
+            any_ok = False
+            if hasattr(db_object, key) or (isinstance(db_object, dict) and key in db_object):
+                value_from_db = db_object[key] if isinstance(db_object, dict) else getattr(db_object, key)
+                if isinstance(value_from_db, dict):
+                    for kk, vv in value_from_db.items():
+                        any_ok = ok(kk, value_from_db, vv)
+
+                    return any_ok
+                else:
+                    ok_value = _transform_uuid_to_str(value_from_db) == _transform_uuid_to_str(value)
+                    msg = f"Key: {key}, Value from db: {value_from_db}, Value from response: {value}"
+                    assert ok_value, msg
+                    Printer.api_test(msg)
+                    return True
+
+            return False
+
         any_ok = False
         for key, value in response_json.items():
             if hasattr(db_object, key):
-                assert _transform_uuid_to_str(getattr(db_object, key)) == _transform_uuid_to_str(value)
-                any_ok = True
+                value_from_db = getattr(db_object, key)
+                if not isinstance(value_from_db, (tortoise.fields.ReverseRelation, list, tuple)):
+                    any_ok = ok(key, db_object, value)
+
+                if isinstance(value_from_db, (list, tuple)):
+                    for val_for_db, val_from_response in zip(value_from_db, value):
+                        for k, v in vars(val_for_db).items():
+                            if k in val_from_response.keys():
+                                any_ok = ok(k, val_from_response, v)
 
             if other_object and hasattr(other_object, key):
-                assert _transform_uuid_to_str(getattr(other_object, key)) == _transform_uuid_to_str(value)
+                ok(key, other_object, value)
 
         assert any_ok, "No key matched with the db object."
 
