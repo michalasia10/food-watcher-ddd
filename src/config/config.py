@@ -85,6 +85,14 @@ class ApiConfig(BaseSettings):
                     ],
                     "default_connection": "default"
                 },
+                "recipe": {
+                    'models': [
+                        "src.modules.recipe_new.infra.model.recipe",
+                        "src.modules.recipe_new.infra.model.recipe_product",
+                        "aerich.models",
+                    ],
+                    "default_connection": "default"
+                },
             },
             'timezone': 'UTC'
         }

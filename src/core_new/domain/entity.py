@@ -7,7 +7,7 @@ from uuid import UUID
 from pydantic import BaseModel
 from uuid6 import uuid6
 
-from core_new.domain.types import SnapShot
+from src.core_new.domain.types import SnapShot
 
 
 def convert_uuid_to_str(obj: Any) -> str | list[dict[str, Any]] | dict[str, Any]:
@@ -32,6 +32,9 @@ class Entity(ABC):
 
     def __hash__(self) -> int:
         return hash(self.id)
+
+    def __str__(self):
+        return f'.::{self.__class__.__name__}::..::{self.id}::.'
 
     @classmethod
     def create_id(cls) -> UUID:

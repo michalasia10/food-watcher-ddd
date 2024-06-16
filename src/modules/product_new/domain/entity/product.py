@@ -1,7 +1,8 @@
 from dataclasses import dataclass
+from uuid import UUID
 
-from core_new.domain.value_object import PrecisedFloat
 from src.core_new.domain.entity import Entity
+from src.core_new.domain.value_object import PrecisedFloat
 
 
 @dataclass
@@ -13,6 +14,7 @@ class Product(Entity):
     size: str | None = None
     groups: str | None = None
     category: str | None = None
+    user_id: UUID | None = None
     energy_kcal_100g: PrecisedFloat | None = None
     fat_100g: PrecisedFloat | None = None
     carbohydrates_100g: PrecisedFloat | None = None
@@ -21,7 +23,7 @@ class Product(Entity):
 
     @classmethod
     def create(cls, *args, **kwargs) -> 'Product':
-        _args = [PrecisedFloat(arg) if isinstance(arg, float) else arg for arg in args]
+        _args = tuple(PrecisedFloat(arg) if isinstance(arg, float) else arg for arg in args)
         _kwargs = {k: PrecisedFloat(v) if isinstance(v, float) else v for k, v in kwargs.items()}
 
         return cls(
