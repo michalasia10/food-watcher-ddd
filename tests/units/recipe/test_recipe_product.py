@@ -3,9 +3,9 @@ from unittest.mock import Mock
 
 from uuid6 import uuid6
 
-from src.modules.recipe_new.domain.entity.recipe import Recipe
-from src.core_new.domain.value_object import PrecisedFloat
-from src.modules.recipe_new.domain.entity.recipe_product import ProductForRecipe
+from src.modules.recipe.domain.entity.recipe import Recipe
+from src.core.domain.value_object import PrecisedFloat
+from src.modules.recipe.domain.entity.recipe_product import ProductForRecipe
 
 
 def test_create_product_for_recipe():

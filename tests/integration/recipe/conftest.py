@@ -1,14 +1,14 @@
 import pytest
 import pytest_asyncio
 
-from src.modules.product_new.application.service.product import ProductCrudService
-from src.modules.product_new.domain.entity.product import Product
-from src.modules.product_new.infra.repo.product import ProductTortoiseRepo
-from src.modules.recipe_new.application.service import RecipeService
-from src.modules.recipe_new.domain.entity.recipe import Recipe
-from src.modules.recipe_new.domain.entity.recipe_product import ProductForRecipe
-from src.modules.recipe_new.infra.repo.recipe import RecipeTortoiseRepo
-from src.modules.recipe_new.infra.repo.recipe_product import RecipeForProductTortoiseRepo
+from src.modules.product.application.service.product import ProductCrudService
+from src.modules.product.domain.entity.product import Product
+from src.modules.product.infra.repo.product import ProductTortoiseRepo
+from src.modules.recipe.application.service import RecipeService
+from src.modules.recipe.domain.entity.recipe import Recipe
+from src.modules.recipe.domain.entity.recipe_product import ProductForRecipe
+from src.modules.recipe.infra.repo.recipe import RecipeTortoiseRepo
+from src.modules.recipe.infra.repo.recipe_product import RecipeForProductTortoiseRepo
 
 
 @pytest.fixture

@@ -3,9 +3,9 @@ from copy import deepcopy
 import pytest
 from uuid6 import uuid6
 
-from src.modules.recipe_new.application.dto.recipe import RecipeInputDto, RecipeUpdateDto
-from src.modules.recipe_new.application.dto.recipe_product import ProductForRecipeInputDto, ProductForRecipeUpdateDto
-from src.modules.recipe_new.domain.errors import RecipeNotFound, RecipeNotRecordOwner, ProductForRecipeNotRecordOwner, \
+from src.modules.recipe.application.dto.recipe import RecipeInputDto, RecipeUpdateDto
+from src.modules.recipe.application.dto.recipe_product import ProductForRecipeInputDto, ProductForRecipeUpdateDto
+from src.modules.recipe.domain.errors import RecipeNotFound, RecipeNotRecordOwner, ProductForRecipeNotRecordOwner, \
     ProductForRecipeNotFound
 
 

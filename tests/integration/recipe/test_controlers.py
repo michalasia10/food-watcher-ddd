@@ -4,10 +4,10 @@ import pytest
 from tortoise.exceptions import DoesNotExist
 from uuid6 import uuid6
 
-from src.modules.recipe_new.application.dto.recipe import RecipeInputDto, RecipeUpdateDto
-from src.modules.recipe_new.application.dto.recipe_product import ProductForRecipeInputDto, ProductForRecipeUpdateDto
-from src.modules.recipe_new.infra.repo.recipe import RecipeTortoiseRepo
-from src.modules.recipe_new.infra.repo.recipe_product import RecipeForProductTortoiseRepo
+from src.modules.recipe.application.dto.recipe import RecipeInputDto, RecipeUpdateDto
+from src.modules.recipe.application.dto.recipe_product import ProductForRecipeInputDto, ProductForRecipeUpdateDto
+from src.modules.recipe.infra.repo.recipe import RecipeTortoiseRepo
+from src.modules.recipe.infra.repo.recipe_product import RecipeForProductTortoiseRepo
 
 
 @pytest.mark.asyncio

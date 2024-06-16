@@ -13,12 +13,12 @@ from src.api.response import ErrorResponse
 from src.api.router_util import include_routers
 from src.config import TORTOISE_CONFIG, settings
 from src.config.di import AppContainer
-from src.core_new.domain.errors import Error
+from src.core.domain.errors import Error
 # controllers
-from src.modules.auth_new.controller import UserViewSet
-from src.modules.product_new.controller.consumption import router as consumption_router
-from src.modules.product_new.controller.product import ProductViewSet
-from src.modules.recipe_new.controller import RecipeViewSet
+from src.modules.auth.controller import UserViewSet
+from src.modules.product.controller.consumption import router as consumption_router
+from src.modules.product.controller.product import ProductViewSet
+from src.modules.recipe.controller import RecipeViewSet
 
 ####################################
 ######### Container CONFIG #########
@@ -27,13 +27,11 @@ from src.modules.recipe_new.controller import RecipeViewSet
 container = AppContainer()
 container.wire(
     modules=[
-        "src.modules.auth_new.controller",
-        "src.modules.product_new.controller.product",
-        "src.modules.product_new.controller.consumption",
-        "src.modules.recipe_new.controller",
-        # "api.routers.chat",
-        # "api.routers.consumption",
-        # "api.routers.recipe",
+        "src.modules.auth.controller",
+        "src.modules.product.controller.product",
+        "src.modules.product.controller.consumption",
+        "src.modules.recipe.controller",
+        # ToDo: fix "api.routers.chat",
     ]
 )
 
@@ -60,10 +58,8 @@ include_routers(
         RecipeViewSet(),
         # Routers
         consumption_router,
-        # ChannelsViewSet(),
-        # ChatRouter,
-        # RecipeViewSet(),
-        # RecipeProductViewSet(),
+        # ToDo: fix ChannelsViewSet(),
+        # ToDo: fix ChatRouter,
     ],
 )
 

@@ -1,4 +1,4 @@
-from src.modules.product_new.domain.entity.product import Product
+from src.modules.product.domain.entity.product import Product
 
 
 def test_create_product_entity():

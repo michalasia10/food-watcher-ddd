@@ -63,24 +63,24 @@ class ApiConfig(BaseSettings):
             'apps': {
                 "auth": {
                     'models': [
-                        "src.modules.auth_new.infra.model",
+                        "src.modules.auth.infra.model",
                         "aerich.models",
                     ],
                     "default_connection": "default"
                 },
                 "product": {
                     'models': [
-                        "src.modules.product_new.infra.model.product",
-                        "src.modules.product_new.infra.model.consumption",
-                        "src.modules.product_new.infra.model.daily_product",
+                        "src.modules.product.infra.model.product",
+                        "src.modules.product.infra.model.consumption",
+                        "src.modules.product.infra.model.daily_product",
                         "aerich.models",
                     ],
                     "default_connection": "default"
                 },
                 "recipe": {
                     'models': [
-                        "src.modules.recipe_new.infra.model.recipe",
-                        "src.modules.recipe_new.infra.model.recipe_product",
+                        "src.modules.recipe.infra.model.recipe",
+                        "src.modules.recipe.infra.model.recipe_product",
                         "aerich.models",
                     ],
                     "default_connection": "default"
