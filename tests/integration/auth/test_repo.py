@@ -1,8 +1,8 @@
 import pytest
 
-from src.modules.auth_new.domain.enums import StatusEnum, TypeEnum
-from src.modules.auth_new.domain.user import User
-from src.modules.auth_new.infra.user_repo import UserTortoiseRepo
+from src.modules.auth.domain.enums import StatusEnum, TypeEnum
+from src.modules.auth.domain.user import User
+from src.modules.auth.infra.user_repo import UserTortoiseRepo
 
 
 @pytest.mark.asyncio

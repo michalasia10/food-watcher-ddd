@@ -2,9 +2,9 @@ import pytest
 import pytest_asyncio
 
 from src.config import settings
-from src.modules.auth_new.application.dto import UserInputDto, UserAuthInputDto
-from src.modules.auth_new.application.services import UserCrudService, AuthenticationService
-from src.modules.auth_new.infra.user_repo import UserTortoiseRepo
+from src.modules.auth.application.dto import UserInputDto, UserAuthInputDto
+from src.modules.auth.application.services import UserCrudService, AuthenticationService
+from src.modules.auth.infra.user_repo import UserTortoiseRepo
 
 
 @pytest.fixture

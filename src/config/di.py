@@ -1,9 +1,9 @@
 from dependency_injector import containers, providers
 
 from src.config.config import ApiConfig
-from src.modules.auth_new.di import AuthContainer
-from src.modules.product_new.di import ProductContainer, ConsumptionContainer
-from src.modules.recipe_new.di import RecipeContainer
+from src.modules.auth.di import AuthContainer
+from src.modules.product.di import ProductContainer, ConsumptionContainer
+from src.modules.recipe.di import RecipeContainer
 
 
 class AppContainer(containers.DeclarativeContainer):

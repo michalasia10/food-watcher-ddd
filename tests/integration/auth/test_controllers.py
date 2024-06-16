@@ -3,8 +3,8 @@ from http import HTTPStatus
 
 import pytest
 
-from src.modules.auth_new.application.dto import UserInputDto, UserUpdateDto, UserAuthInputDto
-from src.modules.auth_new.infra.user_repo import UserTortoiseRepo
+from src.modules.auth.application.dto import UserInputDto, UserUpdateDto, UserAuthInputDto
+from src.modules.auth.infra.user_repo import UserTortoiseRepo
 
 
 @pytest.mark.asyncio

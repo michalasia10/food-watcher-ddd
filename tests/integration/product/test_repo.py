@@ -1,11 +1,11 @@
 import pytest
 
-from src.modules.product_new.domain.entity.consumption import DailyUserConsumption
-from src.modules.product_new.domain.entity.daily_product import DailyUserProduct
-from src.modules.product_new.domain.entity.product import Product
-from src.modules.product_new.infra.repo.consumption import DailyUserConsumptionTortoiseRepo
-from src.modules.product_new.infra.repo.daily_product import DailyUserProductTortoiseRepo
-from src.modules.product_new.infra.repo.product import ProductTortoiseRepo
+from src.modules.product.domain.entity.consumption import DailyUserConsumption
+from src.modules.product.domain.entity.daily_product import DailyUserProduct
+from src.modules.product.domain.entity.product import Product
+from src.modules.product.infra.repo.consumption import DailyUserConsumptionTortoiseRepo
+from src.modules.product.infra.repo.daily_product import DailyUserProductTortoiseRepo
+from src.modules.product.infra.repo.product import ProductTortoiseRepo
 
 
 ### PRODUCT ###

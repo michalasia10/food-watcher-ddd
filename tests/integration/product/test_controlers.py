@@ -4,12 +4,12 @@ from http import HTTPStatus
 import pytest
 from uuid6 import uuid6
 
-from src.modules.product_new.application.dto.daily_product import DailyUserProductInputDto
-from src.modules.product_new.application.dto.product import ProductInputDto
-from src.modules.product_new.domain.enum import UserProductType
-from src.modules.product_new.infra.repo.consumption import DailyUserConsumptionTortoiseRepo
-from src.modules.product_new.infra.repo.daily_product import DailyUserProductTortoiseRepo
-from src.modules.product_new.infra.repo.product import ProductTortoiseRepo
+from src.modules.product.application.dto.daily_product import DailyUserProductInputDto
+from src.modules.product.application.dto.product import ProductInputDto
+from src.modules.product.domain.enum import UserProductType
+from src.modules.product.infra.repo.consumption import DailyUserConsumptionTortoiseRepo
+from src.modules.product.infra.repo.daily_product import DailyUserProductTortoiseRepo
+from src.modules.product.infra.repo.product import ProductTortoiseRepo
 
 
 @pytest.mark.asyncio

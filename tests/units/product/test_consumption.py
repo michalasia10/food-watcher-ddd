@@ -2,8 +2,8 @@ from unittest.mock import Mock
 
 from uuid6 import uuid6
 
-from src.core_new.domain.value_object import PrecisedFloat
-from src.modules.product_new.domain.entity.consumption import DailyUserConsumption
+from src.core.domain.value_object import PrecisedFloat
+from src.modules.product.domain.entity.consumption import DailyUserConsumption
 
 
 def test_create_daily_user_consumption_entity():

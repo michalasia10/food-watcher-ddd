@@ -3,11 +3,11 @@ import uuid
 import pytest
 from tortoise.exceptions import DoesNotExist
 
-from src.core_new.infra.tortoiserepo import TortoiseRepo
-from src.modules.auth_new.application.dto import UserInputDto, UserUpdateDto, UserAuthInputDto
-from src.modules.auth_new.application.services import UserCrudService, AuthenticationService
-from src.modules.auth_new.domain.errors import BadCredentials, UserNotRecordOwner
-from src.modules.auth_new.domain.user import User
+from src.core.infra.tortoiserepo import TortoiseRepo
+from src.modules.auth.application.dto import UserInputDto, UserUpdateDto, UserAuthInputDto
+from src.modules.auth.application.services import UserCrudService, AuthenticationService
+from src.modules.auth.domain.errors import BadCredentials, UserNotRecordOwner
+from src.modules.auth.domain.user import User
 
 
 @pytest.mark.asyncio
