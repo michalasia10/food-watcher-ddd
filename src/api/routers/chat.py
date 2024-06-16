@@ -9,7 +9,7 @@ from api.shared import bearer_auth
 from api.shared import dependency
 from config.di import Container
 from modules.chat.domain.value_objects import ChanelId
-from src.api.shared.utils import get_event_loop
+from src.api.shared.loop import get_event_loop
 from src.modules.chat.app.dtos import ChannelInputDto, ChannelOutputDto, WebSockMessage
 from src.modules.chat.app.repository.messages import MessageCompositeRepository
 from src.modules.chat.facade import WebSocketFacade, NotificationPublisherFacade

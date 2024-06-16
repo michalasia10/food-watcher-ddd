@@ -1,4 +1,4 @@
-from src.config.api_config import settings
+from src.config.config import settings
 
 
 def config_loggers():

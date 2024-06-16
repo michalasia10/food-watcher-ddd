@@ -6,7 +6,7 @@ from uuid import UUID
 
 from classy_fastapi.route_args import EndpointDefinition
 from dependency_injector.wiring import inject
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel
 
@@ -39,7 +39,7 @@ class RoutableMetav2(type):
         return cast(RoutableMetav2, type.__new__(cls, name, bases, attrs))
 
 
-CRUD_METHODS = Literal["create", "list", "delete", "read", "update"]
+CRUD_METHODS = Literal["create", "create_auth", "list", "delete", "read", "update"]
 
 
 class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
@@ -80,14 +80,13 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
         return self._router
 
     def register_basic_crud_endpoints(self, basic_create_dto, basic_update_dto):
-
         if "list" in self.crud_methods:
             assert self.output_dto is not None and self._service is not None
 
             @self.router.get("/", response_model=List[self.output_dto])
             async def list(
-                    skip: int = 0,
-                    limit: int = 100,
+                    skip: int = Query(default=0, gt=0, lt=100),
+                    limit: int = Query(default=100, gt=0, lt=100),
             ):
                 """Basic endpoint to get list of instance. You can also use ?filter"""
                 return await self._service.get_all(skip, limit)
@@ -99,7 +98,19 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
             async def create(item: basic_create_dto):
                 """Basic endpoint to create instance"""
 
-                return await self._service.create(item)
+                return await self._service.create(item, user_id=None, is_admin=False)
+
+        if "create_auth" in self.crud_methods:
+            assert self.create_dto is not None and self._service is not None
+
+            @self.router.post("/", response_model=self.output_dto, status_code=HTTPStatus.CREATED)
+            async def create(
+                    item: basic_create_dto,
+                    user: HTTPBearer = Depends(self._auth_service.bearer_auth)
+            ):
+                """Basic endpoint to create instance with auth user."""
+
+                return await self._service.create(item, user_id=user.id, is_admin=user.is_admin)
 
         if "read" in self.crud_methods:
             assert self.output_dto is not None and self._service is not None

@@ -1,16 +1,10 @@
+import sys
 from copy import deepcopy
-from typing import Type
 
+from logfire import loguru_handler, configure
+from loguru import logger as loguru_logger
 from pydantic import Field
 from pydantic_settings import BaseSettings
-
-
-class Router:
-    def db_for_read(self, model):
-        return "default"
-
-    def db_for_write(self, model):
-        return "default"
 
 
 class ApiConfig(BaseSettings):
@@ -51,11 +45,18 @@ class ApiConfig(BaseSettings):
         env="RABBITMQ_URL",
         default="amqp://michu:michu@localhost:5672//"
     )
+    LOGFIRE_TOKEN: str = Field(
+        env="LOGFIRE_TOKEN",
+        default="token",
+    )
+    LOGFIRE_APP_NAME: str = Field(
+        env="LOGFIRE_APP_NAME",
+        default="app_name",
+    )
 
     @property
     def TORTOISE_ORM_CONFIG(self) -> dict:
         return {
-            "routers": ["src.config.api_config.Router"],
             'connections': {
                 'default': self.DATABASE_URL,
             },
@@ -76,6 +77,14 @@ class ApiConfig(BaseSettings):
                     ],
                     "default_connection": "default"
                 },
+                "recipe": {
+                    'models': [
+                        "src.modules.recipe_new.infra.model.recipe",
+                        "src.modules.recipe_new.infra.model.recipe_product",
+                        "aerich.models",
+                    ],
+                    "default_connection": "default"
+                },
             },
             'timezone': 'UTC'
         }
@@ -89,3 +98,10 @@ class ApiConfig(BaseSettings):
 
 
 settings = ApiConfig()
+send_to_logfire = not settings.DEBUG and not 'pytest' in sys.argv[0]
+configure(
+    send_to_logfire=send_to_logfire,
+    token=settings.LOGFIRE_TOKEN if send_to_logfire else None,
+    project_name=settings.LOGFIRE_APP_NAME
+)
+loguru_logger.configure(handlers=[loguru_handler()])

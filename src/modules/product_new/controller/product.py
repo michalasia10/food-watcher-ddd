@@ -9,7 +9,7 @@ from src.modules.product_new.application.dto.product import ProductInputDto, Pro
 class ProductViewSet(BaseModelView[ProductInputDto, ProductOutputDto]):
     prefix = "/products"
     tag = "products"
-    crud_methods = ("create", "list", "read")
+    crud_methods = ("create_auth", "list", "read", "delete", "update")
 
     @inject
     def __init__(

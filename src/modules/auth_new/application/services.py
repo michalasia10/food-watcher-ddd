@@ -17,11 +17,11 @@ from src.modules.auth_new.domain.user_repo import IUserRepo
 
 class UserCrudService(BaseCrudService):
     OUTPUT_DTO = UserOutputDto
-    NOT_RECORD_OWNER_ERROR = UserNotRecordOwner("You are not allowed to update this user.")
-    NOT_FOUND_ERROR = UserNotFound("User not found.")
+    NOT_RECORD_OWNER_ERROR = (UserNotRecordOwner, "You are not allowed to update user with {id} id.")
+    NOT_FOUND_ERROR = (UserNotFound, "User not found with {id} id.")
     DOES_NOT_EXIST_ERROR = DoesNotExist
 
-    async def create(self, input_dto: UserInputDto) -> UserOutputDto:
+    async def create(self, input_dto: UserInputDto, **kwargs) -> UserOutputDto:
         user = User.create(
             username=input_dto.username,
             password=input_dto.password,
@@ -30,7 +30,6 @@ class UserCrudService(BaseCrudService):
             last_name=input_dto.last_name
         )
         await self._repository.asave(user)
-
         return UserOutputDto(**user.snapshot)
 
 

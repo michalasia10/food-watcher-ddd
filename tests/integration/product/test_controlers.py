@@ -4,11 +4,11 @@ from http import HTTPStatus
 import pytest
 from uuid6 import uuid6
 
-from modules.product_new.infra.repo.consumption import DailyUserConsumptionTortoiseRepo
-from modules.product_new.infra.repo.daily_product import DailyUserProductTortoiseRepo
 from src.modules.product_new.application.dto.daily_product import DailyUserProductInputDto
 from src.modules.product_new.application.dto.product import ProductInputDto
 from src.modules.product_new.domain.enum import UserProductType
+from src.modules.product_new.infra.repo.consumption import DailyUserConsumptionTortoiseRepo
+from src.modules.product_new.infra.repo.daily_product import DailyUserProductTortoiseRepo
 from src.modules.product_new.infra.repo.product import ProductTortoiseRepo
 
 
@@ -73,7 +73,6 @@ async def test_product_controller_get_product_by_id(api_client, endpoint_enum, p
     api_client.compare_response_object_with_db(response_json, product_record)
 
 
-# ToDo: write all tests from /tests/integration/product/test_service.py for consumption as tests from controller POV
 
 @pytest.mark.asyncio
 async def test_consumption_controller_create_consumption(

@@ -18,6 +18,7 @@ class Product(BaseModel):
     proteins_100g = fields.FloatField(null=True)
 
     # relationships
+    user = fields.ForeignKeyField('auth.User', related_name='products', null=True)
     daily_user_products = fields.ReverseRelation['ToDo']
     product_for_recipes = fields.ReverseRelation['ToDo']
 

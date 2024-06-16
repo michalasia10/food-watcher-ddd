@@ -6,11 +6,6 @@ from .mixins import BusinessRuleValidationMixin
 from .value_objects import UUID
 
 
-class UUIDEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, UUID):
-            return obj.hex
-        return json.JSONEncoder.default(self, obj)
 
 
 @dataclass
@@ -21,7 +16,8 @@ class Entity:
         return asdict(self)
 
     def to_serializer_dict(self):
-        return json.loads(json.dumps(self.to_dict(), cls=UUIDEncoder))
+        pass
+        # return json.loads(json.dumps(self.to_dict(), cls=UUIDEncoder))
 
 
 @dataclass

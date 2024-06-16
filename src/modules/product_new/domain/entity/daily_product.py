@@ -35,19 +35,16 @@ class DailyUserProduct(Entity):
             id=cls.create_id(),
             updated_at=cls.create_now_time(),
             created_at=cls.create_now_time(),
-            product=product,
             product_id=product.id,
-            day=day,
             day_id=day.id,
             weight_in_grams=PrecisedFloat(weight_in_grams),
             type=type,
         )
-        entity.set_makros()
-        day.add_product(entity)
-        entity.clear_related_entities()
+        entity.set_makros(product=product)
+        day.add_product(product=entity)
         return entity
 
-    def set_makros(self) -> None:
+    def set_makros(self, product) -> None:
         """
         Method to set makros for based on product.
 
@@ -57,18 +54,6 @@ class DailyUserProduct(Entity):
         macro: MacroCalculatorStrategy = MacroCalculatorFactory.create_strategy(
             strategy_type=MacroCalculatorType.WEIGHT_STRATEGY
         )
-        macro.calculate(self, self.product)
+        macro.calculate(self, product)
 
-    def clear_related_entities(self) -> None:
-        """
-        Method to clear related entities.
 
-        Method is used to clear related entities in `create` to:
-            * avoid model imports etc.
-            * it's easier to save entity to db with relations as `ID` only
-
-        Returns: None
-
-        """
-        self.product = None
-        self.day = None
