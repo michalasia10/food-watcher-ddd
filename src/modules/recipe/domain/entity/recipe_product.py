@@ -29,26 +29,26 @@ class ProductForRecipe(Entity):
     product: Product | None = None
     product_id: UUID | None = None
     recipe_id: UUID | None = None
-    weight_in_grams: PrecisedFloat = PrecisedFloat(.0)
-    calories: PrecisedFloat = PrecisedFloat(.0)
-    proteins: PrecisedFloat = PrecisedFloat(.0)
-    fats: PrecisedFloat = PrecisedFloat(.0)
-    carbohydrates: PrecisedFloat = PrecisedFloat(.0)
+    weight_in_grams: PrecisedFloat = PrecisedFloat(0.0)
+    calories: PrecisedFloat = PrecisedFloat(0.0)
+    proteins: PrecisedFloat = PrecisedFloat(0.0)
+    fats: PrecisedFloat = PrecisedFloat(0.0)
+    carbohydrates: PrecisedFloat = PrecisedFloat(0.0)
 
     @classmethod
     def create(
-            cls,
-            product: Product,
-            recipe: 'Recipe',
-            weight_in_grams: float | PrecisedFloat = PrecisedFloat(.0)
-    ) -> 'ProductForRecipe':
+        cls,
+        product: Product,
+        recipe: "Recipe",
+        weight_in_grams: float | PrecisedFloat = PrecisedFloat(0.0),
+    ) -> "ProductForRecipe":
         entity = cls(
             id=cls.create_id(),
             updated_at=cls.create_now_time(),
             created_at=cls.create_now_time(),
             product_id=product.id,
             recipe_id=recipe.id,
-            weight_in_grams=PrecisedFloat(weight_in_grams)
+            weight_in_grams=PrecisedFloat(weight_in_grams),
         )
         entity.calculate_macros(product)
         recipe.add_product(entity)
@@ -60,11 +60,7 @@ class ProductForRecipe(Entity):
         )
         macro.calculate(self, product)
 
-    def update_weight(
-            self,
-            recipe:'Recipe',
-            weight: float | PrecisedFloat
-    ) -> None:
+    def update_weight(self, recipe: "Recipe", weight: float | PrecisedFloat) -> None:
         recipe.delete_product(self)
 
         self.weight_in_grams = PrecisedFloat(weight)

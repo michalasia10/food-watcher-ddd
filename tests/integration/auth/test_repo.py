@@ -16,7 +16,7 @@ async def test_create_and_get_client():
         first_name="test",
         last_name="test",
         status=StatusEnum.ACTIVE.value,
-        type=TypeEnum.USER.value
+        type=TypeEnum.USER.value,
     )
     await UserTortoiseRepo.asave(entity=user_to_create)
 
@@ -79,7 +79,7 @@ async def test_update_user():
         first_name="test",
         last_name="test",
         status=StatusEnum.ACTIVE.value,
-        type=TypeEnum.USER.value
+        type=TypeEnum.USER.value,
     )
     await UserTortoiseRepo.asave(entity=user_to_update)
 

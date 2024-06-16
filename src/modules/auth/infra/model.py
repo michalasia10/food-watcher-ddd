@@ -10,7 +10,9 @@ class User(BaseModel):
     email = fields.CharField(null=False, max_length=255)  # ToDo: Add email validation
     first_name = fields.CharField(null=True, max_length=255)
     last_name = fields.CharField(null=True, max_length=255)
-    status = fields.CharEnumField(enum_type=StatusEnum, default=StatusEnum.INACTIVE.value)
+    status = fields.CharEnumField(
+        enum_type=StatusEnum, default=StatusEnum.INACTIVE.value
+    )
     type = fields.CharEnumField(enum_type=TypeEnum, default=TypeEnum.USER.value)
 
     # daily_user_consumptions = relationship(
@@ -20,9 +22,10 @@ class User(BaseModel):
     # messages = relationship("Message", back_populates="user")
 
     class Meta:
-        app = 'auth'
-        table = 'user'
+        app = "auth"
+        table = "user"
         # connection = 'default'
+
 
 # class UserSettings(Base):
 #     __tablename__ = "user_settings"

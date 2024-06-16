@@ -8,17 +8,14 @@ from src.modules.recipe.domain.entity.recipe import Recipe
 
 def test_create_recipe():
     recipe = Recipe.create(
-        name="test",
-        link="url.com",
-        description="sth",
-        user_id=uuid6()
+        name="test", link="url.com", description="sth", user_id=uuid6()
     )
     assert recipe.created_at is not None
     assert recipe.updated_at is not None
-    assert recipe.summary_calories == PrecisedFloat(.0)
-    assert recipe.summary_fats == PrecisedFloat(.0)
-    assert recipe.summary_proteins == PrecisedFloat(.0)
-    assert recipe.summary_proteins == PrecisedFloat(.0)
+    assert recipe.summary_calories == PrecisedFloat(0.0)
+    assert recipe.summary_fats == PrecisedFloat(0.0)
+    assert recipe.summary_proteins == PrecisedFloat(0.0)
+    assert recipe.summary_proteins == PrecisedFloat(0.0)
 
 
 def test_add_product_to_recipe():
@@ -31,10 +28,7 @@ def test_add_product_to_recipe():
     product.carbohydrates = PrecisedFloat(10)
 
     recipe = Recipe.create(
-        name="test",
-        link="url.com",
-        description="sth",
-        user_id=uuid6()
+        name="test", link="url.com", description="sth", user_id=uuid6()
     )
 
     # when
@@ -65,10 +59,7 @@ def test_delete_from_recipe():
     product2.carbohydrates = PrecisedFloat(40)
 
     recipe = Recipe.create(
-        name="test",
-        link="url.com",
-        description="sth",
-        user_id=uuid6()
+        name="test", link="url.com", description="sth", user_id=uuid6()
     )
 
     recipe.add_product(product)

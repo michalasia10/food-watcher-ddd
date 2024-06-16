@@ -15,7 +15,7 @@ class BaseModel(Model):
     updated_at = fields.DatetimeField(auto_now=True)
 
     def __str__(self):
-        return f'.::{self.__class__.__name__}::..::{self.id}::.'
+        return f".::{self.__class__.__name__}::..::{self.id}::."
 
     class Meta:
         abstract = True

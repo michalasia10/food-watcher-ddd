@@ -13,20 +13,20 @@ class ProductForRecipe(BaseModel):
 
     # relationships
     product = fields.ForeignKeyField(
-        'product.Product',
-        related_name='recipe_for_product',
-        to_field='id',
+        "product.Product",
+        related_name="recipe_for_product",
+        to_field="id",
         default=uuid6,
         db_constraint=True,
     )
     recipe = fields.ForeignKeyField(
-        'recipe.Recipe',
-        related_name='products_for_recipe',
-        to_field='id',
+        "recipe.Recipe",
+        related_name="products_for_recipe",
+        to_field="id",
         default=uuid6,
         db_constraint=True,
     )
 
     class Meta:
-        app = 'recipe'
-        table = 'product_for_recipe'
+        app = "recipe"
+        table = "product_for_recipe"

@@ -15,7 +15,7 @@ class Error(Exception):
             "[{class_name}] | {message} ",
             class_name=self.__class__.__name__,
             message=self.message,
-            status_code=self.status_code
+            status_code=self.status_code,
         )
 
 

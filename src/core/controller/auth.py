@@ -10,5 +10,7 @@ class AuthController:
     def __init__(self, auth_service: IAuthService):
         self._auth_service = auth_service
 
-    async def bearer_auth(self, token: HTTPAuthorizationCredentials = Depends(http_bearer)):
+    async def bearer_auth(
+        self, token: HTTPAuthorizationCredentials = Depends(http_bearer)
+    ):
         return await self._auth_service.verify(token.credentials)

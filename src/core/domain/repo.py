@@ -4,7 +4,6 @@ from uuid import UUID
 
 
 class IRepository(ABC):
-
     @classmethod
     @abstractmethod
     async def aget_by_id(cls, id: UUID, *args, **kwargs) -> Optional[Any]:
@@ -17,13 +16,7 @@ class IRepository(ABC):
 
     @classmethod
     @abstractmethod
-    async def aget_all(
-            cls,
-            limit=100,
-            offset=0,
-            *args,
-            **kwargs
-    ) -> list[Any]:
+    async def aget_all(cls, limit=100, offset=0, *args, **kwargs) -> list[Any]:
         pass
 
     @classmethod

@@ -18,21 +18,23 @@ class BaseMigration:
     @staticmethod
     def prepare_connection_args(url: str):
         result = urlparse(url)
-        if result.scheme != 'postgres':
-            raise ValueError(f"URL should start with 'postgres://', but got '{result.scheme}'")
+        if result.scheme != "postgres":
+            raise ValueError(
+                f"URL should start with 'postgres://', but got '{result.scheme}'"
+            )
 
         db_user = result.username
         db_password = unquote(result.password) if result.password else None
         db_host = result.hostname
         db_port = result.port
-        db_name = result.path.lstrip('/')  # Remove leading '/' from the path
+        db_name = result.path.lstrip("/")  # Remove leading '/' from the path
 
         return dict(
             database=db_name,
             user=db_user,
             password=db_password,
             host=db_host,
-            port=db_port
+            port=db_port,
         )
 
     async def _connect(self) -> None:

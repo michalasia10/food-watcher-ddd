@@ -2,7 +2,10 @@ from uuid import UUID
 
 from pydantic import Field, BaseModel
 
-from src.modules.recipe.application.dto.recipe_product import ProductForRecipeInputDto, ProductForRecipeOutputDto
+from src.modules.recipe.application.dto.recipe_product import (
+    ProductForRecipeInputDto,
+    ProductForRecipeOutputDto,
+)
 
 
 class RecipeOutputDto(BaseModel):
