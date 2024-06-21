@@ -49,7 +49,7 @@ async def user_record(user_service, user_password):
             password=user_password,
             email="test@no.com",
             first_name="test",
-            last_name="test"
+            last_name="test",
         )
     )
 
@@ -62,7 +62,7 @@ async def user_record2(user_service, user_password):
             password=user_password,
             email="test2@no.com",
             first_name="test2",
-            last_name="test2"
+            last_name="test2",
         )
     )
 
@@ -70,18 +70,12 @@ async def user_record2(user_service, user_password):
 @pytest_asyncio.fixture(scope="function")
 async def user_token(auth_service, user_password, user_record):
     return await auth_service.authenticate(
-        UserAuthInputDto(
-            username=user_record.username,
-            password=user_password
-        )
+        UserAuthInputDto(username=user_record.username, password=user_password)
     )
 
 
 @pytest_asyncio.fixture(scope="function")
 async def user_token2(auth_service, user_password, user_record2):
     return await auth_service.authenticate(
-        UserAuthInputDto(
-            username=user_record2.username,
-            password=user_password
-        )
+        UserAuthInputDto(username=user_record2.username, password=user_password)
     )

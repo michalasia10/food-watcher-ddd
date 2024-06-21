@@ -8,3 +8,6 @@ backend/src/assets
 postgres_data
 assets
 .env
+config.yml
+*.mdb
+VERSION

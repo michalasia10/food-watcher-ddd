@@ -4,9 +4,16 @@ import pytest
 from uuid6 import uuid6
 
 from src.modules.recipe.application.dto.recipe import RecipeInputDto, RecipeUpdateDto
-from src.modules.recipe.application.dto.recipe_product import ProductForRecipeInputDto, ProductForRecipeUpdateDto
-from src.modules.recipe.domain.errors import RecipeNotFound, RecipeNotRecordOwner, ProductForRecipeNotRecordOwner, \
-    ProductForRecipeNotFound
+from src.modules.recipe.application.dto.recipe_product import (
+    ProductForRecipeInputDto,
+    ProductForRecipeUpdateDto,
+)
+from src.modules.recipe.domain.errors import (
+    RecipeNotFound,
+    RecipeNotRecordOwner,
+    ProductForRecipeNotRecordOwner,
+    ProductForRecipeNotFound,
+)
 
 
 @pytest.mark.asyncio
@@ -29,7 +36,9 @@ async def test_recipe_service_get_all_my_recipes(recipe_record, recipe_service):
 
 
 @pytest.mark.asyncio
-async def test_recipe_service_get_all_my_recipes_dummy_user(recipe_record, recipe_service):
+async def test_recipe_service_get_all_my_recipes_dummy_user(
+    recipe_record, recipe_service
+):
     # when
     recipes = await recipe_service.get_all_my_recipes(user_id=uuid6())
 
@@ -59,20 +68,20 @@ async def test_recipe_service_create(recipe_service, user_record, product_record
     # given
     weight_in_grams = 20.56
     recipe_input = RecipeInputDto(
-        name='recipe',
+        name="recipe",
         products=[
             ProductForRecipeInputDto(
                 product_id=product_record.id,
                 weight_in_grams=weight_in_grams,
             )
-        ]
+        ],
     )
 
     # when
     recipe = await recipe_service.create(user_id=user_record.id, input_dto=recipe_input)
 
     # then
-    assert recipe.name == 'recipe'
+    assert recipe.name == "recipe"
     assert len(recipe.products_for_recipe) == 1
     product_for_recipe = recipe.products_for_recipe[0]
 
@@ -90,12 +99,14 @@ async def test_recipe_service_create(recipe_service, user_record, product_record
 
 
 @pytest.mark.asyncio
-async def test_recipe_service_create_multiple_products(recipe_service, user_record, product_record, product_record2):
+async def test_recipe_service_create_multiple_products(
+    recipe_service, user_record, product_record, product_record2
+):
     # given
     weight_in_grams = 20.56
     weight_in_grams2 = 30.56
     recipe_input = RecipeInputDto(
-        name='recipe',
+        name="recipe",
         products=[
             ProductForRecipeInputDto(
                 product_id=product_record.id,
@@ -104,15 +115,15 @@ async def test_recipe_service_create_multiple_products(recipe_service, user_reco
             ProductForRecipeInputDto(
                 product_id=product_record2.id,
                 weight_in_grams=weight_in_grams2,
-            )
-        ]
+            ),
+        ],
     )
 
     # when
     recipe = await recipe_service.create(user_id=user_record.id, input_dto=recipe_input)
 
     # then
-    assert recipe.name == 'recipe'
+    assert recipe.name == "recipe"
     assert len(recipe.products_for_recipe) == 2
     product_for_recipe = recipe.products_for_recipe[0]
     product_for_recipe2 = recipe.products_for_recipe[1]
@@ -140,20 +151,16 @@ async def test_recipe_service_create_multiple_products(recipe_service, user_reco
 @pytest.mark.asyncio
 async def test_recipe_service_update(recipe_record, recipe_service):
     # given
-    new_name = 'new name'
-    update_dto = RecipeUpdateDto(
-        name=new_name
-    )
+    new_name = "new name"
+    update_dto = RecipeUpdateDto(name=new_name)
 
     # when
     recipe = await recipe_service.update(
-        id=recipe_record.id,
-        input_dto=update_dto,
-        user_id=recipe_record.user_id
+        id=recipe_record.id, input_dto=update_dto, user_id=recipe_record.user_id
     )
 
     # then
-    assert recipe.name == 'new name'
+    assert recipe.name == "new name"
     assert recipe.user_id == recipe_record.user_id
     assert recipe.summary_proteins == recipe_record.summary_proteins
     assert recipe.summary_fats == recipe_record.summary_fats
@@ -163,34 +170,26 @@ async def test_recipe_service_update(recipe_record, recipe_service):
 @pytest.mark.asyncio
 async def test_recipe_service_update_not_found(recipe_record, recipe_service):
     # given
-    new_name = 'new name'
-    update_dto = RecipeUpdateDto(
-        name=new_name
-    )
+    new_name = "new name"
+    update_dto = RecipeUpdateDto(name=new_name)
 
     # when/then
     with pytest.raises(RecipeNotFound):
         await recipe_service.update(
-            id=uuid6(),
-            input_dto=update_dto,
-            user_id=recipe_record.user_id
+            id=uuid6(), input_dto=update_dto, user_id=recipe_record.user_id
         )
 
 
 @pytest.mark.asyncio
 async def test_recipe_service_update_wrong_user(recipe_record, recipe_service):
     # given
-    new_name = 'new name'
-    update_dto = RecipeUpdateDto(
-        name=new_name
-    )
+    new_name = "new name"
+    update_dto = RecipeUpdateDto(name=new_name)
 
     # when/then
     with pytest.raises(RecipeNotRecordOwner):
         await recipe_service.update(
-            id=recipe_record.id,
-            input_dto=update_dto,
-            user_id=uuid6()
+            id=recipe_record.id, input_dto=update_dto, user_id=uuid6()
         )
 
 
@@ -222,17 +221,19 @@ async def test_recipe_service_delete_wrong_user(recipe_record, recipe_service):
 
 
 @pytest.mark.asyncio
-async def test_recipe_service_add_product_to_recipe(recipe_record_with_products, product_record, product_record2,
-                                                    recipe_service):
+async def test_recipe_service_add_product_to_recipe(
+    recipe_record_with_products, product_record, product_record2, recipe_service
+):
     # given
     weight_in_grams = 120.56
     product_for_recipe_input = ProductForRecipeInputDto(
-        product_id=product_record.id,
-        weight_in_grams=weight_in_grams
+        product_id=product_record.id, weight_in_grams=weight_in_grams
     )
     old_recipe_sum_proteins = deepcopy(recipe_record_with_products.summary_proteins)
     old_recipe_sum_fats = deepcopy(recipe_record_with_products.summary_fats)
-    old_recipe_sum_carbohydrates = deepcopy(recipe_record_with_products.summary_carbohydrates)
+    old_recipe_sum_carbohydrates = deepcopy(
+        recipe_record_with_products.summary_carbohydrates
+    )
     old_recipe_sum_calories = deepcopy(recipe_record_with_products.summary_calories)
 
     # sanity check
@@ -246,7 +247,7 @@ async def test_recipe_service_add_product_to_recipe(recipe_record_with_products,
     await recipe_service.add_product(
         id=recipe_record_with_products.id,
         user_id=recipe_record_with_products.user_id,
-        input_dto=product_for_recipe_input
+        input_dto=product_for_recipe_input,
     )
 
     # then
@@ -254,7 +255,10 @@ async def test_recipe_service_add_product_to_recipe(recipe_record_with_products,
 
     assert len(recipe.products_for_recipe) == 2
     product_for_recipe = next(
-        filter(lambda x: x.product_id == product_for_recipe_input.product_id, recipe.products_for_recipe)
+        filter(
+            lambda x: x.product_id == product_for_recipe_input.product_id,
+            recipe.products_for_recipe,
+        )
     )
 
     assert product_for_recipe.product_id == product_record.id
@@ -276,44 +280,46 @@ async def test_recipe_service_add_product_to_recipe(recipe_record_with_products,
 
 
 @pytest.mark.asyncio
-async def test_recipe_service_add_product_to_recipe_not_found(recipe_record, product_record, recipe_service):
+async def test_recipe_service_add_product_to_recipe_not_found(
+    recipe_record, product_record, recipe_service
+):
     # when/then
     with pytest.raises(RecipeNotFound):
         await recipe_service.add_product(
             id=uuid6(),
             user_id=recipe_record.user_id,
             input_dto=ProductForRecipeInputDto(
-                product_id=product_record.id,
-                weight_in_grams=100
-            )
+                product_id=product_record.id, weight_in_grams=100
+            ),
         )
 
 
 @pytest.mark.asyncio
-async def test_recipe_service_add_product_to_recipe_wrong_user(recipe_record, product_record, recipe_service):
+async def test_recipe_service_add_product_to_recipe_wrong_user(
+    recipe_record, product_record, recipe_service
+):
     # when/then
     with pytest.raises(ProductForRecipeNotRecordOwner):
         await recipe_service.add_product(
             id=recipe_record.id,
             user_id=uuid6(),
             input_dto=ProductForRecipeInputDto(
-                product_id=product_record.id,
-                weight_in_grams=100
-            )
+                product_id=product_record.id, weight_in_grams=100
+            ),
         )
 
 
 @pytest.mark.asyncio
-async def test_recipe_service_update_product_in_recipe(recipe_record_with_products, recipe_service):
+async def test_recipe_service_update_product_in_recipe(
+    recipe_record_with_products, recipe_service
+):
     # given
     recipe = await recipe_service.get_by_id(recipe_id=recipe_record_with_products.id)
     product_for_recipe_id = recipe.products_for_recipe[0].id
     product_id = recipe.products_for_recipe[0].product_id
     product_weight = recipe.products_for_recipe[0].weight_in_grams
 
-    update_dto = ProductForRecipeUpdateDto(
-        weight_in_grams=product_weight + 100
-    )
+    update_dto = ProductForRecipeUpdateDto(weight_in_grams=product_weight + 100)
 
     old_recipe_sum_proteins = deepcopy(recipe.summary_proteins)
     old_recipe_sum_fats = deepcopy(recipe.summary_fats)
@@ -361,12 +367,12 @@ async def test_recipe_service_update_product_in_recipe(recipe_record_with_produc
 
 
 @pytest.mark.asyncio
-async def test_recipe_service_update_product_in_recipe_not_found(recipe_record_with_products, recipe_service):
+async def test_recipe_service_update_product_in_recipe_not_found(
+    recipe_record_with_products, recipe_service
+):
     # given
     product_for_recipe_id = uuid6()
-    update_dto = ProductForRecipeUpdateDto(
-        weight_in_grams=100
-    )
+    update_dto = ProductForRecipeUpdateDto(weight_in_grams=100)
 
     # when/then
     with pytest.raises(ProductForRecipeNotFound):
@@ -378,12 +384,12 @@ async def test_recipe_service_update_product_in_recipe_not_found(recipe_record_w
 
 
 @pytest.mark.asyncio
-async def test_recipe_service_update_product_in_recipe_wrong_user(recipe_record_with_products, recipe_service):
+async def test_recipe_service_update_product_in_recipe_wrong_user(
+    recipe_record_with_products, recipe_service
+):
     # given
     product_for_recipe_id = recipe_record_with_products.products_for_recipe[0].id
-    update_dto = ProductForRecipeUpdateDto(
-        weight_in_grams=100
-    )
+    update_dto = ProductForRecipeUpdateDto(weight_in_grams=100)
 
     # when/then
     with pytest.raises(ProductForRecipeNotRecordOwner):
@@ -395,7 +401,9 @@ async def test_recipe_service_update_product_in_recipe_wrong_user(recipe_record_
 
 
 @pytest.mark.asyncio
-async def test_recipe_service_delete_product_from_recipe(recipe_record_with_products, recipe_service):
+async def test_recipe_service_delete_product_from_recipe(
+    recipe_record_with_products, recipe_service
+):
     # sanity check
     assert len(recipe_record_with_products.products_for_recipe) == 1
     assert recipe_record_with_products.summary_proteins != 0
@@ -406,7 +414,7 @@ async def test_recipe_service_delete_product_from_recipe(recipe_record_with_prod
     # when
     await recipe_service.delete_product(
         id=recipe_record_with_products.products_for_recipe[0].id,
-        user_id=recipe_record_with_products.user_id
+        user_id=recipe_record_with_products.user_id,
     )
     # then
     recipe = await recipe_service.get_by_id(recipe_id=recipe_record_with_products.id)
@@ -419,26 +427,26 @@ async def test_recipe_service_delete_product_from_recipe(recipe_record_with_prod
 
 
 @pytest.mark.asyncio
-async def test_recipe_service_delete_product_from_recipe_not_found(recipe_record_with_products, recipe_service):
+async def test_recipe_service_delete_product_from_recipe_not_found(
+    recipe_record_with_products, recipe_service
+):
     # given
     product_for_recipe_id = uuid6()
 
     # when/then
     with pytest.raises(ProductForRecipeNotFound):
         await recipe_service.delete_product(
-            id=product_for_recipe_id,
-            user_id=recipe_record_with_products.user_id
+            id=product_for_recipe_id, user_id=recipe_record_with_products.user_id
         )
 
 
 @pytest.mark.asyncio
-async def test_recipe_service_delete_product_from_recipe_wrong_user(recipe_record_with_products, recipe_service):
+async def test_recipe_service_delete_product_from_recipe_wrong_user(
+    recipe_record_with_products, recipe_service
+):
     # given
     product_for_recipe_id = recipe_record_with_products.products_for_recipe[0].id
 
     # when/then
     with pytest.raises(ProductForRecipeNotRecordOwner):
-        await recipe_service.delete_product(
-            id=product_for_recipe_id,
-            user_id=uuid6()
-        )
+        await recipe_service.delete_product(id=product_for_recipe_id, user_id=uuid6())

@@ -11,9 +11,10 @@ from src.core.domain.repo import IRepository
 
 
 class ICrudService(ABC):
-
     @abstractmethod
-    async def create(self, input_dto: BaseModel, user_id: UUID = None, is_admin: bool = False): ...
+    async def create(
+        self, input_dto: BaseModel, user_id: UUID = None, is_admin: bool = False
+    ): ...
 
     @abstractmethod
     async def get_all(self, skip: int, limit: int): ...
@@ -22,10 +23,18 @@ class ICrudService(ABC):
     async def get_by_id(self, id: UUID): ...
 
     @abstractmethod
-    async def update(self, id: UUID, input_dto: BaseModel, user_id: Optional[UUID] = None, is_admin: bool = False): ...
+    async def update(
+        self,
+        id: UUID,
+        input_dto: BaseModel,
+        user_id: Optional[UUID] = None,
+        is_admin: bool = False,
+    ): ...
 
     @abstractmethod
-    async def delete(self, id: UUID, user_id: Optional[UUID] = None, is_admin: bool = False): ...
+    async def delete(
+        self, id: UUID, user_id: Optional[UUID] = None, is_admin: bool = False
+    ): ...
 
 
 class BaseCrudService(ICrudService):
@@ -38,23 +47,21 @@ class BaseCrudService(ICrudService):
         self._repository = repository
 
     @abstractmethod
-    async def create(self, input_dto, user_id: UUID = None, is_admin: bool = False):
-        ...
+    async def create(self, input_dto, user_id: UUID = None, is_admin: bool = False): ...
 
     @staticmethod
     def _raise(error: tuple[Type[Error], str], id: UUID = None):
         _exception, msg = error
-        raise _exception(msg.format(id=id) if 'id' in msg else msg)
+        raise _exception(msg.format(id=id) if "id" in msg else msg)
 
-    async def update(self, id: UUID, input_dto: BaseModel, user_id: UUID = None, is_admin=False) -> BaseModel:
+    async def update(
+        self, id: UUID, input_dto: BaseModel, user_id: UUID = None, is_admin=False
+    ) -> BaseModel:
         entity: Entity = await self._repository.aget_by_id(id)
 
-        if (
-                not is_admin and
-                (
-                        (hasattr(entity, 'user_id') and getattr(entity, 'user_id') != user_id) or
-                        (hasattr(entity, 'username') and getattr(entity, 'id') != user_id)
-                )
+        if not is_admin and (
+            (hasattr(entity, "user_id") and getattr(entity, "user_id") != user_id)
+            or (hasattr(entity, "username") and getattr(entity, "id") != user_id)
         ):
             self._raise(self.NOT_RECORD_OWNER_ERROR, id=id)
 
@@ -70,12 +77,9 @@ class BaseCrudService(ICrudService):
     async def delete(self, id: UUID, user_id: UUID = None, is_admin=False) -> None:
         entity: Entity = await self._repository.aget_by_id(id)
 
-        if (
-                not is_admin and
-                (
-                        (hasattr(entity, 'user_id') and getattr(entity, 'user_id') != user_id) or
-                        (hasattr(entity, 'username') and getattr(entity, 'id') != user_id)
-                )
+        if not is_admin and (
+            (hasattr(entity, "user_id") and getattr(entity, "user_id") != user_id)
+            or (hasattr(entity, "username") and getattr(entity, "id") != user_id)
         ):
             self._raise(self.NOT_RECORD_OWNER_ERROR, id=id)
 
@@ -83,21 +87,22 @@ class BaseCrudService(ICrudService):
         logger.info("Entity[{entity}] deleted", entity=str(entity))
 
     async def get_all(self, skip: int, limit: int) -> list[BaseModel]:
-        entities: list[Entity] = await self._repository.aget_all(offset=skip, limit=limit)
+        entities: list[Entity] = await self._repository.aget_all(
+            offset=skip, limit=limit
+        )
 
         return [self.OUTPUT_DTO(**entity.snapshot) for entity in entities]
 
     async def get_by_id(self, id: UUID) -> BaseModel:
         try:
             entity: Entity = await self._repository.aget_by_id(id)
-        except  self.DOES_NOT_EXIST_ERROR:
+        except self.DOES_NOT_EXIST_ERROR:
             self._raise(self.NOT_FOUND_ERROR, id=id)
 
         return self.OUTPUT_DTO(**entity.snapshot)
 
 
 class IAuthService(ABC):
-
     @abstractmethod
     async def authenticate(self, credentials: str): ...
 

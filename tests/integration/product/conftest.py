@@ -22,26 +22,24 @@ def consumption_service(secret_key, algorithm):
 
 @pytest.fixture
 def product_service():
-    return ProductCrudService(
-        repository=ProductTortoiseRepo
-    )
+    return ProductCrudService(repository=ProductTortoiseRepo)
 
 
 @pytest_asyncio.fixture(scope="function")
 async def product_record():
     product = Product.create(
         code=2,
-        name='SOME_NAME',
-        quantity='SOME_QUANTITY',
-        brand='SOME_BRAND',
-        size='SOME_SIZE',
-        groups='SOME_GROUPS',
-        category='SOME_CATEGORY',
+        name="SOME_NAME",
+        quantity="SOME_QUANTITY",
+        brand="SOME_BRAND",
+        size="SOME_SIZE",
+        groups="SOME_GROUPS",
+        category="SOME_CATEGORY",
         energy_kcal_100g=100.0,
         fat_100g=10.0,
         carbohydrates_100g=20.0,
         sugars_100g=30.0,
-        proteins_100g=40.0
+        proteins_100g=40.0,
     )
     return await ProductTortoiseRepo.asave(entity=product)
 

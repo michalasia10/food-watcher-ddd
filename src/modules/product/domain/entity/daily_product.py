@@ -25,12 +25,12 @@ class DailyUserProduct(Entity):
 
     @classmethod
     def create(
-            cls,
-            product: Product,
-            day: DailyUserConsumption,
-            weight_in_grams: float | PrecisedFloat | None = None,
-            type: UserProductType = UserProductType.LUNCH,
-    ) -> 'DailyUserProduct':
+        cls,
+        product: Product,
+        day: DailyUserConsumption,
+        weight_in_grams: float | PrecisedFloat | None = None,
+        type: UserProductType = UserProductType.LUNCH,
+    ) -> "DailyUserProduct":
         entity = cls(
             id=cls.create_id(),
             updated_at=cls.create_now_time(),
@@ -55,5 +55,3 @@ class DailyUserProduct(Entity):
             strategy_type=MacroCalculatorType.WEIGHT_STRATEGY
         )
         macro.calculate(self, product)
-
-

@@ -12,14 +12,14 @@ from src.modules.common.macro.strategies import MacroCalculatorStrategy
 class DailyUserConsumption(Entity):
     date: datetime | date
     user_id: UUID | None = None
-    products: list['DailyUserProduct'] = field(default_factory=list)
-    summary_proteins: PrecisedFloat = PrecisedFloat(.0)
-    summary_fats: PrecisedFloat = PrecisedFloat(.0)
-    summary_carbohydrates: PrecisedFloat = PrecisedFloat(.0)
-    summary_calories: PrecisedFloat = PrecisedFloat(.0)
+    products: list["DailyUserProduct"] = field(default_factory=list)
+    summary_proteins: PrecisedFloat = PrecisedFloat(0.0)
+    summary_fats: PrecisedFloat = PrecisedFloat(0.0)
+    summary_carbohydrates: PrecisedFloat = PrecisedFloat(0.0)
+    summary_calories: PrecisedFloat = PrecisedFloat(0.0)
 
     @classmethod
-    def create(cls, user_id: UUID) -> 'DailyUserConsumption':
+    def create(cls, user_id: UUID) -> "DailyUserConsumption":
         now = cls.create_now_time()
         entity = cls(
             id=cls.create_id(),
@@ -30,7 +30,7 @@ class DailyUserConsumption(Entity):
         )
         return entity
 
-    def add_product(self, product: 'DailyUserProduct') -> None:
+    def add_product(self, product: "DailyUserProduct") -> None:
         """
         Method to calculate summary macros and calories for the daily user consumption entity based on the product.
 
@@ -45,7 +45,7 @@ class DailyUserConsumption(Entity):
         )
         macro.calculate(self, product)
 
-    def delete_product(self, product: 'DailyUserProduct') -> None:
+    def delete_product(self, product: "DailyUserProduct") -> None:
         """
         Method to subtract summary macros and calories for the daily user consumption entity based on the product.
 

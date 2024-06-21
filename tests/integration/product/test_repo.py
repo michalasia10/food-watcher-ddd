@@ -10,27 +10,30 @@ from src.modules.product.infra.repo.product import ProductTortoiseRepo
 
 ### PRODUCT ###
 
+
 @pytest.mark.asyncio
 async def test_create_and_get_product():
     # given
     product_to_create = Product.create(
         code=2,
-        name='SOME_NAME',
-        quantity='SOME_QUANTITY',
-        brand='SOME_BRAND',
-        size='SOME_SIZE',
-        groups='SOME_GROUPS',
-        category='SOME_CATEGORY',
+        name="SOME_NAME",
+        quantity="SOME_QUANTITY",
+        brand="SOME_BRAND",
+        size="SOME_SIZE",
+        groups="SOME_GROUPS",
+        category="SOME_CATEGORY",
         energy_kcal_100g=100.0,
         fat_100g=10.0,
         carbohydrates_100g=20.0,
         sugars_100g=30.0,
-        proteins_100g=40.0
+        proteins_100g=40.0,
     )
     await ProductTortoiseRepo.asave(entity=product_to_create)
 
     # when
-    product_get_from_db = await ProductTortoiseRepo.aget_first_from_filter(code=product_to_create.code)
+    product_get_from_db = await ProductTortoiseRepo.aget_first_from_filter(
+        code=product_to_create.code
+    )
 
     # then
     assert product_get_from_db
@@ -43,7 +46,9 @@ async def test_create_and_get_product():
     assert product_get_from_db.category == product_to_create.category
     assert product_get_from_db.energy_kcal_100g == product_to_create.energy_kcal_100g
     assert product_get_from_db.fat_100g == product_to_create.fat_100g
-    assert product_get_from_db.carbohydrates_100g == product_to_create.carbohydrates_100g
+    assert (
+        product_get_from_db.carbohydrates_100g == product_to_create.carbohydrates_100g
+    )
     assert product_get_from_db.sugars_100g == product_to_create.sugars_100g
     assert product_get_from_db.proteins_100g == product_to_create.proteins_100g
     assert product_get_from_db.updated_at is not None
@@ -57,17 +62,17 @@ async def test_create_multiple_and_get_all_products():
     products_to_create = [
         Product.create(
             code=i,
-            name='SOME_NAME',
-            quantity='SOME_QUANTITY',
-            brand='SOME_BRAND',
-            size='SOME_SIZE',
-            groups='SOME_GROUPS',
-            category='SOME_CATEGORY',
+            name="SOME_NAME",
+            quantity="SOME_QUANTITY",
+            brand="SOME_BRAND",
+            size="SOME_SIZE",
+            groups="SOME_GROUPS",
+            category="SOME_CATEGORY",
             energy_kcal_100g=100.0,
             fat_100g=10.0,
             carbohydrates_100g=20.0,
             sugars_100g=30.0,
-            proteins_100g=40.0
+            proteins_100g=40.0,
         )
         for i in range(num_of_products_to_create)
     ]
@@ -90,27 +95,29 @@ async def test_update_product():
     # given
     product_to_create = Product.create(
         code=3,
-        name='SOME_NAME',
-        quantity='SOME_QUANTITY',
-        brand='SOME_BRAND',
-        size='SOME_SIZE',
-        groups='SOME_GROUPS',
-        category='SOME_CATEGORY',
+        name="SOME_NAME",
+        quantity="SOME_QUANTITY",
+        brand="SOME_BRAND",
+        size="SOME_SIZE",
+        groups="SOME_GROUPS",
+        category="SOME_CATEGORY",
         energy_kcal_100g=100.0,
         fat_100g=10.0,
         carbohydrates_100g=20.0,
         sugars_100g=30.0,
-        proteins_100g=40.0
+        proteins_100g=40.0,
     )
     await ProductTortoiseRepo.asave(entity=product_to_create)
 
     # when
-    product_to_create.name = 'NEW_NAME'
+    product_to_create.name = "NEW_NAME"
     await ProductTortoiseRepo.aupdate(entity=product_to_create)
 
     # then
-    product_get_from_db = await ProductTortoiseRepo.aget_first_from_filter(code=product_to_create.code)
-    assert product_get_from_db.name == 'NEW_NAME'
+    product_get_from_db = await ProductTortoiseRepo.aget_first_from_filter(
+        code=product_to_create.code
+    )
+    assert product_get_from_db.name == "NEW_NAME"
 
 
 @pytest.mark.asyncio
@@ -118,17 +125,17 @@ async def test_delete_product():
     # given
     product_to_create = Product.create(
         code=4,
-        name='SOME_NAME',
-        quantity='SOME_QUANTITY',
-        brand='SOME_BRAND',
-        size='SOME_SIZE',
-        groups='SOME_GROUPS',
-        category='SOME_CATEGORY',
+        name="SOME_NAME",
+        quantity="SOME_QUANTITY",
+        brand="SOME_BRAND",
+        size="SOME_SIZE",
+        groups="SOME_GROUPS",
+        category="SOME_CATEGORY",
         energy_kcal_100g=100.0,
         fat_100g=10.0,
         carbohydrates_100g=20.0,
         sugars_100g=30.0,
-        proteins_100g=40.0
+        proteins_100g=40.0,
     )
     await ProductTortoiseRepo.asave(entity=product_to_create)
 
@@ -136,11 +143,14 @@ async def test_delete_product():
     await ProductTortoiseRepo.adelete(entity=product_to_create)
 
     # then
-    product_get_from_db = await ProductTortoiseRepo.aget_first_from_filter(code=product_to_create.code)
+    product_get_from_db = await ProductTortoiseRepo.aget_first_from_filter(
+        code=product_to_create.code
+    )
     assert product_get_from_db is None
 
 
 ### DAILY USER CONSUMPTION ###
+
 
 @pytest.mark.asyncio
 async def test_create_and_get_daily_consumption(user_record):
@@ -152,8 +162,10 @@ async def test_create_and_get_daily_consumption(user_record):
     await DailyUserConsumptionTortoiseRepo.asave(entity=daily_consumption)
 
     # when
-    daily_consumption_get_from_db = await DailyUserConsumptionTortoiseRepo.aget_first_from_filter(
-        user_id=daily_consumption.user_id
+    daily_consumption_get_from_db = (
+        await DailyUserConsumptionTortoiseRepo.aget_first_from_filter(
+            user_id=daily_consumption.user_id
+        )
     )
 
     # then
@@ -181,8 +193,10 @@ async def test_update_daily_consumption(user_record):
     await DailyUserConsumptionTortoiseRepo.aupdate(entity=daily_consumption)
 
     # then
-    daily_consumption_get_from_db = await DailyUserConsumptionTortoiseRepo.aget_first_from_filter(
-        user_id=daily_consumption.user_id
+    daily_consumption_get_from_db = (
+        await DailyUserConsumptionTortoiseRepo.aget_first_from_filter(
+            user_id=daily_consumption.user_id
+        )
     )
     assert daily_consumption_get_from_db.summary_proteins == 10.0
 
@@ -199,30 +213,33 @@ async def test_delete_daily_consumption(user_record):
     await DailyUserConsumptionTortoiseRepo.adelete(entity=daily_consumption)
 
     # then
-    daily_consumption_get_from_db = await DailyUserConsumptionTortoiseRepo.aget_first_from_filter(
-        user_id=daily_consumption.user_id
+    daily_consumption_get_from_db = (
+        await DailyUserConsumptionTortoiseRepo.aget_first_from_filter(
+            user_id=daily_consumption.user_id
+        )
     )
     assert daily_consumption_get_from_db is None
 
 
 ### DAILY PRODUCT ###
 
+
 @pytest.mark.asyncio
 async def test_create_and_get_daily_product(user_record):
     # given
     product = Product.create(
         code=3,
-        name='SOME_NAME',
-        quantity='SOME_QUANTITY',
-        brand='SOME_BRAND',
-        size='SOME_SIZE',
-        groups='SOME_GROUPS',
-        category='SOME_CATEGORY',
+        name="SOME_NAME",
+        quantity="SOME_QUANTITY",
+        brand="SOME_BRAND",
+        size="SOME_SIZE",
+        groups="SOME_GROUPS",
+        category="SOME_CATEGORY",
         energy_kcal_100g=100.0,
         fat_100g=10.0,
         carbohydrates_100g=20.0,
         sugars_100g=30.0,
-        proteins_100g=40.0
+        proteins_100g=40.0,
     )
     await ProductTortoiseRepo.asave(entity=product)
 
@@ -240,7 +257,9 @@ async def test_create_and_get_daily_product(user_record):
     await DailyUserProductTortoiseRepo.asave(entity=daily_product)
 
     # when
-    daily_product_get_from_db = await DailyUserProductTortoiseRepo.aget_by_id(id=daily_product.id)
+    daily_product_get_from_db = await DailyUserProductTortoiseRepo.aget_by_id(
+        id=daily_product.id
+    )
 
     # then
     assert daily_product_get_from_db

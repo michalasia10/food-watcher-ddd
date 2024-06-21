@@ -16,15 +16,10 @@ def test_create_product_for_recipe():
     product.carbohydrates_100g = PrecisedFloat(10)
 
     recipe = Recipe.create(
-        name="test",
-        link="url.com",
-        description="sth",
-        user_id=uuid6()
+        name="test", link="url.com", description="sth", user_id=uuid6()
     )
     product_for_recipe = ProductForRecipe.create(
-        recipe=recipe,
-        product=product,
-        weight_in_grams=PrecisedFloat(222.2)
+        recipe=recipe, product=product, weight_in_grams=PrecisedFloat(222.2)
     )
 
     assert product_for_recipe.calories == 222.2

@@ -14,7 +14,7 @@ def test_create_product_entity():
         fat_100g=1.0,
         carbohydrates_100g=1.0,
         sugars_100g=1.0,
-        proteins_100g=1.0
+        proteins_100g=1.0,
     )
     assert product.code == 1
     assert product.name == "test"
@@ -31,6 +31,3 @@ def test_create_product_entity():
     assert product.id is not None
     assert product.updated_at is not None
     assert product.created_at is not None
-
-
-
