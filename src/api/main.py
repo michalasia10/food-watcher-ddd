@@ -80,6 +80,18 @@ async def unknown_exception_handler(request: Request, exc: Exception) -> ErrorRe
     )
 
 
+@app.exception_handler(ValueError)
+async def value_exception_handler(request: Request, exc: Exception) -> ErrorResponse:
+    logger.error(
+        f"Unknown error occurred, probably unknown error from pydantic: {exc}",
+        request=request,
+    )
+    return ErrorResponse(
+        status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+        message="Unknown internal error occurred. Please try again later or create issue ticket.",
+    )
+
+
 ####################################
 ######## App Middlewares ###########
 ####################################
