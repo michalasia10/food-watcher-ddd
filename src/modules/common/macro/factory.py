@@ -4,7 +4,7 @@ from src.modules.common.macro.strategies import (
     MacroCalculatorStrategy,
     MacroCalculatorWeightStrategy,
     MacroCalculatorSummaryStrategy,
-    MacroCalculatorSubtractStrategy
+    MacroCalculatorSubtractStrategy,
 )
 
 
@@ -16,13 +16,13 @@ class MacroCalculatorType(int, Enum):
 
 class MacroCalculatorFactory:
     @classmethod
-    def create_strategy(cls, strategy_type: int) -> [MacroCalculatorStrategy]:
+    def create_strategy(cls, strategy_type) -> [MacroCalculatorStrategy]:
         match strategy_type:
-            case MacroCalculatorType.WEIGHT_STRATEGY.value:
+            case MacroCalculatorType.WEIGHT_STRATEGY:
                 return MacroCalculatorWeightStrategy
-            case MacroCalculatorType.SUMMARY_STRATEGY.value:
+            case MacroCalculatorType.SUMMARY_STRATEGY:
                 return MacroCalculatorSummaryStrategy
-            case MacroCalculatorType.SUBTRACT_STRATEGY.value:
+            case MacroCalculatorType.SUBTRACT_STRATEGY:
                 return MacroCalculatorSubtractStrategy
             case _:
-                raise ValueError(f"Unknown strategy type: {strategy_type}")
+                raise ValueError(f"Unknown strategy type: {strategy_type.value}")

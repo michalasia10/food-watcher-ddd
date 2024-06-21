@@ -1,85 +1,123 @@
-import time
+# libs
+from http import HTTPStatus
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.requests import Request
+from logfire import instrument_fastapi
+from loguru import logger
+from tortoise.contrib.fastapi import register_tortoise
 
-from api.routers import (
-    UserViewSet,
-    ProductViewSet,
-    ChatRouter,
-    ChannelsViewSet,
-    ConsumptionRouter,
-    RecipeViewSet,
-    RecipeProductViewSet
-)
+# important stuff
+from src.api.response import ErrorResponse
+from src.api.router_util import include_routers
+from src.config import TORTOISE_CONFIG, settings
+from src.config.di import AppContainer
+from src.core.domain.errors import Error
+# controllers
+from src.modules.auth.controller import UserViewSet
+from src.modules.product.controller.consumption import router as consumption_router
+from src.modules.product.controller.product import ProductViewSet
+from src.modules.recipe.controller import RecipeViewSet
 
-from config.api_config import ApiConfig
-from config.container_ioc import Container
-from src.api.setup import include_routers
-from src.api.shared.utils import CurrentUser
-from src.foundation.infra.request_context import request_context
+####################################
+######### Container CONFIG #########
+####################################
 
-container = Container()
-container.config.from_pydantic(ApiConfig())
+container = AppContainer()
 container.wire(
     modules=[
-        'api.routers.users',
-        'api.shared.auth',
-        'api.routers.products',
-        'api.routers.base',
-        'api.routers.chat',
-        'api.routers.consumption',
-        'api.routers.recipe',
+        "src.modules.auth.controller",
+        "src.modules.product.controller.product",
+        "src.modules.product.controller.consumption",
+        "src.modules.recipe.controller",
+        # ToDo: fix "api.routers.chat",
     ]
 )
 
-app = FastAPI()
+####################################
+######### FastAPI App Init #########
+####################################
+
+app = FastAPI(
+    title=settings.APP_NAME,
+    version=settings.VERSION,
+    debug=True
+)
+
+####################################
+######### FastAPI Routers ##########
+####################################
+
 include_routers(
     app,
     [
-        ProductViewSet(),
+        # ViewSets
         UserViewSet(),
-        ChannelsViewSet(),
-        ChatRouter,
-        ConsumptionRouter,
+        ProductViewSet(),
         RecipeViewSet(),
-        RecipeProductViewSet()
-    ]
+        # Routers
+        consumption_router,
+        # ToDo: fix ChannelsViewSet(),
+        # ToDo: fix ChatRouter,
+    ],
 )
+
+
+####################################
+######## App Exception Handlers ####
+####################################
+
+@app.exception_handler(Error)
+async def default_handler(request: Request, exc: Error) -> ErrorResponse:
+    return ErrorResponse(
+        status_code=exc.status_code,
+        message=exc.message
+    )
+
+
+@app.exception_handler(Exception)
+async def unknown_exception_handler(request: Request, exc: Exception) -> ErrorResponse:
+    logger.error(f"Unknown error occurred: {exc}", request=request)
+    return ErrorResponse(
+        status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+        message="Unknown error occurred. Please try again later or create issue ticket."
+    )
+
+
+####################################
+######## App Middlewares ###########
+####################################
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ToDo: Figure out middleware for ws
+
+####################################
+######## Registration Extra to App #
+####################################
+
+###  Container DI ######
 app.container = container
 
+###  Tortoise ORM ######
+register_tortoise(
+    app,
+    config=TORTOISE_CONFIG,
+    generate_schemas=False,
+    add_exception_handlers=False,
+)
+### LogFire ######
 
-@app.middleware("http")
-async def add_request_context(request: Request, call_next):
-    start_time = time.time()
-    request_context.begin_request(current_user=CurrentUser.fake_user())
-    try:
-        response = await call_next(request)
-        process_time = time.time() - start_time
-        response.headers["X-Process-Time"] = str(process_time)
-        return response
+instrument_fastapi(app=app)
 
-    finally:
-        request_context.end_request()
-
-
-class WebSocketMiddleware:
-    def __init__(self, app):
-        self.app = app
-
-    def run_websocket_session(self):
-        request_context.begin_request(current_user=CurrentUser.fake_user())
-
-    def end_websocket_session(self):
-        request_context.end_request()
-
-    async def __call__(self, scope, receive, send):
-        if scope['type'] == 'websocket':
-            self.run_websocket_session()
-
-        await self.app(scope, receive, send)
-
-        if scope['type'] == 'websocket':
-            self.end_websocket_session()
-
-
-app.add_middleware(WebSocketMiddleware)
+####################################
+############## END #################
+####################################
