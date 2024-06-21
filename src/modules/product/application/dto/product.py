@@ -5,18 +5,18 @@ from pydantic import BaseModel
 
 
 class ProductInputDto(BaseModel):
-    code: Optional[int]
-    name: Optional[str]
-    quantity: Optional[str]
-    brand: Optional[str]
-    size: Optional[str]
-    groups: Optional[str]
-    category: Optional[str]
-    energy_kcal_100g: Optional[float]
-    fat_100g: Optional[float]
-    carbohydrates_100g: Optional[float]
-    sugars_100g: Optional[float]
-    proteins_100g: Optional[float]
+    code: Optional[int] = None
+    name: Optional[str] = None
+    quantity: Optional[str] = None
+    brand: Optional[str] = None
+    size: Optional[str] = None
+    groups: Optional[str] = None
+    category: Optional[str] = None
+    energy_kcal_100g: Optional[float] = None
+    fat_100g: Optional[float] = None
+    carbohydrates_100g: Optional[float] = None
+    sugars_100g: Optional[float] = None
+    proteins_100g: Optional[float] = None
 
 
 class ProductOutputDto(ProductInputDto):
