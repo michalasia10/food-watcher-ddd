@@ -14,6 +14,7 @@ from src.api.router_util import include_routers
 from src.config import TORTOISE_CONFIG, settings
 from src.config.di import AppContainer
 from src.core.domain.errors import Error
+
 # controllers
 from src.modules.auth.controller import UserViewSet
 from src.modules.product.controller.consumption import router as consumption_router
@@ -39,11 +40,7 @@ container.wire(
 ######### FastAPI App Init #########
 ####################################
 
-app = FastAPI(
-    title=settings.APP_NAME,
-    version=settings.VERSION,
-    debug=True
-)
+app = FastAPI(title=settings.APP_NAME, version=settings.VERSION, debug=True)
 
 ####################################
 ######### FastAPI Routers ##########
@@ -68,12 +65,10 @@ include_routers(
 ######## App Exception Handlers ####
 ####################################
 
+
 @app.exception_handler(Error)
 async def default_handler(request: Request, exc: Error) -> ErrorResponse:
-    return ErrorResponse(
-        status_code=exc.status_code,
-        message=exc.message
-    )
+    return ErrorResponse(status_code=exc.status_code, message=exc.message)
 
 
 @app.exception_handler(Exception)
@@ -81,7 +76,7 @@ async def unknown_exception_handler(request: Request, exc: Exception) -> ErrorRe
     logger.error(f"Unknown error occurred: {exc}", request=request)
     return ErrorResponse(
         status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-        message="Unknown error occurred. Please try again later or create issue ticket."
+        message="Unknown error occurred. Please try again later or create issue ticket.",
     )
 
 

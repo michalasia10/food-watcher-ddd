@@ -2,6 +2,8 @@ from src.core.domain.errors import DBErrorNotFound, BadPermissions
 
 
 class ProductNotFound(DBErrorNotFound): ...
+
+
 class DailyProductNotFound(DBErrorNotFound): ...
 
 

@@ -32,15 +32,15 @@ class User(Entity):
 
     @classmethod
     def create(
-            cls,
-            username: str,
-            password: str,
-            email: str,
-            first_name: str = '',
-            last_name: str = '',
-            status: str = StatusEnum.INACTIVE.value,
-            type: str = TypeEnum.USER.value,
-    ) -> 'User':
+        cls,
+        username: str,
+        password: str,
+        email: str,
+        first_name: str = "",
+        last_name: str = "",
+        status: str = StatusEnum.INACTIVE.value,
+        type: str = TypeEnum.USER.value,
+    ) -> "User":
         return cls(
             id=cls.create_id(),
             username=username,
@@ -55,15 +55,12 @@ class User(Entity):
         )
 
     def correct_password(self, password: str) -> bool:
-        return hash_helper.verify(
-            secret=password,
-            hash=self.password
-        )
+        return hash_helper.verify(secret=password, hash=self.password)
 
     def create_token(
-            self,
-            secret_key: str,
-            algorithm: str,
+        self,
+        secret_key: str,
+        algorithm: str,
     ) -> str:
         return jwt.encode(
             payload={
@@ -78,7 +75,7 @@ class User(Entity):
     def get_user_filter_by_decoded_token(token: dict) -> dict:
         return dict(id=token.get("user_id"))
 
-    def update(self, input_dto: BaseModel) -> 'Entity':
+    def update(self, input_dto: BaseModel) -> "Entity":
         if input_dto.password:
             input_dto.password = self._hash_pswd(input_dto.password)
 

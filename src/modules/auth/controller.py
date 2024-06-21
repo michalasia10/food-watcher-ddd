@@ -9,7 +9,7 @@ from src.modules.auth.application.dto import (
     TokenOutputDto,
     UserInputDto,
     UserOutputDto,
-    UserUpdateDto
+    UserUpdateDto,
 )
 from src.modules.auth.application.services import AuthenticationService
 
@@ -20,9 +20,9 @@ class UserViewSet(BaseModelView[UserInputDto, UserOutputDto]):
 
     @inject
     def __init__(
-            self,
-            crud_service=dependency(AppContainer.auth.user_service),
-            auth_service=dependency(AppContainer.auth.auth_service),
+        self,
+        crud_service=dependency(AppContainer.auth.user_service),
+        auth_service=dependency(AppContainer.auth.auth_service),
     ) -> None:
         super(UserViewSet, self).__init__(
             crud_service=crud_service,
@@ -38,9 +38,11 @@ class UserViewSet(BaseModelView[UserInputDto, UserOutputDto]):
     )
     @inject
     async def login(
-            self,
-            credentials: UserAuthInputDto,
-            auth_service: AuthenticationService = dependency(AppContainer.auth.auth_service),
+        self,
+        credentials: UserAuthInputDto,
+        auth_service: AuthenticationService = dependency(
+            AppContainer.auth.auth_service
+        ),
     ) -> TokenOutputDto:
         """Endpoint to authenticate user."""
 

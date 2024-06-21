@@ -27,14 +27,14 @@ class Entity(ABC):
     updated_at: datetime = field(kw_only=True)
     created_at: datetime = field(kw_only=True)
 
-    def __eq__(self, other: 'Entity') -> bool:
+    def __eq__(self, other: "Entity") -> bool:
         return self.id == other.id
 
     def __hash__(self) -> int:
         return hash(self.id)
 
     def __str__(self):
-        return f'.::{self.__class__.__name__}::..::{self.id}::.'
+        return f".::{self.__class__.__name__}::..::{self.id}::."
 
     @classmethod
     def create_id(cls) -> UUID:
@@ -54,7 +54,9 @@ class Entity(ABC):
             """
             return value is not None
 
-        _snapshot = asdict(self, dict_factory=lambda x: {k: v for (k, v) in x if filter(v)})
+        _snapshot = asdict(
+            self, dict_factory=lambda x: {k: v for (k, v) in x if filter(v)}
+        )
         return convert_uuid_to_str(_snapshot)
 
     @classmethod
@@ -63,10 +65,9 @@ class Entity(ABC):
 
     @classmethod
     @abstractmethod
-    def create(cls, *args, **kwargs) -> 'Entity':
-        ...
+    def create(cls, *args, **kwargs) -> "Entity": ...
 
-    def update(self, input_dto: BaseModel) -> 'Entity':
+    def update(self, input_dto: BaseModel) -> "Entity":
         for _field, value in input_dto.dict().items():
             if getattr(self, _field) != value:
                 setattr(self, _field, value)

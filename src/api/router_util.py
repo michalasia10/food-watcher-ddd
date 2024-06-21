@@ -6,7 +6,9 @@ from fastapi import FastAPI
 from src.core.controller.crud import BaseModelView
 
 
-def include_routers(app: FastAPI, routers: list[BaseModelView | APIRouter | Any]) -> None:
+def include_routers(
+    app: FastAPI, routers: list[BaseModelView | APIRouter | Any]
+) -> None:
     """
     Include routers in the FastAPI app.
 

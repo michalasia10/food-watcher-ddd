@@ -22,14 +22,19 @@ class Product(Entity):
     proteins_100g: PrecisedFloat | None = None
 
     @classmethod
-    def create(cls, *args, **kwargs) -> 'Product':
-        _args = tuple(PrecisedFloat(arg) if isinstance(arg, float) else arg for arg in args)
-        _kwargs = {k: PrecisedFloat(v) if isinstance(v, float) else v for k, v in kwargs.items()}
+    def create(cls, *args, **kwargs) -> "Product":
+        _args = tuple(
+            PrecisedFloat(arg) if isinstance(arg, float) else arg for arg in args
+        )
+        _kwargs = {
+            k: PrecisedFloat(v) if isinstance(v, float) else v
+            for k, v in kwargs.items()
+        }
 
         return cls(
             id=cls.create_id(),
             updated_at=cls.create_now_time(),
             created_at=cls.create_now_time(),
             *_args,
-            **_kwargs
+            **_kwargs,
         )

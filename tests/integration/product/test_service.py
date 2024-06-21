@@ -6,13 +6,18 @@ from uuid6 import uuid6
 from src.modules.product.application.dto.daily_product import DailyUserProductInputDto
 from src.modules.product.application.dto.product import ProductInputDto
 from src.modules.product.domain.enum import UserProductType
-from src.modules.product.domain.errors import ProductNotFound, DailyUserConsumptionNotFound
+from src.modules.product.domain.errors import (
+    ProductNotFound,
+    DailyUserConsumptionNotFound,
+)
 from src.modules.product.infra.repo.consumption import DailyUserConsumptionTortoiseRepo
 from src.modules.product.infra.repo.daily_product import DailyUserProductTortoiseRepo
 
 
 @pytest.mark.asyncio
-async def test_add_meal_daily_consumption_not_exists(user_record, product_record, consumption_service):
+async def test_add_meal_daily_consumption_not_exists(
+    user_record, product_record, consumption_service
+):
     # given
 
     _date = datetime.now()
@@ -20,7 +25,7 @@ async def test_add_meal_daily_consumption_not_exists(user_record, product_record
         product_id=product_record.id,
         weight_in_grams=100,
         type=UserProductType.DINNER,
-        date=_date
+        date=_date,
     )
     # sanity check [time should be 00:00:00]
     assert dto.date.day == _date.day
@@ -33,21 +38,24 @@ async def test_add_meal_daily_consumption_not_exists(user_record, product_record
         assert dto.date.second == 0
         assert dto.date.microsecond == 0
     elif isinstance(dto.date, date):
-        assert not hasattr(dto.date, 'hour')
-        assert not hasattr(dto.date, 'minute')
-        assert not hasattr(dto.date, 'second')
-        assert not hasattr(dto.date, 'microsecond')
+        assert not hasattr(dto.date, "hour")
+        assert not hasattr(dto.date, "minute")
+        assert not hasattr(dto.date, "second")
+        assert not hasattr(dto.date, "microsecond")
     else:
         raise Exception("Invalid date type")
 
     # when
 
     daily_consumption = await consumption_service.add_meal(
-        user_id=user_record.id,
-        input_dto=dto
+        user_id=user_record.id, input_dto=dto
     )
-    daily_consumption_from_db = await DailyUserConsumptionTortoiseRepo.aget_by_id(daily_consumption.id)
-    daily_product_from_db = await DailyUserProductTortoiseRepo.aget_by_id(daily_consumption.products[0].id)
+    daily_consumption_from_db = await DailyUserConsumptionTortoiseRepo.aget_by_id(
+        daily_consumption.id
+    )
+    daily_product_from_db = await DailyUserProductTortoiseRepo.aget_by_id(
+        daily_consumption.products[0].id
+    )
 
     # then
     assert daily_consumption_from_db is not None
@@ -62,33 +70,37 @@ async def test_add_meal_daily_consumption_not_exists(user_record, product_record
 
 @pytest.mark.asyncio
 async def test_add_meal_daily_consumption_exists(
-        user_record,
-        consumption_with_product,
-        product_record,
-        consumption_service
+    user_record, consumption_with_product, product_record, consumption_service
 ):
     # given
     dto = DailyUserProductInputDto(
         product_id=product_record.id,
         weight_in_grams=200,
         type=UserProductType.DINNER,
-        date=consumption_with_product.date
+        date=consumption_with_product.date,
     )
 
     # when
     daily_consumption = await consumption_service.add_meal(
-        user_id=user_record.id,
-        input_dto=dto
+        user_id=user_record.id, input_dto=dto
     )
 
-    daily_consumption_from_db = await DailyUserConsumptionTortoiseRepo.aget_by_id(daily_consumption.id)
-    daily_product_from_db_first = await DailyUserProductTortoiseRepo.aget_by_id(daily_consumption.products[0].id)
-    daily_product_from_db_second = await DailyUserProductTortoiseRepo.aget_by_id(daily_consumption.products[1].id)
+    daily_consumption_from_db = await DailyUserConsumptionTortoiseRepo.aget_by_id(
+        daily_consumption.id
+    )
+    daily_product_from_db_first = await DailyUserProductTortoiseRepo.aget_by_id(
+        daily_consumption.products[0].id
+    )
+    daily_product_from_db_second = await DailyUserProductTortoiseRepo.aget_by_id(
+        daily_consumption.products[1].id
+    )
 
     # then
     assert len(daily_consumption.products) == 2
     assert daily_consumption.summary_calories == daily_consumption.summary_calories
-    expected_summary_calories = daily_product_from_db_second.calories + daily_product_from_db_first.calories
+    expected_summary_calories = (
+        daily_product_from_db_second.calories + daily_product_from_db_first.calories
+    )
     assert daily_consumption.summary_calories == expected_summary_calories
 
     assert daily_consumption_from_db is not None
@@ -109,19 +121,18 @@ async def test_add_meal_product_not_found(user_record, consumption_service):
         product_id=uuid6(),
         weight_in_grams=200,
         type=UserProductType.DINNER,
-        date=datetime.now()
+        date=datetime.now(),
     )
 
     # when/then
     with pytest.raises(ProductNotFound):
-        await consumption_service.add_meal(
-            user_id=user_record.id,
-            input_dto=dto
-        )
+        await consumption_service.add_meal(user_id=user_record.id, input_dto=dto)
 
 
 @pytest.mark.asyncio
-async def test_get_all_user_days(user_record, consumption_with_product, consumption_service):
+async def test_get_all_user_days(
+    user_record, consumption_with_product, consumption_service
+):
     # given
     user_id = user_record.id
 
@@ -178,8 +189,7 @@ async def test_get_day_by_id_dummy_day(consumption_service):
 async def test_get_day_by_datetime(consumption_with_product, consumption_service):
     # given/when
     day = await consumption_service.get_day_by_datetime(
-        date=consumption_with_product.date,
-        user_id=consumption_with_product.user_id
+        date=consumption_with_product.date, user_id=consumption_with_product.user_id
     )
 
     # then
@@ -191,25 +201,27 @@ async def test_get_day_by_datetime(consumption_with_product, consumption_service
 
 
 @pytest.mark.asyncio
-async def test_get_day_by_datetime_dummy_day(consumption_service, consumption_with_product):
+async def test_get_day_by_datetime_dummy_day(
+    consumption_service, consumption_with_product
+):
     # given
     date = datetime.now() - timedelta(days=1)
 
     # when/then
     with pytest.raises(DailyUserConsumptionNotFound):
         await consumption_service.get_day_by_datetime(
-            date=date,
-            user_id=consumption_with_product.user_id
+            date=date, user_id=consumption_with_product.user_id
         )
 
 
 @pytest.mark.asyncio
-async def test_get_day_by_datetime_dummy_user(consumption_service, consumption_with_product):
+async def test_get_day_by_datetime_dummy_user(
+    consumption_service, consumption_with_product
+):
     # when/then
     with pytest.raises(DailyUserConsumptionNotFound):
         await consumption_service.get_day_by_datetime(
-            date=consumption_with_product.date,
-            user_id=uuid6()
+            date=consumption_with_product.date, user_id=uuid6()
         )
 
 
@@ -258,17 +270,17 @@ async def test_create_product(product_service):
     # given
     dto = ProductInputDto(
         code=2,
-        name='SOME_NAME',
-        quantity='SOME_QUANTITY',
-        brand='SOME_BRAND',
-        size='SOME_SIZE',
-        groups='SOME_GROUPS',
-        category='SOME_CATEGORY',
+        name="SOME_NAME",
+        quantity="SOME_QUANTITY",
+        brand="SOME_BRAND",
+        size="SOME_SIZE",
+        groups="SOME_GROUPS",
+        category="SOME_CATEGORY",
         energy_kcal_100g=100.0,
         fat_100g=10.0,
         carbohydrates_100g=20.0,
         sugars_100g=30.0,
-        proteins_100g=40.0
+        proteins_100g=40.0,
     )
 
     # when
@@ -286,17 +298,17 @@ async def test_update_product(product_record, product_service):
     # given
     dto = ProductInputDto(
         code=2,
-        name='SOME_NAME',
-        quantity='SOME_QUANTITY',
-        brand='SOME_BRAND',
-        size='SOME_SIZE',
-        groups='SOME_GROUPS',
-        category='SOME_CATEGORY',
+        name="SOME_NAME",
+        quantity="SOME_QUANTITY",
+        brand="SOME_BRAND",
+        size="SOME_SIZE",
+        groups="SOME_GROUPS",
+        category="SOME_CATEGORY",
         energy_kcal_100g=product_record.energy_kcal_100g + 10.0,
         fat_100g=product_record.fat_100g + 10.0,
         carbohydrates_100g=20.0,
         sugars_100g=30.0,
-        proteins_100g=40.0
+        proteins_100g=40.0,
     )
 
     # when

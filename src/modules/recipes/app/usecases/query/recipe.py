@@ -5,7 +5,5 @@ from src.foundation.application.queries import QueryBase
 
 
 class RecipeQuery(QueryBase):
-
     @abstractmethod
-    def get_all(self, skip: int, limit: int) -> list[RecipeOutputDto]:
-        ...
+    def get_all(self, skip: int, limit: int) -> list[RecipeOutputDto]: ...

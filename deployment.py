@@ -16,11 +16,10 @@ COMMANDS: dict[str, list[str]] = {
         "docker-compose -f docker-compose.testdb.yml stop test_db",
         "docker-compose -f docker-compose.testdb.yml up -d test_db",
         "pytest tests/ -s OPTIONAL_ARGS",
-        "docker-compose -f docker-compose.testdb.yml stop test_db"
+        "docker-compose -f docker-compose.testdb.yml stop test_db",
     ],
     "test_db": ["docker-compose -f docker-compose.testdb.yml up -d test_db"],
     "db": ["docker-compose -f docker-compose.yml up -d db"],
-
 }
 
 
@@ -32,19 +31,32 @@ def run_commands(command_list, optional_args=None):
                 command = command.replace("OPTIONAL_ARGS", optional_args)
             else:
                 command = command.replace("OPTIONAL_ARGS", "")
-            typer.echo("\n" * 2 + "#" * 25 + " " * 5 + f"{idx + 1}/{len(command_list)}" + " " * 5 + "#" * 41)
-            typer.echo(f"{typer.style('Run command', fg=typer.colors.YELLOW, bold=True)}:"
-                       f" command'{command}")
+            typer.echo(
+                "\n" * 2
+                + "#" * 25
+                + " " * 5
+                + f"{idx + 1}/{len(command_list)}"
+                + " " * 5
+                + "#" * 41
+            )
+            typer.echo(
+                f"{typer.style('Run command', fg=typer.colors.YELLOW, bold=True)}:"
+                f" command'{command}"
+            )
             typer.echo("#" * 80)
             result = subprocess.run(command, shell=True)
             if result.returncode != 0:
                 typer.echo("\n" * 2 + "#" * 80)
-                typer.echo(f"{typer.style('Error', fg=typer.colors.RED, bold=True)}: command {command}")
+                typer.echo(
+                    f"{typer.style('Error', fg=typer.colors.RED, bold=True)}: command {command}"
+                )
                 typer.echo("#" * 80)
                 sys.exit(1)
 
             typer.echo("\n" * 2 + "#" * 80)
-            typer.echo(f"{typer.style('End command:', fg=typer.colors.GREEN, bold=True)}: {command}")
+            typer.echo(
+                f"{typer.style('End command:', fg=typer.colors.GREEN, bold=True)}: {command}"
+            )
             typer.echo("#" * 80)
 
 
@@ -101,7 +113,9 @@ def migrate_manual(migration: str):
 
         def import_migration(self):
             migration = self.find_migration()
-            module = importlib.import_module(f"src.migrations.manual.{migration.replace('.py', '')}")
+            module = importlib.import_module(
+                f"src.migrations.manual.{migration.replace('.py', '')}"
+            )
             return module
 
         def get_migration_class(self):

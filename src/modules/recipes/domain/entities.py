@@ -5,7 +5,10 @@ from foundation.domain.repository import UUID
 from src.foundation.domain.entities import AggregateRoot
 from src.modules.common.macro.factory import MacroCalculatorFactory, MacroCalculatorType
 from src.modules.common.macro.strategies import MacroCalculatorStrategy
-from src.modules.recipes.infra.models.recipe import Recipe as RecipeModel, ProductForRecipe as ProductForRecipeModel
+from src.modules.recipes.infra.models.recipe import (
+    Recipe as RecipeModel,
+    ProductForRecipe as ProductForRecipeModel,
+)
 
 
 @dataclass

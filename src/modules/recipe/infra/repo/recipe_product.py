@@ -1,8 +1,14 @@
 from src.core.infra.tortoiserepo import TortoiseRepo
-from src.modules.recipe.domain.entity.recipe_product import ProductForRecipe as ProductForRecipeEntity
-from src.modules.recipe.infra.model.recipe_product import ProductForRecipe as ProductForRecipeModel
+from src.modules.recipe.domain.entity.recipe_product import (
+    ProductForRecipe as ProductForRecipeEntity,
+)
+from src.modules.recipe.infra.model.recipe_product import (
+    ProductForRecipe as ProductForRecipeModel,
+)
 
 
-class RecipeForProductTortoiseRepo(TortoiseRepo[ProductForRecipeModel, ProductForRecipeEntity]):
+class RecipeForProductTortoiseRepo(
+    TortoiseRepo[ProductForRecipeModel, ProductForRecipeEntity]
+):
     model = ProductForRecipeModel
     entity = ProductForRecipeEntity

@@ -13,9 +13,9 @@ class Recipe(BaseModel):
     summary_carbohydrates = fields.FloatField(null=True)
 
     # relationships
-    user = fields.ForeignKeyField('auth.User', related_name='recipes')
-    products = fields.ReverseRelation['recipe.ProductForRecipe']
+    user = fields.ForeignKeyField("auth.User", related_name="recipes")
+    products = fields.ReverseRelation["recipe.ProductForRecipe"]
 
     class Meta:
-        app = 'recipe'
-        table = 'recipe'
+        app = "recipe"
+        table = "recipe"

@@ -22,9 +22,7 @@ def test_create_daily_product_based_on_product():
 
     # when
     daily_product = DailyUserProduct.create(
-        product=product,
-        day=day,
-        weight_in_grams=weight_in_grams
+        product=product, day=day, weight_in_grams=weight_in_grams
     )
 
     # then
