@@ -85,8 +85,8 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
 
             @self.router.get("/", response_model=List[self.output_dto])
             async def list(
-                skip: int = Query(default=0, gt=0, lt=100),
-                limit: int = Query(default=100, gt=0, lt=100),
+                skip: int = Query(default=0, gte=0, lte=100),
+                limit: int = Query(default=100, gte=0, lte=100),
             ):
                 """Basic endpoint to get list of instance. You can also use ?filter"""
                 return await self._service.get_all(skip, limit)
