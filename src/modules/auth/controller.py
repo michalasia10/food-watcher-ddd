@@ -1,9 +1,9 @@
 from classy_fastapi import post
 from dependency_injector.wiring import inject
 
-from src.api.shared import dependency
 from src.config.di import AppContainer
 from src.core.controller.crud import BaseModelView
+from src.core.controller.di import dependency
 from src.modules.auth.application.dto import (
     UserAuthInputDto,
     TokenOutputDto,

@@ -145,7 +145,7 @@ async def test_user_service_get_all(user_service: UserCrudService, user_record):
 
 
 @pytest.mark.asyncio
-async def test_user_service_get_all(user_service: UserCrudService, user_record):
+async def test_user_service_get_by_id(user_service: UserCrudService, user_record):
     # when
     user_db = await user_service.get_by_id(user_record.id)
 

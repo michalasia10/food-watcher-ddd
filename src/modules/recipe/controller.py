@@ -6,10 +6,10 @@ from dependency_injector.wiring import inject
 from fastapi import Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-from src.api.shared import dependency
 from src.config.di import AppContainer
 from src.core.app.service import IAuthService
 from src.core.controller.crud import BaseModelView
+from src.core.controller.di import dependency
 from src.modules.recipe.application.dto.recipe import (
     RecipeInputDto,
     RecipeOutputDto,

@@ -33,7 +33,8 @@ async def test_product_controller_create_product(api_client, endpoint_enum, user
     )
     # when
     response = await api_client.post(
-        endpoint_enum.PRODUCTS.value, json_data=product_input.dict()
+        endpoint_enum.PRODUCTS.value,
+        json_data=product_input.dict(),
     )
 
     # then
@@ -188,7 +189,11 @@ async def test_consumption_controller_add_meal_product_not_found(
 
 @pytest.mark.asyncio
 async def test_consumption_controller_get_all_user_days(
-    api_client, endpoint_enum, user_record, user_token, consumption_with_product
+    api_client,
+    endpoint_enum,
+    user_record,
+    user_token,
+    consumption_with_product,
 ):
     # given
     api_client.set_token(user_token.api_token)
@@ -224,7 +229,9 @@ async def test_consumption_controller_get_all_user_days(
 
 @pytest.mark.asyncio
 async def test_consumption_controller_get_all_user_days_dummy_user(
-    api_client, endpoint_enum, user_token
+    api_client,
+    endpoint_enum,
+    user_token,
 ):
     # given
     api_client.set_token(user_token.api_token)
@@ -240,7 +247,10 @@ async def test_consumption_controller_get_all_user_days_dummy_user(
 
 @pytest.mark.asyncio
 async def test_consumption_controller_get_day_by_id(
-    api_client, endpoint_enum, user_token, consumption_with_product
+    api_client,
+    endpoint_enum,
+    user_token,
+    consumption_with_product,
 ):
     # given
     api_client.set_token(user_token.api_token)
@@ -260,10 +270,11 @@ async def test_consumption_controller_get_day_by_id(
 
 @pytest.mark.asyncio
 async def test_consumption_controller_get_day_by_id_dummy_day(
-    api_client, endpoint_enum, user_token
+    api_client,
+    endpoint_enum,
+    user_token,
 ):
     # given
-    day_id = uuid6()
     api_client.set_token(user_token.api_token)
 
     # when
@@ -277,7 +288,10 @@ async def test_consumption_controller_get_day_by_id_dummy_day(
 
 @pytest.mark.asyncio
 async def test_consumption_controller_get_day_by_datetime(
-    api_client, endpoint_enum, user_token, consumption_with_product
+    api_client,
+    endpoint_enum,
+    user_token,
+    consumption_with_product,
 ):
     # given
     api_client.set_token(user_token.api_token)

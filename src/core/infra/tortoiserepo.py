@@ -5,10 +5,11 @@ from uuid import UUID
 
 from asyncpg import ObjectInUseError
 from loguru import logger
-from tortoise.contrib.pydantic.base import _get_fetch_fields
+
 from tortoise.exceptions import BaseORMException
 from tortoise.fields import Field, ReverseRelation
 from tortoise.models import Model
+from pydantic import BaseModel
 from tortoise.queryset import QuerySet, QuerySetSingle
 from tortoise.transactions import in_transaction
 
@@ -18,11 +19,13 @@ from src.core.domain.repo import IRepository
 from src.core.domain.value_object import PrecisedFloat
 
 ModelType = TypeVar("ModelType", bound=Model)
+PydanticModel = TypeVar("PydanticModel", bound=BaseModel)
 EntityType = TypeVar("EntityType", bound=Entity)
 
 
 def _get_fetch_fields(
-    pydantic_class: "Type[PydanticModel]", model_class: "Type[Model]"
+    pydantic_class: "Type[PydanticModel]",
+    model_class: "Type[Model]",
 ) -> List[str]:
     """
     Recursively collect fields needed to fetch
