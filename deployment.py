@@ -1,5 +1,9 @@
+import asyncio
+import importlib
+import os
 import subprocess
 import sys
+from time import sleep
 from typing import Optional
 
 import typer
@@ -15,9 +19,9 @@ COMMANDS: dict[str, list[str]] = {
         "docker-compose -f docker-compose.testdb.yml stop test_db"
     ],
     "test_db": ["docker-compose -f docker-compose.testdb.yml up -d test_db"],
+    "db": ["docker-compose -f docker-compose.yml up -d db"],
 
 }
-
 
 
 def run_commands(command_list, optional_args=None):
@@ -63,26 +67,65 @@ def run_db(test: Optional[bool] = False):
 
 
 @app.command()
-def update_dependencies(package: str):
-    run_commands([f"poetry add {package}"])
-    run_commands(["poetry export --without-hashes --format=requirements.txt > requirements.txt"])
+def migrate(app: str | None = None, init: bool = False):
+    run_db(test=False)
+    if init:
+        run_commands(
+            [
+                f"aerich {f'--app {app}' if app else ''} init  -t src.config.TORTOISE_CONFIG  --location src/migrations "
+            ]
+        )
+        sleep(1)
+        run_commands([f"aerich {f'--app {app}' if app else ''} init-db"])
+
+    run_commands([f"aerich {f'--app {app}' if app else ''} migrate"])
 
 
 @app.command()
-def run_migrations(name: str):
-    run_commands([f"alembic revision --autogenerate -m '{name}'"])
+def migrate_manual(migration: str):
+    class MigrationApplier:
+        def __init__(self, migration: str):
+            self.migration = migration
 
+        def find_migration(self):
+            """
+            Find the migration file in the migrations directory
+            Returns:
 
-@app.command()
-def migrate():
-    run_commands(["alembic upgrade head"])
+            """
+            migrations = os.listdir("src/migrations/manual/")
+            for migration in migrations:
+                if migration.startswith(self.migration) or self.migration in migration:
+                    return migration
+            raise FileNotFoundError(f"Migration {self.migration} not found")
+
+        def import_migration(self):
+            migration = self.find_migration()
+            module = importlib.import_module(f"src.migrations.manual.{migration.replace('.py', '')}")
+            return module
+
+        def get_migration_class(self):
+            module = self.import_migration()
+            for attr in dir(module):
+                if "Migration" in attr and attr != "BaseMigration":
+                    return getattr(module, attr)
+            raise AttributeError(f"Migration class not found in {module}")
+
+        def apply(self):
+            from src.config.config import ApiConfig
+
+            migration_class = self.get_migration_class()
+            migration = migration_class(ApiConfig().DATABASE_URL)
+            asyncio.run(migration.run())
+
+    return MigrationApplier(migration).apply()
 
 
 @app.command()
 def bootstrap():
     run_commands(["docker-compose down"])
     run_commands(["docker-compose up -d"])
-    migrate()
+    # migrate()
 
 
 if __name__ == "__main__":

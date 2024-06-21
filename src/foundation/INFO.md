@@ -1,1 +1,0 @@
-### Component with foundation functionality for other components

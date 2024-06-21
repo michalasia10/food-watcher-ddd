@@ -1,1 +1,0 @@
-### Component to read configs and join components together

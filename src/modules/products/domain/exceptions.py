@@ -1,9 +1,0 @@
-class ProductAlreadyExists(Exception):
-    ...
-
-
-class ProductNotFound(Exception):
-    ...
-
-class DailyUserProductNotFound(Exception):
-    ...

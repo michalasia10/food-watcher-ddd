@@ -12,8 +12,9 @@ jobs:
         with:
           python-version: 3.10.8
           cache: pip
-      - name: Install requriments
+      - name: Install requirements
         run: pip install -r ./requirements.txt
-
+      - name: Prepare test db
+        run: typer deployment.py run run-db --test
       - name: Run tests
         run: typer deployment.py run test
