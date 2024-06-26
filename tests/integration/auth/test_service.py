@@ -3,7 +3,7 @@ import uuid
 import pytest
 from tortoise.exceptions import DoesNotExist
 
-from src.core.infra.tortoiserepo import TortoiseRepo
+from src.core.infra.repo.tortoiserepo import TortoiseRepo
 from src.modules.auth.application.dto import (
     UserInputDto,
     UserUpdateDto,

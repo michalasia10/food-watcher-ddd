@@ -6,7 +6,8 @@ from uuid6 import UUID
 
 from src.core.app.service import ICrudService
 from src.core.domain.errors import Error
-from src.core.infra.tortoiserepo import IRepository
+from src.core.domain.repo.postgres import IPostgresRepository
+from src.core.domain.repo.search_engine import ISearchRepository
 from src.modules.recipe.application.dto.recipe import (
     RecipeInputDto,
     RecipeOutputDto,
@@ -35,25 +36,78 @@ class RecipeService(ICrudService):
     def __init__(
         self,
         product_service: [ICrudService],
-        product_for_recipe_repository: [IRepository],
-        recipe_repository: [IRepository],
+        product_for_recipe_repository: [IPostgresRepository],
+        recipe_repository: [IPostgresRepository],
+        search_repo: [ISearchRepository],
     ):
         self._product_service: ICrudService = product_service
-        self._product_for_recipe_repository: IRepository = product_for_recipe_repository
-        self._recipe_repository: IRepository = recipe_repository
-
-    async def get_all(self, skip: int = 0, limit: int = 10) -> [RecipeOutputDto]:
-        recipes = await self._recipe_repository.aget_all(
-            offset=skip,
-            limit=limit,
-            fetch_fields=["products_for_recipe", "products_for_recipe__product"],
+        self._product_for_recipe_repository: IPostgresRepository = (
+            product_for_recipe_repository
         )
+        self._recipe_repository: IPostgresRepository = recipe_repository
+        self._search_repo: ISearchRepository = search_repo
+
+    async def get_all(
+        self,
+        skip: int = 0,
+        limit: int = 10,
+        query: str | None = None,
+    ) -> [RecipeOutputDto]:
+        search_result = []
+
+        async def _get_recipes_normal_query():
+            return await self._recipe_repository.aget_all(
+                offset=skip,
+                limit=limit,
+                fetch_fields=["products_for_recipe", "products_for_recipe__product"],
+            )
+
+        def _convert_to_recipe_output_dto(_recipes):
+            return [
+                RecipeOutputDto(
+                    **self._recipe_repository.convert_snapshot(snapshot=recipe.snapshot)
+                )
+                for recipe in _recipes
+            ]
+
+        if query:
+            logger.info("Searching recipes with query: {query}", query=query)
+
+            try:
+                search_result = await self._search_repo.asearch(
+                    offset=skip,
+                    limit=limit,
+                    query=query,
+                )
+            except (Exception, Error) as e:
+                logger.error(f"Error while searching recipes: {e}")
+                recipes = await self._recipe_repository.aget_all(
+                    offset=skip,
+                    limit=limit,
+                    fetch_fields=[
+                        "products_for_recipe",
+                        "products_for_recipe__product",
+                    ],
+                )
+                return _convert_to_recipe_output_dto(recipes)
+            finally:
+                logger.info("Recipes found: {recipes_id}", recipes_id=search_result)
+                recipes = await self._recipe_repository.aget_all_from_filter(
+                    offset=skip,
+                    limit=limit,
+                    id__in=[result.get("id") for result in search_result],
+                    fetch_fields=[
+                        "products_for_recipe",
+                        "products_for_recipe__product",
+                    ],
+                )
+                return _convert_to_recipe_output_dto(recipes)
 
         return [
             RecipeOutputDto(
                 **self._recipe_repository.convert_snapshot(snapshot=recipe.snapshot)
             )
-            for recipe in recipes
+            for recipe in await _get_recipes_normal_query()
         ]
 
     async def get_all_my_recipes(
@@ -101,6 +155,13 @@ class RecipeService(ICrudService):
         )
         await self._recipe_repository.asave(entity)
 
+        try:
+            await self._search_repo.acreate_document(document=entity.snapshot)
+        except Exception as e:
+            logger.error(
+                "Error while creating document in search engine: {error}", error=e
+            )
+
         for product_for_recipe in input_dto.products:
             try:
                 product = await self._product_service.get_by_id(
@@ -122,7 +183,10 @@ class RecipeService(ICrudService):
 
         recipe = await self._recipe_repository.aget_by_id(
             id=entity.id,
-            fetch_fields=["products_for_recipe", "products_for_recipe__product"],
+            fetch_fields=[
+                "products_for_recipe",
+                "products_for_recipe__product",
+            ],
         )
         return RecipeOutputDto(
             **self._recipe_repository.convert_snapshot(snapshot=recipe.snapshot)
@@ -151,6 +215,20 @@ class RecipeService(ICrudService):
 
         await self._recipe_repository.aupdate(recipe)
 
+        try:
+            await self._search_repo.aupdate_document(
+                document_id=id,
+                document={
+                    key: value
+                    for key, value in recipe.snapshot.items()
+                    if key != "products_for_recipe"
+                },
+            )
+        except Exception as e:
+            logger.error(
+                "Error while updating document in search engine: {error}", error=e
+            )
+
         recipe = await self._recipe_repository.aget_by_id(
             id=recipe.id,
             fetch_fields=["products_for_recipe", "products_for_recipe__product"],
@@ -173,6 +251,13 @@ class RecipeService(ICrudService):
             )
 
         await self._recipe_repository.adelete(recipe)
+
+        try:
+            await self._search_repo.adelete_document(document_id=recipe.id)
+        except Exception as e:
+            logger.error(
+                "Error while deleting document in search engine: {error}", error=e
+            )
 
     async def add_product(
         self,

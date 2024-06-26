@@ -8,7 +8,8 @@ from src.modules.recipe.di import RecipeContainer
 
 class AppContainer(containers.DeclarativeContainer):
     container_config = providers.Configuration()
-    container_config.from_dict(ApiConfig().model_dump())
+    raw_api_config = ApiConfig()
+    container_config.from_dict(raw_api_config.model_dump())
 
     api_config = providers.Singleton(ApiConfig)
 
@@ -23,7 +24,7 @@ class AppContainer(containers.DeclarativeContainer):
     product = providers.Container(
         ProductContainer,
         container_config=container_config,
-        api_config=api_config,
+        api_config=raw_api_config,
     )
 
     ### CONSUMPTION ###
@@ -37,6 +38,6 @@ class AppContainer(containers.DeclarativeContainer):
     recipe = providers.Container(
         RecipeContainer,
         container_config=container_config,
-        api_config=api_config,
+        api_config=raw_api_config,
         product_service=product.service,
     )

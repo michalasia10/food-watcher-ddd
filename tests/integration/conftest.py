@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 import pytest_asyncio
 
@@ -5,6 +7,59 @@ from src.config import settings
 from src.modules.auth.application.dto import UserInputDto, UserAuthInputDto
 from src.modules.auth.application.services import UserCrudService, AuthenticationService
 from src.modules.auth.infra.user_repo import UserTortoiseRepo
+
+from src.core.domain.repo.search_engine import ISearchRepository
+
+
+class InMemorySearchRepository(ISearchRepository):
+    """
+    InMemorySearchRepository is a class that implements the ISearchRepository interface.
+    """
+
+    INDEX: str = ""
+    SEARCH_FIELDS: list[str] | None = None
+    FIELDS_TO_GET: list[str] | None = None
+
+    def __init__(self, *args, **kwargs):
+        self._documents: list[dict] = []
+
+    async def asearch(
+        self,
+        query: str,
+        offset: int = 0,
+        limit: int = 100,
+        fields_to_get: list[str] | None = None,
+        search_fields: list[str] | None = None,
+        *args,
+        **kwargs,
+    ) -> list[Any]:
+        return filter(lambda document: query in document["id"], self._documents)
+
+    async def aget_create_index(
+        self,
+        *args,
+        **kwargs,
+    ):
+        raise NotImplementedError
+
+    async def acreate_document(self, document: dict, *args, **kwargs) -> None:
+        self._documents.append(document)
+
+    async def adelete_document(self, document_id: str, *args, **kwargs) -> None:
+        self._documents = list(
+            filter(lambda document: document_id != document["id"], self._documents)
+        )
+
+    async def aupdate_document(
+        self,
+        document_id: str,
+        document: dict,
+        *args,
+        **kwargs,
+    ) -> None:
+        for i, doc in enumerate(self._documents):
+            if doc["id"] == document_id:
+                self._documents[i] = document
 
 
 @pytest.fixture

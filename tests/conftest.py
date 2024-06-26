@@ -8,19 +8,15 @@ import pytest
 import pytest_asyncio
 import tortoise.fields
 from httpx import AsyncClient
+from meilisearch_python_sdk import AsyncClient as MeiliAsyncClient, AsyncIndex
 from httpx import Response
 from tortoise import Tortoise
 from uuid6 import UUID as UUIDv6
 
+from src.config import settings
 from src.api.main import app
 from src.config import TORTOISE_TEST_CONFIG
-
-
-class UUIDEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, (UUID, UUIDv6)):
-            return obj.hex
-        return json.JSONEncoder.default(self, obj)
+from src.core.utils.encoder import CustomJsonEncoder
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -153,7 +149,7 @@ class TestAsyncClient(AsyncClient):
         if isinstance(json_data, str):
             return json.loads(json_data)
 
-        return json.loads(json.dumps(json_data, cls=UUIDEncoder))
+        return json.loads(json.dumps(json_data, cls=CustomJsonEncoder))
 
     def post(self, url, json_data: str | dict | None = None, *args, **kwargs):
         return super().post(
@@ -256,8 +252,24 @@ def db(request, event_loop):
             await Tortoise.close_connections()
             Printer.teardown("Connection closed.")
 
+    async def _drop_search_index():
+        async with MeiliAsyncClient(
+            url=settings.MEILISEARCH_URL,
+            api_key=settings.MEILISEARCH_MASTER_KEY,
+        ) as client:
+            Printer.teardown("Dropping search indexes...")
+
+            indexes: list[AsyncIndex] = await client.get_indexes()
+
+            for index in indexes:
+                Printer.teardown(f"Deleting index: {index.uid}")
+                await index.delete_all_documents()
+
+            Printer.teardown("All search indexes dropped successfully.")
+
     def __drop():
         event_loop.run_until_complete(_drop_db())
+        event_loop.run_until_complete(_drop_search_index())
 
     async def _init():
         Printer.setup("Creating tables...")

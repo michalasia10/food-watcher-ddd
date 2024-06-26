@@ -37,6 +37,14 @@ class ApiConfig(BaseSettings):
         env="LOGFIRE_APP_NAME",
         default="app_name",
     )
+    MEILISEARCH_URL_BASE: str = Field(
+        env="MEILISEARCH_URL",
+        default="http://host.docker.internal:7700/",
+    )
+    MEILISEARCH_MASTER_KEY: str = Field(
+        env="MEILISEARCH_MASTER_KEY",
+        default="masterKey",
+    )
 
     @property
     def TORTOISE_ORM_CONFIG(self) -> dict:
@@ -79,6 +87,14 @@ class ApiConfig(BaseSettings):
         config["connections"]["default"] = self.TEST_DATABASE_URL
 
         return config
+
+    @property
+    def MEILISEARCH_URL(self) -> str:
+        return (
+            self.MEILISEARCH_URL_BASE
+            if not "pytest" in sys.argv[0]
+            else "http://localhost:7701/"
+        )
 
 
 settings = ApiConfig()

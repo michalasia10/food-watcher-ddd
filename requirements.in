@@ -19,3 +19,4 @@ pytest-asyncio
 typer
 loguru
 logfire[fastapi]
+meilisearch-python-sdk

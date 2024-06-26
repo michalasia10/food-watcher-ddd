@@ -1,4 +1,4 @@
-from src.core.infra.tortoiserepo import TortoiseRepo
+from src.core.infra.repo.tortoiserepo import TortoiseRepo
 from src.modules.product.domain.entity.consumption import (
     DailyUserConsumption as DailyUserConsumptionEntity,
 )

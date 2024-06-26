@@ -3,12 +3,15 @@ import pytest_asyncio
 
 from src.modules.product.application.service.product import ProductCrudService
 from src.modules.product.domain.entity.product import Product
-from src.modules.product.infra.repo.product import ProductTortoiseRepo
+from src.modules.product.infra.repo.postgres.product import ProductTortoiseRepo
 from src.modules.recipe.application.service import RecipeService
 from src.modules.recipe.domain.entity.recipe import Recipe
 from src.modules.recipe.domain.entity.recipe_product import ProductForRecipe
-from src.modules.recipe.infra.repo.recipe import RecipeTortoiseRepo
-from src.modules.recipe.infra.repo.recipe_product import RecipeForProductTortoiseRepo
+from src.modules.recipe.infra.repo.postgres.recipe import RecipeTortoiseRepo
+from src.modules.recipe.infra.repo.postgres.recipe_product import (
+    RecipeForProductTortoiseRepo,
+)
+from tests.integration.conftest import InMemorySearchRepository
 
 
 @pytest.fixture
@@ -17,6 +20,7 @@ def recipe_service():
         recipe_repository=RecipeTortoiseRepo,
         product_for_recipe_repository=RecipeForProductTortoiseRepo,
         product_service=ProductCrudService(repository=ProductTortoiseRepo),
+        search_repo=InMemorySearchRepository(),
     )
 
 
