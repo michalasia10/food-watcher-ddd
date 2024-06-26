@@ -1,13 +1,13 @@
 version: "3.8"
 services:
   db:
-    image: postgres:12.3
+    image: rboulanger/postgres13-wal2json:latest
     hostname: localhost
     restart: always
     environment:
       POSTGRES_PASSWORD: password
     volumes:
-      - /postgres_data:/var/lib/postgresql/data
+      - /postgres_data1:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
@@ -97,14 +97,6 @@ services:
     volumes:
       - ./data.ms:/data.ms
     restart: unless-stopped
-  meilisync:
-    image: long2ice/meilisync
-    depends_on:
-      - meilisearch
-      - db
-#    restart: always
-    volumes:
-      - ./config.yml:/meilisync/config.yml
 
 networks:
   external-network:
