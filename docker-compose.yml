@@ -80,28 +80,17 @@ services:
     networks:
       external-network:
 
-  meilisearch:
-    image: getmeili/meilisearch:v1.8
-    environment:
-      - http_proxy
-      - https_proxy
-      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY:-masterKey}
-      - MEILI_NO_ANALYTICS=${MEILI_NO_ANALYTICS:-true}
-      - MEILI_ENV=${MEILI_ENV:-development}
-      - MEILI_LOG_LEVEL
-      - MEILI_DB_PATH=${MEILI_DB_PATH:-/data.ms}
+  typesense:
+    image: typesense/typesense:26.0
+    restart: on-failure
     ports:
-      - ${MEILI_PORT:-7700}:7700
-    networks:
-      - meilisearch
+      - "8108:8108"
     volumes:
-      - ./data.ms:/data.ms
-    restart: unless-stopped
+      - ./typesense-data:/data
+    command: '--data-dir /data --api-key=xyz --enable-cors'
 
 networks:
   external-network:
-    driver: bridge
-  meilisearch:
     driver: bridge
 
 volumes:
