@@ -1,6 +1,9 @@
 from classy_fastapi import post
 from dependency_injector.wiring import inject
+from fastapi import Depends
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from src.core.app.service import IAuthService
 from src.config.di import AppContainer
 from src.core.controller.crud import BaseModelView
 from src.core.controller.di import dependency
@@ -47,3 +50,19 @@ class UserViewSet(BaseModelView[UserInputDto, UserOutputDto]):
         """Endpoint to authenticate user."""
 
         return await auth_service.authenticate(credentials)
+
+    @post(
+        path="/refresh_token",
+        response_model=TokenOutputDto,
+    )
+    @inject
+    async def refresh_token(
+        self,
+        token: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
+        auth_service: IAuthService = dependency(AppContainer.auth.auth_service),
+    ) -> TokenOutputDto:
+        """Endpoint to refresh user token. User needs to be authenticated and remember to refresh token on time."""
+
+        user = await auth_service.verify(token.credentials)
+
+        return auth_service.refresh_token(user=user)

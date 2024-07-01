@@ -243,3 +243,25 @@ async def test_auth_service_correct_token(
 
     # then
     assert user_from_token.id == user_record.id
+
+
+@pytest.mark.asyncio
+async def test_auth_service_refresh_token(
+    auth_service: AuthenticationService,
+    user_record,
+    user_repo: TortoiseRepo,
+    user_password,
+):
+    # given
+    user = await user_repo.aget_by_id(user_record.id)
+    token = await auth_service.authenticate(
+        credentials=UserAuthInputDto(
+            username=user_record.username, password=user_password
+        )
+    )
+    # when
+    new_token = auth_service.refresh_token(user=user)
+
+    # then
+    assert new_token is not None
+    assert new_token.api_token != token.api_token

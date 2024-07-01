@@ -147,12 +147,15 @@ class TestAsyncClient(AsyncClient):
         self.headers = {"Authorization": f"Bearer {token}"}
 
     def _convert_json(self, json_data: str | dict) -> dict:
+        if not json_data:
+            return {}
+
         if isinstance(json_data, str):
             return json.loads(json_data)
 
         return json.loads(json.dumps(json_data, cls=UUIDEncoder))
 
-    def post(self, url, json_data: str | dict, *args, **kwargs):
+    def post(self, url, json_data: str | dict | None = None, *args, **kwargs):
         return super().post(
             url=url, json=self._convert_json(json_data), *args, **kwargs
         )

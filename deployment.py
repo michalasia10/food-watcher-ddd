@@ -17,6 +17,7 @@ COMMANDS: dict[str, list[str]] = {
         "docker-compose -f docker-compose.testdb.yml up -d test_db",
         "pytest tests/ -s OPTIONAL_ARGS",
         "docker-compose -f docker-compose.testdb.yml stop test_db",
+        "docker-compose -f docker-compose.testdb.yml rm -f test_db",
     ],
     "test_db": ["docker-compose -f docker-compose.testdb.yml up -d test_db"],
     "db": ["docker-compose -f docker-compose.yml up -d db"],

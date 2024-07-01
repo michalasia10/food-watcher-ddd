@@ -263,3 +263,24 @@ async def test_user_login_wrong_username(
 
     # then
     api_client.check_status_code_in_error_response(response, HTTPStatus.UNAUTHORIZED)
+
+
+@pytest.mark.asyncio
+async def test_user_controller_refresh_token(
+    api_client, endpoint_enum, user_record, user_token
+):
+    # given
+    api_client.set_token(user_token.api_token)
+
+    # when
+    response = await api_client.post(endpoint_enum.USERS.get_detail("refresh_token"))
+
+    # then
+    assert response.status_code == HTTPStatus.OK
+    response_json = response.json()
+    assert "api_token" in response_json
+    assert "user_id" in response_json
+    assert response_json["user_id"] == str(user_record.id)
+    assert isinstance(response_json["api_token"], str)
+
+    assert user_token.api_token != response_json["api_token"]
