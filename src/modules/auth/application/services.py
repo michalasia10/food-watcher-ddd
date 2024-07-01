@@ -80,6 +80,17 @@ class AuthenticationService(IAuthService):
 
         raise BadCredentials("Incorrect password.")
 
+    def refresh_token(self, user: User):
+        """
+        Refresh token for user.
+        """
+        return TokenOutputDto(
+            api_token=user.create_token(
+                secret_key=self._secret_key, algorithm=self._algorithm
+            ),
+            user_id=user.id,
+        )
+
     @classmethod
     def _verify_time(cls, decoded_jwt: dict):
         """

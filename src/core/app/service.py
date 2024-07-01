@@ -108,3 +108,6 @@ class IAuthService(ABC):
 
     @abstractmethod
     async def verify(self, token: str): ...
+
+    @abstractmethod
+    def refresh_token(self, user: [Entity]): ...
