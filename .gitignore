@@ -11,3 +11,5 @@ assets
 config.yml
 *.mdb
 VERSION
+*.ms
+.ruff_cache
