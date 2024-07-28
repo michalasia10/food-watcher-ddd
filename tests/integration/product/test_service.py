@@ -10,8 +10,12 @@ from src.modules.product.domain.errors import (
     ProductNotFound,
     DailyUserConsumptionNotFound,
 )
-from src.modules.product.infra.repo.consumption import DailyUserConsumptionTortoiseRepo
-from src.modules.product.infra.repo.daily_product import DailyUserProductTortoiseRepo
+from src.modules.product.infra.repo.postgres.consumption import (
+    DailyUserConsumptionTortoiseRepo,
+)
+from src.modules.product.infra.repo.postgres.daily_product import (
+    DailyUserProductTortoiseRepo,
+)
 
 
 @pytest.mark.asyncio

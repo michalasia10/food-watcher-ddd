@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from loguru import logger
 from tortoise.exceptions import DoesNotExist
 
 from src.core.app.service import BaseCrudService
@@ -28,5 +29,10 @@ class ProductCrudService(BaseCrudService):
 
         product = Product.create(**input_as_dict)
         await self._repository.asave(product)
+
+        try:
+            await self._search_repo.acreate_document(document=product.snapshot)
+        except Exception as e:
+            logger.error(f"Error creating document in search index: {e}")
 
         return ProductOutputDto(**product.snapshot)

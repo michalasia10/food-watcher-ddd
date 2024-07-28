@@ -1,3 +1,4 @@
+from asyncio import sleep
 from http import HTTPStatus
 
 import pytest
@@ -9,8 +10,10 @@ from src.modules.recipe.application.dto.recipe_product import (
     ProductForRecipeInputDto,
     ProductForRecipeUpdateDto,
 )
-from src.modules.recipe.infra.repo.recipe import RecipeTortoiseRepo
-from src.modules.recipe.infra.repo.recipe_product import RecipeForProductTortoiseRepo
+from src.modules.recipe.infra.repo.postgres.recipe import RecipeTortoiseRepo
+from src.modules.recipe.infra.repo.postgres.recipe_product import (
+    RecipeForProductTortoiseRepo,
+)
 
 
 @pytest.mark.asyncio
@@ -762,3 +765,185 @@ async def test_recipe_controller_delete_product_user_not_owner(
 
     # then
     api_client.check_status_code_in_error_response(response, HTTPStatus.FORBIDDEN)
+
+
+@pytest.mark.asyncio
+async def test_recipe_create_create_index_in_search_engine(
+    api_client, endpoint_enum, user_token, product_record
+):
+    # given
+    api_client.set_token(user_token.api_token)
+
+    weight_in_grams = 20.56
+    name = "test_api"
+    description = "test_description"
+    recipe_input = RecipeInputDto(
+        name=name,
+        description=description,
+        products=[
+            ProductForRecipeInputDto(
+                product_id=str(product_record.id),
+                weight_in_grams=weight_in_grams,
+            )
+        ],
+    )
+    # when
+    response_created = await api_client.post(
+        endpoint_enum.RECIPE.value,
+        json_data=recipe_input.dict(),
+    )
+    await sleep(1)
+    response_search_first = await api_client.get(
+        endpoint_enum.RECIPE.value,
+        params={"q": "test_api"},
+    )
+    response_search_second = await api_client.get(
+        endpoint_enum.RECIPE.value,
+        params={"q": "test"},
+    )
+    response_search_third = await api_client.get(
+        endpoint_enum.RECIPE.value,
+        params={"q": "api"},
+    )
+    response_search_fourth = await api_client.get(
+        endpoint_enum.RECIPE.value,
+        params={"q": "dummy"},
+    )
+    response_search_fifth = await api_client.get(
+        endpoint_enum.RECIPE.value,
+        params={"q": "test_description"},
+    )
+
+    # then
+    assert response_created.status_code == HTTPStatus.CREATED
+    assert response_search_first.status_code == HTTPStatus.OK
+    assert response_search_second.status_code == HTTPStatus.OK
+    assert response_search_third.status_code == HTTPStatus.OK
+    assert response_search_fourth.status_code == HTTPStatus.OK
+    assert response_search_fifth.status_code == HTTPStatus.OK
+
+    assert len(response_search_first.json()) == 1
+    assert len(response_search_second.json()) == 1
+    assert len(response_search_second.json()) == 1
+    assert len(response_search_fourth.json()) == 0
+    assert len(response_search_fifth.json()) == 1
+
+
+@pytest.mark.asyncio
+async def test_recipe_update_create_and_update_index_in_search_engine(
+    api_client, endpoint_enum, user_token, product_record
+):
+    # given
+    api_client.set_token(user_token.api_token)
+
+    weight_in_grams = 20.56
+    name = "test_api"
+    description = "test_description"
+    recipe_input = RecipeInputDto(
+        name=name,
+        description=description,
+        products=[
+            ProductForRecipeInputDto(
+                product_id=str(product_record.id),
+                weight_in_grams=weight_in_grams,
+            )
+        ],
+    )
+    new_name = "new_recipe"
+    new_description = "new_description"
+    recipe_update_input = RecipeUpdateDto(
+        name=new_name,
+        description=new_description,
+    )
+
+    # when
+    response_created = await api_client.post(
+        endpoint_enum.RECIPE.value,
+        json_data=recipe_input.model_dump_json(),
+    )
+    await sleep(1)
+
+    response_search_first = await api_client.get(
+        endpoint_enum.RECIPE.value,
+        params={"q": "test_api"},
+    )
+    recipe_id = response_search_first.json()[0]["id"]
+    response_updated = await api_client.put(
+        endpoint_enum.RECIPE.get_detail(recipe_id),
+        json_data=recipe_update_input.model_dump_json(),
+    )
+    await sleep(1)
+
+    response_search_second = await api_client.get(
+        endpoint_enum.RECIPE.value,
+        params={"q": "new_recipe"},
+    )
+    response_search_third = await api_client.get(
+        endpoint_enum.RECIPE.value,
+        params={"q": "test_api"},
+    )
+
+    # then
+    assert response_created.status_code == HTTPStatus.CREATED
+    assert response_updated.status_code == HTTPStatus.OK
+    assert response_search_first.status_code == HTTPStatus.OK
+    assert response_search_second.status_code == HTTPStatus.OK
+    assert response_search_third.status_code == HTTPStatus.OK
+
+    assert len(response_search_first.json()) == 1
+    assert len(response_search_second.json()) == 1
+    assert len(response_search_third.json()) == 0
+
+
+@pytest.mark.asyncio
+async def test_recipe_delete_create_delete_index_in_search_engine(
+    api_client, endpoint_enum, user_token, product_record
+):
+    # given
+    api_client.set_token(user_token.api_token)
+
+    weight_in_grams = 20.56
+    name = "test_api"
+    description = "test_description"
+    recipe_input = RecipeInputDto(
+        name=name,
+        description=description,
+        products=[
+            ProductForRecipeInputDto(
+                product_id=str(product_record.id),
+                weight_in_grams=weight_in_grams,
+            )
+        ],
+    )
+
+    # when
+    response_created = await api_client.post(
+        endpoint_enum.RECIPE.value,
+        json_data=recipe_input.model_dump_json(),
+    )
+    await sleep(1)
+
+    response_search_first = await api_client.get(
+        endpoint_enum.RECIPE.value,
+        params={"q": "test_api"},
+    )
+    recipe_id = response_search_first.json()[0]["id"]
+
+    response_deleted = await api_client.delete(
+        endpoint_enum.RECIPE.get_detail(recipe_id),
+    )
+    await sleep(1)
+
+    response_search_second = await api_client.get(
+        endpoint_enum.RECIPE.value,
+        params={"q": "test_api"},
+    )
+
+    # then
+    assert response_created.status_code == HTTPStatus.CREATED
+    assert response_search_first.status_code == HTTPStatus.OK
+    assert response_deleted.status_code == HTTPStatus.NO_CONTENT
+    assert response_search_second.status_code == HTTPStatus.OK
+
+    assert len(response_search_first.json()) == 1
+    assert len(response_search_second.json()) == 0

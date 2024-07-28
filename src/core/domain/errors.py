@@ -34,5 +34,9 @@ class DBErrorNotFound(DBError):
     STATUS_CODE = HTTPStatus.NOT_FOUND
 
 
+class NotSupportedError(DomainError):
+    STATUS_CODE = HTTPStatus.NOT_IMPLEMENTED
+
+
 class BadPermissions(DomainError):
     STATUS_CODE = HTTPStatus.FORBIDDEN

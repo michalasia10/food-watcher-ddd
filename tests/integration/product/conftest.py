@@ -6,9 +6,14 @@ from src.modules.product.application.service.product import ProductCrudService
 from src.modules.product.domain.entity.consumption import DailyUserConsumption
 from src.modules.product.domain.entity.daily_product import DailyUserProduct
 from src.modules.product.domain.entity.product import Product
-from src.modules.product.infra.repo.consumption import DailyUserConsumptionTortoiseRepo
-from src.modules.product.infra.repo.daily_product import DailyUserProductTortoiseRepo
-from src.modules.product.infra.repo.product import ProductTortoiseRepo
+from src.modules.product.infra.repo.postgres.consumption import (
+    DailyUserConsumptionTortoiseRepo,
+)
+from src.modules.product.infra.repo.postgres.daily_product import (
+    DailyUserProductTortoiseRepo,
+)
+from src.modules.product.infra.repo.postgres.product import ProductTortoiseRepo
+from tests.integration.conftest import InMemorySearchRepository
 
 
 @pytest.fixture
@@ -22,7 +27,10 @@ def consumption_service(secret_key, algorithm):
 
 @pytest.fixture
 def product_service():
-    return ProductCrudService(repository=ProductTortoiseRepo)
+    return ProductCrudService(
+        repository=ProductTortoiseRepo,
+        search_repo=InMemorySearchRepository(),
+    )
 
 
 @pytest_asyncio.fixture(scope="function")
