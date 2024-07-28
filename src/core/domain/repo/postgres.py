@@ -3,7 +3,7 @@ from typing import Optional, Any
 from uuid import UUID
 
 
-class IRepository(ABC):
+class IPostgresRepository(ABC):
     @classmethod
     @abstractmethod
     async def aget_by_id(cls, id: UUID, *args, **kwargs) -> Optional[Any]:

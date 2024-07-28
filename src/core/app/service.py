@@ -6,8 +6,9 @@ from loguru import logger
 from pydantic import BaseModel
 
 from src.core.domain.entity import Entity
-from src.core.domain.errors import Error
-from src.core.domain.repo import IRepository
+from src.core.domain.errors import Error, NotSupportedError
+from src.core.domain.repo.postgres import IPostgresRepository
+from src.core.domain.repo.search_engine import ISearchRepository
 
 
 class ICrudService(ABC):
@@ -17,7 +18,7 @@ class ICrudService(ABC):
     ): ...
 
     @abstractmethod
-    async def get_all(self, skip: int, limit: int): ...
+    async def get_all(self, skip: int, limit: int, query: str | None = None): ...
 
     @abstractmethod
     async def get_by_id(self, id: UUID): ...
@@ -38,13 +39,18 @@ class ICrudService(ABC):
 
 
 class BaseCrudService(ICrudService):
-    OUTPUT_DTO: BaseModel = None
+    OUTPUT_DTO: [BaseModel] = None
     NOT_RECORD_OWNER_ERROR = None
     NOT_FOUND_ERROR = None
     DOES_NOT_EXIST_ERROR = None
 
-    def __init__(self, repository: [IRepository]):
+    def __init__(
+        self,
+        repository: [IPostgresRepository],
+        search_repo: [ISearchRepository] = None,
+    ):
         self._repository = repository
+        self._search_repo: ISearchRepository = search_repo
 
     @abstractmethod
     async def create(self, input_dto, user_id: UUID = None, is_admin: bool = False): ...
@@ -72,6 +78,15 @@ class BaseCrudService(ICrudService):
         logger.info("Entity[{entity}] updated", entity=str(entity))
         fresh_entity: Entity = await self._repository.aget_by_id(id)
 
+        if self._search_repo:
+            try:
+                await self._search_repo.aupdate_document(
+                    document_id=id,
+                    document=fresh_entity.snapshot,
+                )
+            except Exception as e:
+                logger.error(f"Error updating search index: {e}")
+
         return self.OUTPUT_DTO(**fresh_entity.snapshot)
 
     async def delete(self, id: UUID, user_id: UUID = None, is_admin=False) -> None:
@@ -86,11 +101,43 @@ class BaseCrudService(ICrudService):
         await self._repository.adelete(entity)
         logger.info("Entity[{entity}] deleted", entity=str(entity))
 
-    async def get_all(self, skip: int, limit: int) -> list[BaseModel]:
-        entities: list[Entity] = await self._repository.aget_all(
-            offset=skip, limit=limit
-        )
+        if self._search_repo:
+            try:
+                await self._search_repo.adelete_document(document_id=id)
+            except Exception as e:
+                logger.error(f"Error deleting search index: {e}")
 
+    async def get_all(
+        self,
+        skip: int,
+        limit: int,
+        query: str | None = None,
+    ) -> list[BaseModel]:
+        if query and not self._search_repo:
+            raise NotSupportedError("Search is not implemented for this service.")
+
+        if query:
+            search_result = []
+
+            try:
+                search_result: list[dict] = await self._search_repo.asearch(
+                    query=query, offset=skip, limit=limit
+                )
+            except (Exception, Exception) as e:
+                logger.error(f"Error searching: {e}")
+                entities = await self._repository.aget_all(offset=skip, limit=limit)
+            finally:
+                entities: list[Entity] = await self._repository.aget_all_from_filter(
+                    offset=skip,
+                    limit=limit,
+                    id__in=[result.get("id") for result in search_result],
+                )
+
+        else:
+            entities: list[Entity] = await self._repository.aget_all(
+                offset=skip,
+                limit=limit,
+            )
         return [self.OUTPUT_DTO(**entity.snapshot) for entity in entities]
 
     async def get_by_id(self, id: UUID) -> BaseModel:

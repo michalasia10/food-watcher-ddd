@@ -1,7 +1,7 @@
 from abc import ABCMeta
 
-from src.core.domain.repo import IRepository
+from src.core.domain.repo.postgres import IPostgresRepository
 
 
-class IUserRepo(IRepository, metaclass=ABCMeta):
+class IUserRepo(IPostgresRepository, metaclass=ABCMeta):
     pass

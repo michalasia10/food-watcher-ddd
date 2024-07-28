@@ -15,7 +15,7 @@ from tortoise.transactions import in_transaction
 
 from src.core.domain.entity import Entity
 from src.core.domain.errors import DBError
-from src.core.domain.repo import IRepository
+from src.core.domain.repo.postgres import IPostgresRepository
 from src.core.domain.value_object import PrecisedFloat
 
 ModelType = TypeVar("ModelType", bound=Model)
@@ -40,7 +40,9 @@ def _get_fetch_fields(
     return fetch_fields
 
 
-class TortoiseRepo(Generic[ModelType, EntityType], IRepository, metaclass=ABCMeta):
+class TortoiseRepo(
+    Generic[ModelType, EntityType], IPostgresRepository, metaclass=ABCMeta
+):
     model = ModelType
     entity = EntityType
 

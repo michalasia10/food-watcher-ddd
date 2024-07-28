@@ -2,9 +2,16 @@ from dependency_injector import containers, providers
 
 from src.modules.product.application.service.consumption import ConsumptionService
 from src.modules.product.application.service.product import ProductCrudService
-from src.modules.product.infra.repo.consumption import DailyUserConsumptionTortoiseRepo
-from src.modules.product.infra.repo.daily_product import DailyUserProductTortoiseRepo
-from src.modules.product.infra.repo.product import ProductTortoiseRepo
+from src.modules.product.infra.repo.meilsearch.product import (
+    ProductMeiliSearchEngineRepo,
+)
+from src.modules.product.infra.repo.postgres.consumption import (
+    DailyUserConsumptionTortoiseRepo,
+)
+from src.modules.product.infra.repo.postgres.daily_product import (
+    DailyUserProductTortoiseRepo,
+)
+from src.modules.product.infra.repo.postgres.product import ProductTortoiseRepo
 
 
 class ProductContainer(containers.DeclarativeContainer):
@@ -14,6 +21,11 @@ class ProductContainer(containers.DeclarativeContainer):
     service = providers.Factory(
         ProductCrudService,
         repository=ProductTortoiseRepo,
+        search_repo=providers.Factory(
+            ProductMeiliSearchEngineRepo,
+            meilisearch_url=api_config.MEILISEARCH_URL,
+            meilisearch_master_key=api_config.MEILISEARCH_MASTER_KEY,
+        ),
     )
 
 
