@@ -81,7 +81,7 @@ async def unknown_exception_handler(request: Request, exc: Exception) -> ErrorRe
 
 
 @app.exception_handler(ValueError)
-async def value_exception_handler(request: Request, exc: Exception) -> ErrorResponse:
+async def value_exception_handler(request: Request, exc: ValueError) -> ErrorResponse:
     logger.error(
         f"Unknown error occurred, probably unknown error from pydantic: {exc}",
         request=request,

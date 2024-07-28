@@ -87,9 +87,10 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
             async def list(
                 skip: int = Query(default=0, gte=0, lte=100),
                 limit: int = Query(default=100, gte=0, lte=100),
+                q: str | None = None,
             ):
                 """Basic endpoint to get list of instance. You can also use ?filter"""
-                return await self._service.get_all(skip, limit)
+                return await self._service.get_all(skip=skip, limit=limit, query=q)
 
         if "create" in self.crud_methods:
             assert self.create_dto is not None and self._service is not None

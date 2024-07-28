@@ -1,3 +1,4 @@
+from asyncio import sleep
 from datetime import datetime, timedelta
 from http import HTTPStatus
 
@@ -7,9 +8,13 @@ from uuid6 import uuid6
 from src.modules.product.application.dto.daily_product import DailyUserProductInputDto
 from src.modules.product.application.dto.product import ProductInputDto
 from src.modules.product.domain.enum import UserProductType
-from src.modules.product.infra.repo.consumption import DailyUserConsumptionTortoiseRepo
-from src.modules.product.infra.repo.daily_product import DailyUserProductTortoiseRepo
-from src.modules.product.infra.repo.product import ProductTortoiseRepo
+from src.modules.product.infra.repo.postgres.consumption import (
+    DailyUserConsumptionTortoiseRepo,
+)
+from src.modules.product.infra.repo.postgres.daily_product import (
+    DailyUserProductTortoiseRepo,
+)
+from src.modules.product.infra.repo.postgres.product import ProductTortoiseRepo
 
 
 @pytest.mark.asyncio
@@ -341,3 +346,195 @@ async def test_consumption_controller_get_day_by_datetime_dummy_user(
 
     # then
     assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+@pytest.mark.asyncio
+async def test_product_create_create_index_in_search_engine(
+    api_client, endpoint_enum, user_token
+):
+    # given
+    api_client.set_token(user_token.api_token)
+
+    product_input = ProductInputDto(
+        code=222,
+        name="test_api",
+        quantity="test_api",
+        brand="test_api",
+        size="test_api",
+        groups="test_api",
+        category="good_category",
+        energy_kcal_100g=22.2,
+        fat_100g=22.2,
+        carbohydrates_100g=22.2,
+        sugars_100g=22.2,
+        proteins_100g=22.3,
+    )
+    # when
+    response_created = await api_client.post(
+        endpoint_enum.PRODUCTS.value,
+        json_data=product_input.dict(),
+    )
+    await sleep(1)
+    response_search_first = await api_client.get(
+        endpoint_enum.PRODUCTS.value,
+        params={"q": "test_api"},
+    )
+    response_search_second = await api_client.get(
+        endpoint_enum.PRODUCTS.value,
+        params={"q": "test"},
+    )
+    response_search_third = await api_client.get(
+        endpoint_enum.PRODUCTS.value,
+        params={"q": "api"},
+    )
+    response_search_fourth = await api_client.get(
+        endpoint_enum.PRODUCTS.value,
+        params={"q": "dummy"},
+    )
+    response_search_fifth = await api_client.get(
+        endpoint_enum.PRODUCTS.value,
+        params={"q": "good_category"},
+    )
+
+    # then
+    assert response_created.status_code == HTTPStatus.CREATED
+    assert response_search_first.status_code == HTTPStatus.OK
+    assert response_search_second.status_code == HTTPStatus.OK
+    assert response_search_third.status_code == HTTPStatus.OK
+    assert response_search_fourth.status_code == HTTPStatus.OK
+    assert response_search_fifth.status_code == HTTPStatus.OK
+
+    assert len(response_search_first.json()) == 1
+    assert len(response_search_second.json()) == 1
+    assert len(response_search_second.json()) == 1
+    assert len(response_search_fourth.json()) == 0
+    assert len(response_search_fifth.json()) == 1
+
+
+@pytest.mark.asyncio
+async def test_product_create_create_and_update_index_in_search_engine(
+    api_client, endpoint_enum, user_token
+):
+    # given
+    api_client.set_token(user_token.api_token)
+
+    product_input_create = ProductInputDto(
+        code=222,
+        name="test_api",
+        quantity="test_api",
+        brand="test_api",
+        size="test_api",
+        groups="test_api",
+        category="good_category",
+        energy_kcal_100g=22.2,
+        fat_100g=22.2,
+        carbohydrates_100g=22.2,
+        sugars_100g=22.2,
+        proteins_100g=22.3,
+    )
+
+    product_input_update = ProductInputDto(
+        code=222,
+        name="update",
+        quantity="test_api",
+        brand="test_api",
+        size="test_update",
+        groups="test_api",
+        category="bad_category",
+        energy_kcal_100g=22.2,
+        fat_100g=22.2,
+        carbohydrates_100g=22.2,
+        sugars_100g=22.2,
+        proteins_100g=22.3,
+    )
+    # when
+    response_created = await api_client.post(
+        endpoint_enum.PRODUCTS.value,
+        json_data=product_input_create.dict(),
+    )
+    await sleep(1)
+    response_search_first = await api_client.get(
+        endpoint_enum.PRODUCTS.value,
+        params={"q": "good_category"},
+    )
+
+    product_id = response_search_first.json()[0]["id"]
+
+    response_updated = await api_client.put(
+        endpoint_enum.PRODUCTS.get_detail(product_id),
+        json_data=product_input_update.model_dump_json(),
+    )
+    await sleep(1)
+    response_search_second = await api_client.get(
+        endpoint_enum.PRODUCTS.value,
+        params={"q": "bad_category"},
+    )
+    response_search_third = await api_client.get(
+        endpoint_enum.PRODUCTS.value,
+        params={"q": "good_category"},
+    )
+
+    # then
+    assert response_created.status_code == HTTPStatus.CREATED
+    assert response_search_first.status_code == HTTPStatus.OK
+    assert response_updated.status_code == HTTPStatus.OK
+    assert response_search_second.status_code == HTTPStatus.OK
+    assert response_search_third.status_code == HTTPStatus.OK
+
+    assert len(response_search_first.json()) == 1
+    assert len(response_search_second.json()) == 1
+    assert len(response_search_third.json()) == 0
+
+
+@pytest.mark.asyncio
+async def test_product_update_create_delete_index_in_search_engine(
+    api_client, endpoint_enum, user_token
+):
+    # given
+    api_client.set_token(user_token.api_token)
+
+    product_input = ProductInputDto(
+        code=222,
+        name="test_api",
+        quantity="test_api",
+        brand="test_api",
+        size="test_api",
+        groups="test_api",
+        category="good_category",
+        energy_kcal_100g=22.2,
+        fat_100g=22.2,
+        carbohydrates_100g=22.2,
+        sugars_100g=22.2,
+        proteins_100g=22.3,
+    )
+    # when
+    response_created = await api_client.post(
+        endpoint_enum.PRODUCTS.value,
+        json_data=product_input.dict(),
+    )
+    await sleep(1)
+    response_search_first = await api_client.get(
+        endpoint_enum.PRODUCTS.value,
+        params={"q": "test_api"},
+    )
+
+    product_id = response_search_first.json()[0]["id"]
+
+    response_deleted = await api_client.delete(
+        endpoint_enum.PRODUCTS.get_detail(product_id),
+    )
+    await sleep(1)
+
+    response_search_second = await api_client.get(
+        endpoint_enum.PRODUCTS.value,
+        params={"q": "test_api"},
+    )
+
+    # then
+    assert response_created.status_code == HTTPStatus.CREATED
+    assert response_search_first.status_code == HTTPStatus.OK
+    assert response_deleted.status_code == HTTPStatus.NO_CONTENT
+    assert response_search_second.status_code == HTTPStatus.OK
+
+    assert len(response_search_first.json()) == 1
+    assert len(response_search_second.json()) == 0

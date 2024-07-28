@@ -3,7 +3,7 @@ from datetime import datetime
 from tortoise.exceptions import DoesNotExist
 from uuid6 import UUID
 
-from src.core.infra.tortoiserepo import IRepository
+from src.core.infra.repo.tortoiserepo import IPostgresRepository
 from src.modules.product.application.dto.consumption import (
     DailyUserConsumptionOutputDto,
 )
@@ -25,13 +25,13 @@ class ConsumptionService:
 
     def __init__(
         self,
-        product_repository: [IRepository],
-        daily_product_repository: [IRepository],
-        consumption_repository: [IRepository],
+        product_repository: [IPostgresRepository],
+        daily_product_repository: [IPostgresRepository],
+        consumption_repository: [IPostgresRepository],
     ):
-        self._consumption_repository: IRepository = consumption_repository
-        self._product_repository: IRepository = product_repository
-        self._daily_product_repository: IRepository = daily_product_repository
+        self._consumption_repository: IPostgresRepository = consumption_repository
+        self._product_repository: IPostgresRepository = product_repository
+        self._daily_product_repository: IPostgresRepository = daily_product_repository
 
     async def get_all_user_days(
         self, user_id: UUID, skip: int = 0, limit: int = 10

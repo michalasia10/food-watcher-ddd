@@ -1,4 +1,4 @@
-from src.core.infra.tortoiserepo import TortoiseRepo
+from src.core.infra.repo.tortoiserepo import TortoiseRepo
 from src.modules.recipe.domain.entity.recipe import Recipe as RecipeEntity
 from src.modules.recipe.infra.model.recipe import Recipe as RecipeModel
 
