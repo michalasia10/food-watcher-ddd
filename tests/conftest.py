@@ -259,7 +259,7 @@ def db(request, event_loop):
         ) as client:
             Printer.teardown("Dropping search indexes...")
 
-            indexes: list[AsyncIndex] = await client.get_indexes()
+            indexes: list[AsyncIndex] | None = await client.get_indexes() or []
 
             for index in indexes:
                 Printer.teardown(f"Deleting index: {index.uid}")
