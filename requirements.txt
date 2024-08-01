@@ -101,7 +101,7 @@ markdown-it-py==3.0.0
     # via rich
 mdurl==0.1.2
     # via markdown-it-py
-meilisearch-python-sdk==2.11.0
+meilisearch-python-sdk==3.0.1
     # via -r requirements.in
 multidict==6.0.5
     # via yarl
