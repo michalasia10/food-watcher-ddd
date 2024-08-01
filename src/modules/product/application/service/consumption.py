@@ -1,4 +1,6 @@
+from abc import ABC, abstractmethod
 from datetime import datetime
+from typing import Any
 
 from tortoise.exceptions import DoesNotExist
 from uuid6 import UUID
@@ -18,6 +20,12 @@ from src.modules.product.domain.errors import (
 )
 
 
+class IUserSettingsService(ABC):
+    @abstractmethod
+    async def get_by_user_id(self, user_id: UUID) -> Any:
+        pass
+
+
 class ConsumptionService:
     """
     Service class for consumption.
@@ -28,10 +36,12 @@ class ConsumptionService:
         product_repository: [IPostgresRepository],
         daily_product_repository: [IPostgresRepository],
         consumption_repository: [IPostgresRepository],
+        settings_service: IUserSettingsService,
     ):
         self._consumption_repository: IPostgresRepository = consumption_repository
         self._product_repository: IPostgresRepository = product_repository
         self._daily_product_repository: IPostgresRepository = daily_product_repository
+        self._user_settings_service: IUserSettingsService = settings_service
 
     async def get_all_user_days(
         self, user_id: UUID, skip: int = 0, limit: int = 10
@@ -54,9 +64,12 @@ class ConsumptionService:
             fetch_fields=["products", "products__product"],
         )
 
+        user_settings = await self._user_settings_service.get_by_user_id(user_id=user_id)
+
         return [
             DailyUserConsumptionOutputDto(
-                **self._consumption_repository.convert_snapshot(snapshot=day.snapshot)
+                user=user_settings.macro.model_dump(),
+                **self._consumption_repository.convert_snapshot(snapshot=day.snapshot),
             )
             for day in days
         ]
@@ -77,17 +90,16 @@ class ConsumptionService:
                 fetch_fields=["products", "products__product"],
             )
         except DoesNotExist:
-            raise DailyUserConsumptionNotFound(
-                f"Daily consumption with id {day_id} not found."
-            )
+            raise DailyUserConsumptionNotFound(f"Daily consumption with id {day_id} not found.")
+
+        user_settings = await self._user_settings_service.get_by_user_id(user_id=day.user_id)
 
         return DailyUserConsumptionOutputDto(
-            **self._consumption_repository.convert_snapshot(snapshot=day.snapshot)
+            user=user_settings.macro.model_dump(),
+            **self._consumption_repository.convert_snapshot(snapshot=day.snapshot),
         )
 
-    async def get_day_by_datetime(
-        self, date: datetime, user_id: UUID
-    ) -> DailyUserConsumptionOutputDto:
+    async def get_day_by_datetime(self, date: datetime, user_id: UUID) -> DailyUserConsumptionOutputDto:
         """
         Method to get a day by its datetime.
 
@@ -104,17 +116,16 @@ class ConsumptionService:
             fetch_fields=["products", "products__product"],
         )
         if day is None:
-            raise DailyUserConsumptionNotFound(
-                f"Daily consumption with date {date} not found for user {user_id}."
-            )
+            raise DailyUserConsumptionNotFound(f"Daily consumption with date {date} not found for user {user_id}.")
+
+        user_settings = await self._user_settings_service.get_by_user_id(user_id=day.user_id)
 
         return DailyUserConsumptionOutputDto(
-            **self._consumption_repository.convert_snapshot(snapshot=day.snapshot)
+            user=user_settings.macro.model_dump(),
+            **self._consumption_repository.convert_snapshot(snapshot=day.snapshot),
         )
 
-    async def add_meal(
-        self, user_id: UUID, input_dto: DailyUserProductInputDto
-    ) -> DailyUserConsumptionOutputDto:
+    async def add_meal(self, user_id: UUID, input_dto: DailyUserProductInputDto) -> DailyUserConsumptionOutputDto:
         """
         Method to add a meal to the daily consumption of a user.
 
@@ -135,19 +146,15 @@ class ConsumptionService:
         except DoesNotExist:
             raise ProductNotFound(f"Product with id {input_dto.product_id} not found")
 
-        day: DailyUserConsumption = (
-            await self._consumption_repository.aget_first_from_filter(
-                user_id=user_id,
-                date=input_dto.date,
-            )
+        day: DailyUserConsumption = await self._consumption_repository.aget_first_from_filter(
+            user_id=user_id,
+            date=input_dto.date,
         )
 
         if day is None:
             entity = DailyUserConsumption.create(user_id=user_id)
             await self._consumption_repository.asave(entity=entity)
-            day: DailyUserConsumption = await self._consumption_repository.aget_by_id(
-                entity.id
-            )
+            day: DailyUserConsumption = await self._consumption_repository.aget_by_id(entity.id)
 
         daily_product = DailyUserProduct.create(
             product=product,
@@ -159,22 +166,19 @@ class ConsumptionService:
         await self._daily_product_repository.asave(entity=daily_product)
         await self._consumption_repository.aupdate(entity=day)
 
-        updated_day: DailyUserConsumption = (
-            await self._consumption_repository.aget_by_id(
-                id=day.id,
-                fetch_fields=["products", "products__product"],
-            )
+        updated_day: DailyUserConsumption = await self._consumption_repository.aget_by_id(
+            id=day.id,
+            fetch_fields=["products", "products__product"],
         )
+
+        user_settings = await self._user_settings_service.get_by_user_id(user_id=user_id)
 
         return DailyUserConsumptionOutputDto(
-            **self._consumption_repository.convert_snapshot(
-                snapshot=updated_day.snapshot
-            )
+            user=user_settings.macro.model_dump(),
+            **self._consumption_repository.convert_snapshot(snapshot=updated_day.snapshot),
         )
 
-    async def delete_meal(
-        self, user_id: UUID, daily_product_id: UUID
-    ) -> DailyUserConsumptionOutputDto:
+    async def delete_meal(self, user_id: UUID, daily_product_id: UUID) -> DailyUserConsumptionOutputDto:
         try:
             product = await self._daily_product_repository.aget_by_id(daily_product_id)
         except DoesNotExist:
@@ -193,15 +197,13 @@ class ConsumptionService:
         await self._daily_product_repository.adelete(entity=product)
         await self._consumption_repository.aupdate(entity=day)
 
-        updated_day: DailyUserConsumption = (
-            await self._consumption_repository.aget_by_id(
-                id=day.id,
-                fetch_fields=["products", "products__product"],
-            )
+        updated_day: DailyUserConsumption = await self._consumption_repository.aget_by_id(
+            id=day.id,
+            fetch_fields=["products", "products__product"],
         )
+        user_settings = await self._user_settings_service.get_by_user_id(user_id=user_id)
 
         return DailyUserConsumptionOutputDto(
-            **self._consumption_repository.convert_snapshot(
-                snapshot=updated_day.snapshot
-            )
+            user=user_settings.macro.model_dump(),
+            **self._consumption_repository.convert_snapshot(snapshot=updated_day.snapshot),
         )

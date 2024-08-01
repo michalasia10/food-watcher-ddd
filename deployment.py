@@ -33,32 +33,18 @@ def run_commands(command_list, optional_args=None):
                 command = command.replace("OPTIONAL_ARGS", optional_args)
             else:
                 command = command.replace("OPTIONAL_ARGS", "")
-            typer.echo(
-                "\n" * 2
-                + "#" * 25
-                + " " * 5
-                + f"{idx + 1}/{len(command_list)}"
-                + " " * 5
-                + "#" * 41
-            )
-            typer.echo(
-                f"{typer.style('Run command', fg=typer.colors.YELLOW, bold=True)}:"
-                f" command'{command}"
-            )
+            typer.echo("\n" * 2 + "#" * 25 + " " * 5 + f"{idx + 1}/{len(command_list)}" + " " * 5 + "#" * 41)
+            typer.echo(f"{typer.style('Run command', fg=typer.colors.YELLOW, bold=True)}:" f" command'{command}")
             typer.echo("#" * 80)
             result = subprocess.run(command, shell=True)
             if result.returncode != 0:
                 typer.echo("\n" * 2 + "#" * 80)
-                typer.echo(
-                    f"{typer.style('Error', fg=typer.colors.RED, bold=True)}: command {command}"
-                )
+                typer.echo(f"{typer.style('Error', fg=typer.colors.RED, bold=True)}: command {command}")
                 typer.echo("#" * 80)
                 sys.exit(1)
 
             typer.echo("\n" * 2 + "#" * 80)
-            typer.echo(
-                f"{typer.style('End command:', fg=typer.colors.GREEN, bold=True)}: {command}"
-            )
+            typer.echo(f"{typer.style('End command:', fg=typer.colors.GREEN, bold=True)}: {command}")
             typer.echo("#" * 80)
 
 
@@ -85,11 +71,9 @@ def migrate(app: str | None = None, init: bool = False):
     run_db(test=False)
     if init:
         run_commands(
-            [
-                f"aerich {f'--app {app}' if app else ''} init  -t src.config.TORTOISE_CONFIG  --location src/migrations "
-            ]
+            [f"aerich {f'--app {app}' if app else ''} init  -t src.config.TORTOISE_CONFIG  --location src/migrations "]
         )
-        sleep(1)
+        # sleep(1)
         run_commands([f"aerich {f'--app {app}' if app else ''} init-db"])
 
     run_commands([f"aerich {f'--app {app}' if app else ''} migrate"])
@@ -115,9 +99,7 @@ def migrate_manual(migration: str):
 
         def import_migration(self):
             migration = self.find_migration()
-            module = importlib.import_module(
-                f"src.migrations.manual.{migration.replace('.py', '')}"
-            )
+            module = importlib.import_module(f"src.migrations.manual.{migration.replace('.py', '')}")
             return module
 
         def get_migration_class(self):

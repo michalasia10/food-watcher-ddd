@@ -114,9 +114,7 @@ class MeiliSearchRepository(ISearchRepository):
             index: AsyncIndex = await self.aget_create_index(client=client)
 
             await index.delete_document(document_id=str(document_id))
-            logger.info(
-                "Document with {document_id} id deleted.", document_id=document_id
-            )
+            logger.info("Document with {document_id} id deleted.", document_id=document_id)
 
     async def aupdate_document(
         self,

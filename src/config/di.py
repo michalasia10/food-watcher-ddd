@@ -32,6 +32,7 @@ class AppContainer(containers.DeclarativeContainer):
         ConsumptionContainer,
         container_config=container_config,
         api_config=api_config,
+        settings_service=auth.user_settings_service,
     )
 
     ### RECIPE ###
