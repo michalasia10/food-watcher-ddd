@@ -4,11 +4,11 @@ import pytest
 import pytest_asyncio
 
 from src.config import settings
-from src.modules.auth.application.dto import UserInputDto, UserAuthInputDto
-from src.modules.auth.application.services import UserCrudService, AuthenticationService
-from src.modules.auth.infra.user_repo import UserTortoiseRepo
-
 from src.core.domain.repo.search_engine import ISearchRepository
+from src.modules.auth.application.dto import UserInputDto, UserAuthInputDto
+from src.modules.auth.application.service.auth import AuthenticationService
+from src.modules.auth.application.service.user import UserCrudService
+from src.modules.auth.infra.repo.user import UserTortoiseRepo
 
 
 class InMemorySearchRepository(ISearchRepository):

@@ -55,7 +55,8 @@ class ApiConfig(BaseSettings):
             "apps": {
                 "auth": {
                     "models": [
-                        "src.modules.auth.infra.model",
+                        "src.modules.auth.infra.model.user",
+                        "src.modules.auth.infra.model.settings",
                         "aerich.models",
                     ],
                     "default_connection": "default",

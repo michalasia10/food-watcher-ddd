@@ -9,8 +9,11 @@ from src.modules.auth.application.dto import (
     UserAuthInputDto,
     TokenOutputDto,
 )
-from src.modules.auth.application.services import UserCrudService, AuthenticationService
-from src.modules.auth.infra.user_repo import UserTortoiseRepo
+from src.modules.auth.application.service.auth import (
+    UserCrudService,
+    AuthenticationService,
+)
+from src.modules.auth.infra.repo.user import UserTortoiseRepo
 
 
 @pytest.fixture

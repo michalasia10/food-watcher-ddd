@@ -9,9 +9,10 @@ from src.modules.auth.application.dto import (
     UserUpdateDto,
     UserAuthInputDto,
 )
-from src.modules.auth.application.services import UserCrudService, AuthenticationService
+from src.modules.auth.application.service.auth import AuthenticationService
+from src.modules.auth.application.service.user import UserCrudService
 from src.modules.auth.domain.errors import BadCredentials, UserNotRecordOwner
-from src.modules.auth.domain.user import User
+from src.modules.auth.domain.entity.user import User
 
 
 @pytest.mark.asyncio

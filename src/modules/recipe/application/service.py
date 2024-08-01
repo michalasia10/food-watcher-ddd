@@ -165,7 +165,7 @@ class RecipeService(ICrudService):
         for product_for_recipe in input_dto.products:
             try:
                 product = await self._product_service.get_by_id(
-                    product_for_recipe.product_id
+                    id=product_for_recipe.product_id
                 )
             except Error as e:
                 raise ProductNotFound(message=e.message)
@@ -175,10 +175,12 @@ class RecipeService(ICrudService):
                 product=product,
                 weight_in_grams=product_for_recipe.weight_in_grams,
             )
-            await self._product_for_recipe_repository.asave(product_for_recipe_entity)
+            await self._product_for_recipe_repository.asave(
+                entity=product_for_recipe_entity
+            )
 
         await self._recipe_repository.aupdate(
-            entity
+            entity=entity
         )  # ToDo: Add in future get_or_update
 
         recipe = await self._recipe_repository.aget_by_id(

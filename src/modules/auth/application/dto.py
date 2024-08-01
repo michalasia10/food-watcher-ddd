@@ -3,6 +3,8 @@ from uuid import UUID
 
 from pydantic import EmailStr, BaseModel
 
+from src.modules.auth.domain.enums import GenderEnum
+
 
 class BaseUserDto(BaseModel):
     username: str
@@ -12,8 +14,25 @@ class BaseUserDto(BaseModel):
 class UserAuthInputDto(BaseUserDto): ...
 
 
+class MacroDto(BaseModel):
+    protein: float
+    fat: float
+    carbs: float
+    calories: float
+
+
+class UserSettingsBaseDto(BaseModel):
+    age: int
+    gender: GenderEnum = GenderEnum.UNSPECIFIED
+
+
+class UserSettingsDto(UserSettingsBaseDto):
+    macro: Optional[MacroDto] = None
+
+
 class UserInputDto(BaseUserDto):
     email: EmailStr
+    settings: UserSettingsDto
     first_name: Optional[str] = None
     last_name: Optional[str] = None
 
@@ -32,6 +51,7 @@ class UserOutputDto(BaseModel):
     email: EmailStr
     first_name: Optional[str] = None
     last_name: Optional[str] = None
+    settings: UserSettingsDto
 
 
 class TokenOutputDto(BaseModel):

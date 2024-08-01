@@ -1,4 +1,5 @@
 import time
+import typing
 from dataclasses import dataclass
 
 import jwt
@@ -7,6 +8,9 @@ from pydantic import BaseModel
 
 from src.core.domain.entity import Entity
 from src.modules.auth.domain.enums import StatusEnum, TypeEnum
+
+if typing.TYPE_CHECKING:
+    from src.modules.auth.domain.entity.settings import UserSettings
 
 hash_helper = CryptContext(schemes=["bcrypt"])
 
@@ -21,6 +25,7 @@ class User(Entity):
     last_name: str | None = ""
     status: str = StatusEnum.INACTIVE.value
     type: str = TypeEnum.USER.value
+    settings: typing.Optional["UserSettings"] = None
 
     @property
     def is_admin(self) -> bool:

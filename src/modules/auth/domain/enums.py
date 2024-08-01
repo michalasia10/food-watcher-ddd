@@ -10,3 +10,10 @@ class TypeEnum(str, Enum):
     ADMIN = "admin"
     USER = "user"
     DIETITIAN = "dietitian"
+
+
+class GenderEnum(str, Enum):
+    MALE = "male"
+    FEMALE = "female"
+    OTHER = "other"
+    UNSPECIFIED = "unspecified"

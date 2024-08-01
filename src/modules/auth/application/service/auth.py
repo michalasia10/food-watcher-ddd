@@ -1,50 +1,24 @@
 import time
 
 import jwt
-from tortoise.exceptions import DoesNotExist
 
-from src.core.app.service import IAuthService, BaseCrudService
+from src.core.app.service import IAuthService
+from src.core.domain.repo.postgres import IPostgresRepository
 from src.modules.auth.application.dto import (
-    UserInputDto,
-    UserOutputDto,
     UserAuthInputDto,
     TokenOutputDto,
 )
+from src.modules.auth.domain.entity.user import User
 from src.modules.auth.domain.errors import (
     InvalidToken,
     BadCredentials,
-    UserNotFound,
-    UserNotRecordOwner,
 )
-from src.modules.auth.domain.user import User
-from src.modules.auth.domain.user_repo import IUserRepo
-
-
-class UserCrudService(BaseCrudService):
-    OUTPUT_DTO = UserOutputDto
-    NOT_RECORD_OWNER_ERROR = (
-        UserNotRecordOwner,
-        "You are not allowed to update user with {id} id.",
-    )
-    NOT_FOUND_ERROR = (UserNotFound, "User not found with {id} id.")
-    DOES_NOT_EXIST_ERROR = DoesNotExist
-
-    async def create(self, input_dto: UserInputDto, **kwargs) -> UserOutputDto:
-        user = User.create(
-            username=input_dto.username,
-            password=input_dto.password,
-            email=input_dto.email,
-            first_name=input_dto.first_name,
-            last_name=input_dto.last_name,
-        )
-        await self._repository.asave(user)
-        return UserOutputDto(**user.snapshot)
 
 
 class AuthenticationService(IAuthService):
     def __init__(
         self,
-        user_repository: [IUserRepo],
+        user_repository: [IPostgresRepository],
         secret_key: str,
         algorithm: str,
     ):

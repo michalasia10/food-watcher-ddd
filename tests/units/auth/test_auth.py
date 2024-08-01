@@ -1,4 +1,4 @@
-from src.modules.auth.domain.user import User, TypeEnum, StatusEnum
+from src.modules.auth.domain.entity.user import User, TypeEnum, StatusEnum
 
 
 def test_create_user_hash_pswd():
