@@ -13,3 +13,4 @@ config.yml
 VERSION
 *.ms
 .ruff_cache
+__pycache__/
