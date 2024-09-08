@@ -1,9 +1,17 @@
 from datetime import datetime
-
-from pydantic import BaseModel
+from typing import Any
 from uuid import UUID
 
+from pydantic import BaseModel, model_validator
+
 from src.modules.product.application.dto.daily_product import DailyUserProductOutputDto
+
+
+class MacroDto(BaseModel):
+    proteins: float | None
+    fats: float | None
+    carbs: float | None
+    calories: float | None
 
 
 class DailyUserConsumptionOutputDto(BaseModel):
@@ -11,7 +19,20 @@ class DailyUserConsumptionOutputDto(BaseModel):
     date: datetime
     id: UUID
     products: list[DailyUserProductOutputDto] | None
-    summary_calories: float | None
-    summary_proteins: float | None
-    summary_fats: float | None
-    summary_carbohydrates: float | None
+    summary: MacroDto
+    user: MacroDto
+
+    @model_validator(mode="before")
+    @classmethod
+    def transform_data(cls, data: dict[str, Any]) -> dict[str, Any]:
+        macro = {}
+
+        for key, value in list(data.items()):
+            if key.startswith("summary_"):
+                macro_key = key.replace("summary_", "").replace("carbohydrates", "carbs")
+                macro[macro_key] = value
+                data.pop(key)
+
+        data["summary"] = macro
+
+        return data

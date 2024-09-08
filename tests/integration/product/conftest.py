@@ -1,7 +1,10 @@
+from typing import Any
+from uuid import UUID
+
 import pytest
 import pytest_asyncio
 
-from src.modules.product.application.service.consumption import ConsumptionService
+from src.modules.product.application.service.consumption import ConsumptionService, IUserSettingsService
 from src.modules.product.application.service.product import ProductCrudService
 from src.modules.product.domain.entity.consumption import DailyUserConsumption
 from src.modules.product.domain.entity.daily_product import DailyUserProduct
@@ -14,6 +17,40 @@ from src.modules.product.infra.repo.postgres.daily_product import (
 )
 from src.modules.product.infra.repo.postgres.product import ProductTortoiseRepo
 from tests.integration.conftest import InMemorySearchRepository
+from dataclasses import dataclass
+
+
+@dataclass
+class FakeMacro:
+    proteins: float | None
+    fats: float | None
+    carbs: float | None
+    calories: float | None
+
+    def model_dump(self):
+        return {
+            "proteins": self.proteins,
+            "fats": self.fats,
+            "carbs": self.carbs,
+            "calories": self.calories,
+        }
+
+
+@dataclass
+class FakeUser:
+    macro: FakeMacro
+
+
+class FakeUserSettingsService(IUserSettingsService):
+    async def get_by_user_id(self, user_id: UUID) -> Any:
+        return FakeUser(
+            macro=FakeMacro(
+                proteins=100.0,
+                fats=100.0,
+                carbs=100.0,
+                calories=100.0,
+            ),
+        )
 
 
 @pytest.fixture
@@ -22,6 +59,7 @@ def consumption_service(secret_key, algorithm):
         product_repository=ProductTortoiseRepo,
         daily_product_repository=DailyUserProductTortoiseRepo,
         consumption_repository=DailyUserConsumptionTortoiseRepo,
+        settings_service=FakeUserSettingsService(),
     )
 
 

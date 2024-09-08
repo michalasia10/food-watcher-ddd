@@ -40,9 +40,7 @@ def _get_fetch_fields(
     return fetch_fields
 
 
-class TortoiseRepo(
-    Generic[ModelType, EntityType], IPostgresRepository, metaclass=ABCMeta
-):
+class TortoiseRepo(Generic[ModelType, EntityType], IPostgresRepository, metaclass=ABCMeta):
     model = ModelType
     entity = EntityType
 
@@ -95,22 +93,13 @@ class TortoiseRepo(
 
         def _convert_value(value: Any):
             if isinstance(value, ReverseRelation):
-                return [
-                    {
-                        cls._convert_key(k): _convert_value(v)
-                        for k, v in vars(val).items()
-                    }
-                    for val in value
-                ]
+                return [{cls._convert_key(k): _convert_value(v) for k, v in vars(val).items()} for val in value]
             if isinstance(value, Model):
-                return {cls._convert_key(k): v for k, v in vars(value).items()}
+                return {cls._convert_key(k): _convert_value(v) for k, v in vars(value).items()}
 
             return value
 
-        return {
-            cls._convert_key(key): _convert_value(value)
-            for key, value in snapshot.items()
-        }
+        return {cls._convert_key(key): _convert_value(value) for key, value in snapshot.items()}
 
     @classmethod
     async def asave(cls, entity: EntityType) -> EntityType:
@@ -124,9 +113,7 @@ class TortoiseRepo(
             raise DBError(e)
 
     @classmethod
-    async def aget_by_id(
-        cls, id: UUID, fetch_fields: Optional[list[str]] = None
-    ) -> EntityType | None:
+    async def aget_by_id(cls, id: UUID, fetch_fields: Optional[list[str]] = None) -> EntityType | None:
         model = await cls.model.get(id=id)
 
         await cls._fetch_related(model, fetch_fields)
@@ -134,14 +121,9 @@ class TortoiseRepo(
         return cls._to_entity(model)
 
     @classmethod
-    async def aget_all(
-        cls, limit=100, offset=0, fetch_fields: Optional[list[str]] = None
-    ) -> list[EntityType]:
+    async def aget_all(cls, limit=100, offset=0, fetch_fields: Optional[list[str]] = None) -> list[EntityType]:
         queryset = cls.model.all().limit(limit).offset(offset)
-        return [
-            cls._to_entity(record)
-            for record in await cls._prefetch(queryset, fetch_fields)
-        ]
+        return [cls._to_entity(record) for record in await cls._prefetch(queryset, fetch_fields)]
 
     @classmethod
     async def aget_first_from_filter(
@@ -160,20 +142,13 @@ class TortoiseRepo(
         **kwargs,
     ) -> list[EntityType]:
         queryset = cls.model.filter(*args, **kwargs).limit(limit).offset(offset).all()
-        return [
-            cls._to_entity(record)
-            for record in await cls._prefetch(queryset, fetch_fields)
-        ]
+        return [cls._to_entity(record) for record in await cls._prefetch(queryset, fetch_fields)]
 
     @classmethod
     async def aupdate(cls, entity: EntityType) -> None:
         snapshot = deepcopy(entity.snapshot)
         clean_snapshot = {
-            k: v
-            for k, v in snapshot.items()
-            if k != "id"
-            and not isinstance(v, Field)
-            and not isinstance(v, ReverseRelation)
+            k: v for k, v in snapshot.items() if k != "id" and not isinstance(v, (Field, ReverseRelation, Model))
         }
         try:
             async with in_transaction():

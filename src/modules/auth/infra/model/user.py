@@ -24,16 +24,3 @@ class User(BaseModel):
     class Meta:
         app = "auth"
         table = "user"
-        # connection = 'default'
-
-
-# class UserSettings(Base):
-#     __tablename__ = "user_settings"
-#     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4())
-#
-#     user_id = Column(UUID(as_uuid=True), ForeignKey("user.id"), primary_key=True)
-#     user = relationship("User", back_populates="settings")
-#     daily_calories = Column(Float(), nullable=True)
-#     daily_proteins = Column(Float(), nullable=True)
-#     daily_fats = Column(Float(), nullable=True)
-#     daily_carbohydrates = Column(Float(), nullable=True)

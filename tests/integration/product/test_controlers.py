@@ -44,20 +44,14 @@ async def test_product_controller_create_product(api_client, endpoint_enum, user
 
     # then
     assert response.status_code == HTTPStatus.CREATED
-    product_from_db = await ProductTortoiseRepo.aget_first_from_filter(
-        code=product_input.code
-    )
+    product_from_db = await ProductTortoiseRepo.aget_first_from_filter(code=product_input.code)
     response_json = response.json()
 
-    api_client.compare_response_object_with_db(
-        response_json, product_from_db, product_input
-    )
+    api_client.compare_response_object_with_db(response_json, product_from_db, product_input)
 
 
 @pytest.mark.asyncio
-async def test_product_controller_get_all_products(
-    api_client, endpoint_enum, product_record, user_token
-):
+async def test_product_controller_get_all_products(api_client, endpoint_enum, product_record, user_token):
     # given
     api_client.set_token(user_token.api_token)
 
@@ -73,16 +67,12 @@ async def test_product_controller_get_all_products(
 
 
 @pytest.mark.asyncio
-async def test_product_controller_get_product_by_id(
-    api_client, endpoint_enum, product_record, user_token
-):
+async def test_product_controller_get_product_by_id(api_client, endpoint_enum, product_record, user_token):
     # given
     api_client.set_token(user_token.api_token)
 
     # when
-    response = await api_client.get(
-        endpoint_enum.PRODUCTS.get_detail(product_record.id)
-    )
+    response = await api_client.get(endpoint_enum.PRODUCTS.get_detail(product_record.id))
 
     # then
     assert response.status_code == HTTPStatus.OK
@@ -105,16 +95,12 @@ async def test_consumption_controller_create_consumption(
     api_client.set_token(user_token.api_token)
 
     # when
-    response = await api_client.post(
-        endpoint_enum.CONSUMPTION, json_data=daily_product_input.model_dump_json()
-    )
+    response = await api_client.post(endpoint_enum.CONSUMPTION, json_data=daily_product_input.model_dump_json())
 
     # then
 
-    daily_consumption_from_db = (
-        await DailyUserConsumptionTortoiseRepo.aget_first_from_filter(
-            date=daily_product_input.date
-        )
+    daily_consumption_from_db = await DailyUserConsumptionTortoiseRepo.aget_first_from_filter(
+        date=daily_product_input.date
     )
     daily_product_from_db = await DailyUserProductTortoiseRepo.aget_first_from_filter(
         product_id=product_record.id, day_id=daily_consumption_from_db.id
@@ -145,16 +131,12 @@ async def test_consumption_controller_add_meal_consumption_exists(
     api_client.set_token(user_token.api_token)
 
     # when
-    response = await api_client.post(
-        endpoint_enum.CONSUMPTION, json_data=daily_product_input.model_dump_json()
-    )
+    response = await api_client.post(endpoint_enum.CONSUMPTION, json_data=daily_product_input.model_dump_json())
 
     # then
     assert response.status_code == HTTPStatus.CREATED
-    daily_consumption_from_db = (
-        await DailyUserConsumptionTortoiseRepo.aget_first_from_filter(
-            date=daily_product_input.date
-        )
+    daily_consumption_from_db = await DailyUserConsumptionTortoiseRepo.aget_first_from_filter(
+        date=daily_product_input.date
     )
     daily_products_from_db = await DailyUserProductTortoiseRepo.aget_all_from_filter(
         day_id=daily_consumption_from_db.id
@@ -184,9 +166,7 @@ async def test_consumption_controller_add_meal_product_not_found(
     api_client.set_token(user_token.api_token)
 
     # when
-    response = await api_client.post(
-        endpoint_enum.CONSUMPTION, json_data=daily_product_input.model_dump_json()
-    )
+    response = await api_client.post(endpoint_enum.CONSUMPTION, json_data=daily_product_input.model_dump_json())
 
     # then
     api_client.check_status_code_in_error_response(response, HTTPStatus.NOT_FOUND)
@@ -215,10 +195,7 @@ async def test_consumption_controller_get_all_user_days(
     assert "user_id" in day
     assert "date" in day
     assert "products" in day
-    assert "summary_calories" in day
-    assert "summary_proteins" in day
-    assert "summary_fats" in day
-    assert "summary_carbohydrates" in day
+    assert "summary" in day
 
     products = day["products"]
     assert len(products) == 1
@@ -261,9 +238,7 @@ async def test_consumption_controller_get_day_by_id(
     api_client.set_token(user_token.api_token)
 
     # when
-    response = await api_client.get(
-        endpoint_enum.CONSUMPTION.get_detail(f"by_day_id/{consumption_with_product.id}")
-    )
+    response = await api_client.get(endpoint_enum.CONSUMPTION.get_detail(f"by_day_id/{consumption_with_product.id}"))
 
     # then
     assert response.status_code == HTTPStatus.OK
@@ -283,9 +258,7 @@ async def test_consumption_controller_get_day_by_id_dummy_day(
     api_client.set_token(user_token.api_token)
 
     # when
-    response = await api_client.get(
-        endpoint_enum.CONSUMPTION.get_detail(f"by_day_id/{str(uuid6())}")
-    )
+    response = await api_client.get(endpoint_enum.CONSUMPTION.get_detail(f"by_day_id/{str(uuid6())}"))
 
     # then
     assert response.status_code == HTTPStatus.NOT_FOUND
@@ -303,9 +276,7 @@ async def test_consumption_controller_get_day_by_datetime(
     date_str = str(consumption_with_product.date)
 
     # when
-    response = await api_client.get(
-        endpoint_enum.CONSUMPTION.get_detail(f"by_datetime_for_user/{date_str}/")
-    )
+    response = await api_client.get(endpoint_enum.CONSUMPTION.get_detail(f"by_datetime_for_user/{date_str}/"))
 
     # then
     assert response.status_code == HTTPStatus.OK
@@ -323,9 +294,7 @@ async def test_consumption_controller_get_day_by_datetime_dummy_day(
     date_str = str(datetime.now() - timedelta(days=1))
 
     # when
-    response = await api_client.get(
-        endpoint_enum.CONSUMPTION.get_detail(f"by_datetime_for_user/{date_str}/")
-    )
+    response = await api_client.get(endpoint_enum.CONSUMPTION.get_detail(f"by_datetime_for_user/{date_str}/"))
 
     # then
     assert response.status_code == HTTPStatus.NOT_FOUND
@@ -340,18 +309,14 @@ async def test_consumption_controller_get_day_by_datetime_dummy_user(
     date_str = str(consumption_with_product.date)
 
     # when
-    response = await api_client.get(
-        endpoint_enum.CONSUMPTION.get_detail(f"by_datetime_for_user/{date_str}/")
-    )
+    response = await api_client.get(endpoint_enum.CONSUMPTION.get_detail(f"by_datetime_for_user/{date_str}/"))
 
     # then
     assert response.status_code == HTTPStatus.NOT_FOUND
 
 
 @pytest.mark.asyncio
-async def test_product_create_create_index_in_search_engine(
-    api_client, endpoint_enum, user_token
-):
+async def test_product_create_create_index_in_search_engine(api_client, endpoint_enum, user_token):
     # given
     api_client.set_token(user_token.api_token)
 
@@ -412,9 +377,7 @@ async def test_product_create_create_index_in_search_engine(
 
 
 @pytest.mark.asyncio
-async def test_product_create_create_and_update_index_in_search_engine(
-    api_client, endpoint_enum, user_token
-):
+async def test_product_create_create_and_update_index_in_search_engine(api_client, endpoint_enum, user_token):
     # given
     api_client.set_token(user_token.api_token)
 
@@ -487,9 +450,7 @@ async def test_product_create_create_and_update_index_in_search_engine(
 
 
 @pytest.mark.asyncio
-async def test_product_update_create_delete_index_in_search_engine(
-    api_client, endpoint_enum, user_token
-):
+async def test_product_update_create_delete_index_in_search_engine(api_client, endpoint_enum, user_token):
     # given
     api_client.set_token(user_token.api_token)
 

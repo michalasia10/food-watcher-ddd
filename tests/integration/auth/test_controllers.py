@@ -7,8 +7,9 @@ from src.modules.auth.application.dto import (
     UserInputDto,
     UserUpdateDto,
     UserAuthInputDto,
+    UserSettingsDto,
 )
-from src.modules.auth.infra.user_repo import UserTortoiseRepo
+from src.modules.auth.infra.repo.user import UserTortoiseRepo
 
 
 @pytest.mark.asyncio
@@ -20,11 +21,12 @@ async def test_user_controller_create_user(api_client, endpoint_enum):
         email="test_api@user.com",
         first_name="test_api",
         last_name="test_api",
+        settings=UserSettingsDto(
+            age=20,
+        ),
     )
     # when
-    response = await api_client.post(
-        endpoint_enum.USERS.value, json_data=user_input.model_dump_json()
-    )
+    response = await api_client.post(endpoint_enum.USERS.value, json_data=user_input.model_dump_json())
 
     # then
     assert response.status_code == HTTPStatus.CREATED
@@ -77,9 +79,7 @@ async def test_user_controller_get_user_by_id_not_found(api_client, endpoint_enu
 
 
 @pytest.mark.asyncio
-async def test_user_controller_update_user(
-    api_client, endpoint_enum, user_record, user_token
-):
+async def test_user_controller_update_user(api_client, endpoint_enum, user_record, user_token):
     # given
     new_email = "new_test@email.com"
     update_dto = UserUpdateDto(email=new_email)
@@ -100,9 +100,7 @@ async def test_user_controller_update_user(
 
 
 @pytest.mark.asyncio
-async def test_user_controller_update_user_dummy_token(
-    api_client, endpoint_enum, user_record, dummy_token
-):
+async def test_user_controller_update_user_dummy_token(api_client, endpoint_enum, user_record, dummy_token):
     # given
     new_email = "new@email.com"
     update_dto = UserUpdateDto(email=new_email)
@@ -142,16 +140,12 @@ async def test_user_controller_update_requestor_not_owner_of_record(
 
 
 @pytest.mark.asyncio
-async def test_user_controller_delete_user(
-    api_client, endpoint_enum, user_record, user_token
-):
+async def test_user_controller_delete_user(api_client, endpoint_enum, user_record, user_token):
     # given
     api_client.set_token(user_token.api_token)
 
     # when
-    response = await api_client.delete(
-        endpoint_enum.USERS.get_detail(user_token.user_id)
-    )
+    response = await api_client.delete(endpoint_enum.USERS.get_detail(user_token.user_id))
 
     # then
     assert response.status_code == HTTPStatus.NO_CONTENT
@@ -160,9 +154,7 @@ async def test_user_controller_delete_user(
 
 
 @pytest.mark.asyncio
-async def test_user_controller_delete_user_dummy_token(
-    api_client, endpoint_enum, user_record, dummy_token
-):
+async def test_user_controller_delete_user_dummy_token(api_client, endpoint_enum, user_record, dummy_token):
     # given
     api_client.set_token(dummy_token.api_token)
 
@@ -234,9 +226,7 @@ async def test_user_login(api_client, endpoint_enum, user_record, user_password)
 @pytest.mark.asyncio
 async def test_user_login_wrong_password(api_client, endpoint_enum, user_record):
     # given
-    login_dto = UserAuthInputDto(
-        username=user_record.username, password="wrong_password"
-    )
+    login_dto = UserAuthInputDto(username=user_record.username, password="wrong_password")
 
     # when
     response = await api_client.post(
@@ -249,9 +239,7 @@ async def test_user_login_wrong_password(api_client, endpoint_enum, user_record)
 
 
 @pytest.mark.asyncio
-async def test_user_login_wrong_username(
-    api_client, endpoint_enum, user_record, user_password
-):
+async def test_user_login_wrong_username(api_client, endpoint_enum, user_record, user_password):
     # given
     login_dto = UserAuthInputDto(username="wrong_username", password=user_password)
 
@@ -266,9 +254,7 @@ async def test_user_login_wrong_username(
 
 
 @pytest.mark.asyncio
-async def test_user_controller_refresh_token(
-    api_client, endpoint_enum, user_record, user_token
-):
+async def test_user_controller_refresh_token(api_client, endpoint_enum, user_record, user_token):
     # given
     api_client.set_token(user_token.api_token)
 

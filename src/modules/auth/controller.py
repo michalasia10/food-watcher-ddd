@@ -1,10 +1,12 @@
-from classy_fastapi import post
+from uuid import UUID
+
+from classy_fastapi import post, patch, get
 from dependency_injector.wiring import inject
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from src.core.app.service import IAuthService
 from src.config.di import AppContainer
+from src.core.app.service import IAuthService, ICrudService
 from src.core.controller.crud import BaseModelView
 from src.core.controller.di import dependency
 from src.modules.auth.application.dto import (
@@ -13,8 +15,9 @@ from src.modules.auth.application.dto import (
     UserInputDto,
     UserOutputDto,
     UserUpdateDto,
+    UserSettingsDto,
 )
-from src.modules.auth.application.services import AuthenticationService
+from src.modules.auth.application.service.auth import AuthenticationService
 
 
 class UserViewSet(BaseModelView[UserInputDto, UserOutputDto]):
@@ -43,9 +46,7 @@ class UserViewSet(BaseModelView[UserInputDto, UserOutputDto]):
     async def login(
         self,
         credentials: UserAuthInputDto,
-        auth_service: AuthenticationService = dependency(
-            AppContainer.auth.auth_service
-        ),
+        auth_service: AuthenticationService = dependency(AppContainer.auth.auth_service),
     ) -> TokenOutputDto:
         """Endpoint to authenticate user."""
 
@@ -66,3 +67,27 @@ class UserViewSet(BaseModelView[UserInputDto, UserOutputDto]):
         user = await auth_service.verify(token.credentials)
 
         return auth_service.refresh_token(user=user)
+
+    @patch(path="/settings", response_model=UserSettingsDto)
+    async def update_user_settings(
+        self,
+        settings: UserAuthInputDto,
+        settings_service: ICrudService = dependency(AppContainer.auth.user_settings_service),
+        token: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
+        auth_service: AuthenticationService = dependency(AppContainer.auth.auth_service),
+    ):
+        user = await auth_service.verify(token.credentials)
+
+        return await settings_service.update(user_id=user.id, input_dto=settings, id=None)
+
+    @get(path="/settings", response_model=UserSettingsDto)
+    async def get_user_settings(
+        self,
+        id: UUID,
+        token: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
+        auth_service: AuthenticationService = dependency(AppContainer.auth.auth_service),
+        settings_service: ICrudService = dependency(AppContainer.auth.user_settings_service),
+    ):
+        user = await auth_service.verify(token.credentials)
+
+        return await settings_service.get_by_user_id(user_id=user.id)

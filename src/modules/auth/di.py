@@ -1,7 +1,13 @@
 from dependency_injector import containers, providers
 
-from src.modules.auth.application.services import AuthenticationService, UserCrudService
-from src.modules.auth.infra.user_repo import UserTortoiseRepo
+from src.modules.auth.application.service.auth import AuthenticationService
+from src.modules.auth.application.service.user import UserCrudService
+from src.modules.auth.application.service.settings import UserSettingsService
+from src.modules.auth.infra.repo.settings import (
+    UserSettingsTortoiseRepo,
+    MacroTortoiseRepo,
+)
+from src.modules.auth.infra.repo.user import UserTortoiseRepo
 
 
 class AuthContainer(containers.DeclarativeContainer):
@@ -18,4 +24,11 @@ class AuthContainer(containers.DeclarativeContainer):
     user_service = providers.Factory(
         UserCrudService,
         repository=UserTortoiseRepo,
+        settings_repository=UserSettingsTortoiseRepo,
+        macro_repository=MacroTortoiseRepo,
+    )
+    user_settings_service = providers.Factory(
+        UserSettingsService,
+        settings_repository=UserSettingsTortoiseRepo,
+        macro_repository=MacroTortoiseRepo,
     )
