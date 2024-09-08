@@ -32,10 +32,12 @@ class ProductContainer(containers.DeclarativeContainer):
 class ConsumptionContainer(containers.DeclarativeContainer):
     container_config = providers.Configuration()
     api_config = providers.ItemGetter()
+    settings_service = providers.Dependency()
 
     service = providers.Factory(
         ConsumptionService,
         product_repository=ProductTortoiseRepo,
         daily_product_repository=DailyUserProductTortoiseRepo,
         consumption_repository=DailyUserConsumptionTortoiseRepo,
+        settings_service=settings_service,
     )

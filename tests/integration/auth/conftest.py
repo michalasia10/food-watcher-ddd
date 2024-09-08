@@ -8,14 +8,21 @@ from src.modules.auth.application.dto import (
     UserInputDto,
     UserAuthInputDto,
     TokenOutputDto,
+    UserSettingsDto,
 )
-from src.modules.auth.application.services import UserCrudService, AuthenticationService
-from src.modules.auth.infra.user_repo import UserTortoiseRepo
+from src.modules.auth.application.service.auth import AuthenticationService
+from src.modules.auth.application.service.user import UserCrudService
+from src.modules.auth.infra.repo.settings import MacroTortoiseRepo, UserSettingsTortoiseRepo
+from src.modules.auth.infra.repo.user import UserTortoiseRepo
 
 
 @pytest.fixture
 def user_service():
-    return UserCrudService(repository=UserTortoiseRepo)
+    return UserCrudService(
+        repository=UserTortoiseRepo,
+        macro_repository=MacroTortoiseRepo,
+        settings_repository=UserSettingsTortoiseRepo,
+    )
 
 
 @pytest.fixture
@@ -56,6 +63,9 @@ async def user_record(user_service, user_password):
             email="test@no.com",
             first_name="test",
             last_name="test",
+            settings=UserSettingsDto(
+                age=2,
+            ),
         )
     )
 
@@ -69,22 +79,21 @@ async def user_record2(user_service, user_password):
             email="test2@no.com",
             first_name="test2",
             last_name="test2",
+            settings=UserSettingsDto(
+                age=2,
+            ),
         )
     )
 
 
 @pytest_asyncio.fixture(scope="function")
 async def user_token(auth_service, user_password, user_record):
-    return await auth_service.authenticate(
-        UserAuthInputDto(username=user_record.username, password=user_password)
-    )
+    return await auth_service.authenticate(UserAuthInputDto(username=user_record.username, password=user_password))
 
 
 @pytest_asyncio.fixture(scope="function")
 async def user_token2(auth_service, user_password, user_record2):
-    return await auth_service.authenticate(
-        UserAuthInputDto(username=user_record2.username, password=user_password)
-    )
+    return await auth_service.authenticate(UserAuthInputDto(username=user_record2.username, password=user_password))
 
 
 @pytest.fixture

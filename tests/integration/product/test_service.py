@@ -19,9 +19,7 @@ from src.modules.product.infra.repo.postgres.daily_product import (
 
 
 @pytest.mark.asyncio
-async def test_add_meal_daily_consumption_not_exists(
-    user_record, product_record, consumption_service
-):
+async def test_add_meal_daily_consumption_not_exists(user_record, product_record, consumption_service):
     # given
 
     _date = datetime.now()
@@ -51,15 +49,9 @@ async def test_add_meal_daily_consumption_not_exists(
 
     # when
 
-    daily_consumption = await consumption_service.add_meal(
-        user_id=user_record.id, input_dto=dto
-    )
-    daily_consumption_from_db = await DailyUserConsumptionTortoiseRepo.aget_by_id(
-        daily_consumption.id
-    )
-    daily_product_from_db = await DailyUserProductTortoiseRepo.aget_by_id(
-        daily_consumption.products[0].id
-    )
+    daily_consumption = await consumption_service.add_meal(user_id=user_record.id, input_dto=dto)
+    daily_consumption_from_db = await DailyUserConsumptionTortoiseRepo.aget_by_id(daily_consumption.id)
+    daily_product_from_db = await DailyUserProductTortoiseRepo.aget_by_id(daily_consumption.products[0].id)
 
     # then
     assert daily_consumption_from_db is not None
@@ -85,27 +77,17 @@ async def test_add_meal_daily_consumption_exists(
     )
 
     # when
-    daily_consumption = await consumption_service.add_meal(
-        user_id=user_record.id, input_dto=dto
-    )
+    daily_consumption = await consumption_service.add_meal(user_id=user_record.id, input_dto=dto)
 
-    daily_consumption_from_db = await DailyUserConsumptionTortoiseRepo.aget_by_id(
-        daily_consumption.id
-    )
-    daily_product_from_db_first = await DailyUserProductTortoiseRepo.aget_by_id(
-        daily_consumption.products[0].id
-    )
-    daily_product_from_db_second = await DailyUserProductTortoiseRepo.aget_by_id(
-        daily_consumption.products[1].id
-    )
+    daily_consumption_from_db = await DailyUserConsumptionTortoiseRepo.aget_by_id(daily_consumption.id)
+    daily_product_from_db_first = await DailyUserProductTortoiseRepo.aget_by_id(daily_consumption.products[0].id)
+    daily_product_from_db_second = await DailyUserProductTortoiseRepo.aget_by_id(daily_consumption.products[1].id)
 
     # then
     assert len(daily_consumption.products) == 2
-    assert daily_consumption.summary_calories == daily_consumption.summary_calories
-    expected_summary_calories = (
-        daily_product_from_db_second.calories + daily_product_from_db_first.calories
-    )
-    assert daily_consumption.summary_calories == expected_summary_calories
+    assert daily_consumption.summary.calories == daily_consumption.summary.calories
+    expected_summary_calories = daily_product_from_db_second.calories + daily_product_from_db_first.calories
+    assert daily_consumption.summary.calories == expected_summary_calories
 
     assert daily_consumption_from_db is not None
     assert daily_product_from_db_first is not None
@@ -134,9 +116,7 @@ async def test_add_meal_product_not_found(user_record, consumption_service):
 
 
 @pytest.mark.asyncio
-async def test_get_all_user_days(
-    user_record, consumption_with_product, consumption_service
-):
+async def test_get_all_user_days(user_record, consumption_with_product, consumption_service):
     # given
     user_id = user_record.id
 
@@ -205,28 +185,20 @@ async def test_get_day_by_datetime(consumption_with_product, consumption_service
 
 
 @pytest.mark.asyncio
-async def test_get_day_by_datetime_dummy_day(
-    consumption_service, consumption_with_product
-):
+async def test_get_day_by_datetime_dummy_day(consumption_service, consumption_with_product):
     # given
     date = datetime.now() - timedelta(days=1)
 
     # when/then
     with pytest.raises(DailyUserConsumptionNotFound):
-        await consumption_service.get_day_by_datetime(
-            date=date, user_id=consumption_with_product.user_id
-        )
+        await consumption_service.get_day_by_datetime(date=date, user_id=consumption_with_product.user_id)
 
 
 @pytest.mark.asyncio
-async def test_get_day_by_datetime_dummy_user(
-    consumption_service, consumption_with_product
-):
+async def test_get_day_by_datetime_dummy_user(consumption_service, consumption_with_product):
     # when/then
     with pytest.raises(DailyUserConsumptionNotFound):
-        await consumption_service.get_day_by_datetime(
-            date=consumption_with_product.date, user_id=uuid6()
-        )
+        await consumption_service.get_day_by_datetime(date=consumption_with_product.date, user_id=uuid6())
 
 
 @pytest.mark.asyncio

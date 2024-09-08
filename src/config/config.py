@@ -1,3 +1,4 @@
+import os
 import sys
 from copy import deepcopy
 
@@ -26,9 +27,7 @@ class ApiConfig(BaseSettings):
     PORT: int = 8080
     RELOAD: bool = Field(env="RELOAD", default=False)
     REDIS_URL: str = Field(env="REDIS_URL", default="redis://localhost")
-    RABBITMQ_URL: str = Field(
-        env="RABBITMQ_URL", default="amqp://michu:michu@localhost:5672//"
-    )
+    RABBITMQ_URL: str = Field(env="RABBITMQ_URL", default="amqp://michu:michu@localhost:5672//")
     LOGFIRE_TOKEN: str = Field(
         env="LOGFIRE_TOKEN",
         default="token",
@@ -37,9 +36,9 @@ class ApiConfig(BaseSettings):
         env="LOGFIRE_APP_NAME",
         default="app_name",
     )
-    MEILISEARCH_URL_BASE: str = Field(
-        env="MEILISEARCH_URL",
-        default="http://host.docker.internal:7700/",
+    MEILISEARCH_URL_BASE: str = os.environ.get(
+        "MEILISEARCH_URL",
+        "http://host.docker.internal:7700/",
     )
     MEILISEARCH_MASTER_KEY: str = Field(
         env="MEILISEARCH_MASTER_KEY",
@@ -55,7 +54,8 @@ class ApiConfig(BaseSettings):
             "apps": {
                 "auth": {
                     "models": [
-                        "src.modules.auth.infra.model",
+                        "src.modules.auth.infra.model.user",
+                        "src.modules.auth.infra.model.settings",
                         "aerich.models",
                     ],
                     "default_connection": "default",
@@ -90,11 +90,7 @@ class ApiConfig(BaseSettings):
 
     @property
     def MEILISEARCH_URL(self) -> str:
-        return (
-            self.MEILISEARCH_URL_BASE
-            if not "pytest" in sys.argv[0]
-            else "http://localhost:7701/"
-        )
+        return self.MEILISEARCH_URL_BASE if not "pytest" in sys.argv[0] else "http://localhost:7701/"
 
 
 settings = ApiConfig()

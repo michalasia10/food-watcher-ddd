@@ -2,3 +2,11 @@
 tortoise_orm = "src.config.TORTOISE_CONFIG"
 location = "src/migrations"
 src_folder = "./."
+
+[tool.ruff]
+line-length = 120
+[tool.pyright]
+include = ["src"]
+pythonVersion ="3.10"
+[tool.black]
+line-length = 120
