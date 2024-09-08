@@ -4,6 +4,7 @@ from uuid import UUID
 
 from loguru import logger
 from meilisearch_python_sdk import AsyncClient, AsyncIndex
+from meilisearch_python_sdk.json_handler import BuiltinHandler
 from meilisearch_python_sdk.models.search import SearchResults
 
 from src.core.domain.repo.search_engine import ISearchRepository
@@ -30,6 +31,7 @@ class MeiliSearchRepository(ISearchRepository):
         client = AsyncClient(
             url=self._meilisearch_url,
             api_key=self._meilisearch_master_key,
+            json_handler=BuiltinHandler(serializer=CustomJsonEncoder),
         )
         try:
             yield client
@@ -95,7 +97,6 @@ class MeiliSearchRepository(ISearchRepository):
             await index.add_documents(
                 documents=[document],
                 primary_key="id",
-                serializer=CustomJsonEncoder,
             )
             logger.info("Document created.")
 
@@ -136,7 +137,5 @@ class MeiliSearchRepository(ISearchRepository):
         """
         async with self._client() as client:
             index: AsyncIndex = await self.aget_create_index(client=client)
-            await index.update_documents(
-                documents=[document], primary_key="id", serializer=CustomJsonEncoder
-            )
+            await index.update_documents(documents=[document], primary_key="id")
             logger.info("Document updated {document_id}.", document_id=document_id)
