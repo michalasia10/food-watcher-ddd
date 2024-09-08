@@ -45,7 +45,11 @@ def run_commands(command_list, optional_args=None):
                 if "docker-compose" in command:
                     typer.echo("\n" * 2 + "#" * 80)
                     typer.echo(f"{typer.style('Retry', fg=typer.colors.YELLOW, bold=True)}: command {command}")
-                    result_retry = subprocess.run(command.replace("docker-compose", "docker compose"), shell=True)
+                    _command = " ".join(
+                        c.replace("docker-compose", "docker compose") if c == "docker-compose" else c
+                        for c in command.split(" ")
+                    )
+                    result_retry = subprocess.run(_command, shell=True)
                     if result_retry.returncode == 0:
                         typer.echo(
                             f"{typer.style('End command # Retry:', fg=typer.colors.GREEN, bold=True)}: {command}"
