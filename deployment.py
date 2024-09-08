@@ -41,6 +41,17 @@ def run_commands(command_list, optional_args=None):
                 typer.echo("\n" * 2 + "#" * 80)
                 typer.echo(f"{typer.style('Error', fg=typer.colors.RED, bold=True)}: command {command}")
                 typer.echo("#" * 80)
+                # retry for CI
+                if "docker-compose" in command:
+                    typer.echo("\n" * 2 + "#" * 80)
+                    typer.echo(f"{typer.style('Retry', fg=typer.colors.YELLOW, bold=True)}: command {command}")
+                    result_retry = subprocess.run(command.replace("docker-compose", "docker compose"), shell=True)
+                    if result_retry.returncode == 0:
+                        typer.echo(
+                            f"{typer.style('End command # Retry:', fg=typer.colors.GREEN, bold=True)}: {command}"
+                        )
+                        continue
+
                 sys.exit(1)
 
             typer.echo("\n" * 2 + "#" * 80)
