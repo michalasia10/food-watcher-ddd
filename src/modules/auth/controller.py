@@ -16,6 +16,7 @@ from src.modules.auth.application.dto import (
     UserOutputDto,
     UserUpdateDto,
     UserSettingsDto,
+    UserSettingsUpdateDto,
 )
 from src.modules.auth.application.service.auth import AuthenticationService
 
@@ -71,7 +72,7 @@ class UserViewSet(BaseModelView[UserInputDto, UserOutputDto]):
     @patch(path="/settings", response_model=UserSettingsDto)
     async def update_user_settings(
         self,
-        settings: UserAuthInputDto,
+        settings: UserSettingsUpdateDto,
         settings_service: ICrudService = dependency(AppContainer.auth.user_settings_service),
         token: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
         auth_service: AuthenticationService = dependency(AppContainer.auth.auth_service),
@@ -83,7 +84,6 @@ class UserViewSet(BaseModelView[UserInputDto, UserOutputDto]):
     @get(path="/settings", response_model=UserSettingsDto)
     async def get_user_settings(
         self,
-        id: UUID,
         token: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
         auth_service: AuthenticationService = dependency(AppContainer.auth.auth_service),
         settings_service: ICrudService = dependency(AppContainer.auth.user_settings_service),
