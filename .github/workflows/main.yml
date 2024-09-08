@@ -15,8 +15,6 @@ jobs:
       - name: Install requirements
         run: pip install -r ./requirements.txt
       - name: Prepare test db
-        uses: cloudposse/github-action-docker-compose-test-run@main
         run: typer deployment.py run run-db --test
       - name: Run tests
-        uses: cloudposse/github-action-docker-compose-test-run@main
         run: typer deployment.py run test
