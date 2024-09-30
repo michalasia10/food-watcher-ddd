@@ -40,7 +40,7 @@ class UserViewSet(BaseModelView[UserInputDto, UserOutputDto]):
         )
 
     @post(
-        path="/login",
+        path="/login/",
         response_model=TokenOutputDto,
     )
     @inject
@@ -54,7 +54,7 @@ class UserViewSet(BaseModelView[UserInputDto, UserOutputDto]):
         return await auth_service.authenticate(credentials)
 
     @post(
-        path="/refresh_token",
+        path="/refresh_token/",
         response_model=TokenOutputDto,
     )
     @inject
@@ -69,7 +69,7 @@ class UserViewSet(BaseModelView[UserInputDto, UserOutputDto]):
 
         return auth_service.refresh_token(user=user)
 
-    @patch(path="/settings", response_model=UserSettingsDto)
+    @patch(path="/settings/", response_model=UserSettingsDto)
     @inject
     async def update_user_settings(
         self,
@@ -82,7 +82,7 @@ class UserViewSet(BaseModelView[UserInputDto, UserOutputDto]):
 
         return await settings_service.update(user_id=user.id, input_dto=settings, id=None)
 
-    @get(path="/settings", response_model=UserSettingsDto)
+    @get(path="/settings/", response_model=UserSettingsDto)
     @inject
     async def get_user_settings(
         self,

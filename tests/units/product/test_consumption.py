@@ -19,7 +19,6 @@ def test_create_daily_user_consumption_entity():
     assert daily_user_consumption.updated_at is not None
     assert daily_user_consumption.user_id == user_id
     assert daily_user_consumption.date is not None
-    assert daily_user_consumption.products == []
     assert daily_user_consumption.summary_proteins == 0.0
     assert daily_user_consumption.summary_fats == 0.0
     assert daily_user_consumption.summary_carbohydrates == 0.0

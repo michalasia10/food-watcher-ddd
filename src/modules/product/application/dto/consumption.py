@@ -5,6 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel, model_validator
 
 from src.modules.product.application.dto.daily_product import DailyUserProductOutputDto
+from src.modules.product.domain.enum import UserProductType
 
 
 class MacroDto(BaseModel):
@@ -14,11 +15,17 @@ class MacroDto(BaseModel):
     calories: float | None
 
 
+class MealOutputDto(BaseModel):
+    meal: UserProductType
+    products: list[DailyUserProductOutputDto]
+    summary: MacroDto
+
+
 class DailyUserConsumptionOutputDto(BaseModel):
     user_id: UUID
     date: datetime
     id: UUID
-    products: list[DailyUserProductOutputDto] | None
+    meals: list[MealOutputDto] | None
     summary: MacroDto
     user: MacroDto
 

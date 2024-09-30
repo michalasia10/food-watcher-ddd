@@ -41,7 +41,7 @@ class RecipeViewSet(BaseModelView[RecipeInputDto, RecipeOutputDto]):
             output_dto=RecipeOutputDto,
         )
 
-    @get("/all_my_recipes")
+    @get("/all_my_recipes/")
     @inject
     async def get_all_my_recipes(
         self,
@@ -55,7 +55,7 @@ class RecipeViewSet(BaseModelView[RecipeInputDto, RecipeOutputDto]):
         user = await auth_service.verify(token.credentials)
         return await service.get_all_my_recipes(user_id=user.id)
 
-    @post("/product_for_recipe/{recipe_id}")
+    @post("/product_for_recipe/{recipe_id}/")
     @inject
     async def add_product_to_recipe(
         self,
@@ -69,11 +69,9 @@ class RecipeViewSet(BaseModelView[RecipeInputDto, RecipeOutputDto]):
         Add a product to a recipe.
         """
         user = await auth_service.verify(token.credentials)
-        return await service.add_product(
-            id=recipe_id, input_dto=input_dto, user_id=user.id, is_admin=user.is_admin
-        )
+        return await service.add_product(id=recipe_id, input_dto=input_dto, user_id=user.id, is_admin=user.is_admin)
 
-    @put("/product_for_recipe/{product_id}")
+    @put("/product_for_recipe/{product_id}/")
     @inject
     async def update_recipe_product(
         self,
@@ -94,7 +92,7 @@ class RecipeViewSet(BaseModelView[RecipeInputDto, RecipeOutputDto]):
             is_admin=user.is_admin,
         )
 
-    @delete("/product_for_recipe/{product_id}", status_code=HTTPStatus.NO_CONTENT)
+    @delete("/product_for_recipe/{product_id}/", status_code=HTTPStatus.NO_CONTENT)
     @inject
     async def delete_recipe_product(
         self,
@@ -107,6 +105,4 @@ class RecipeViewSet(BaseModelView[RecipeInputDto, RecipeOutputDto]):
         Delete a product from a recipe.
         """
         user = await auth_service.verify(token.credentials)
-        return await service.delete_product(
-            id=product_id, user_id=user.id, is_admin=user.is_admin
-        )
+        return await service.delete_product(id=product_id, user_id=user.id, is_admin=user.is_admin)

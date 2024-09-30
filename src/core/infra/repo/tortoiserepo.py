@@ -94,8 +94,15 @@ class TortoiseRepo(Generic[ModelType, EntityType], IPostgresRepository, metaclas
         def _convert_value(value: Any):
             if isinstance(value, ReverseRelation):
                 return [{cls._convert_key(k): _convert_value(v) for k, v in vars(val).items()} for val in value]
+
             if isinstance(value, Model):
                 return {cls._convert_key(k): _convert_value(v) for k, v in vars(value).items()}
+
+            if isinstance(value, dict):
+                return {cls._convert_key(k): _convert_value(v) for k, v in value.items()}
+
+            if isinstance(value, list):
+                return [_convert_value(val) for val in value]
 
             return value
 

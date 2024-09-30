@@ -30,7 +30,7 @@ def endpoint_enum():
         RECIPE = "/recipes/"
 
         def get_detail(self, id: int):
-            return f"{self.value}{id}"
+            return f"{self.value}{id}/"
 
     return EndpointEnum
 
@@ -152,9 +152,7 @@ class TestAsyncClient(AsyncClient):
         return json.loads(json.dumps(json_data, cls=CustomJsonEncoder))
 
     def post(self, url, json_data: str | dict | None = None, *args, **kwargs):
-        return super().post(
-            url=url, json=self._convert_json(json_data), *args, **kwargs
-        )
+        return super().post(url=url, json=self._convert_json(json_data), *args, **kwargs)
 
     def put(self, url, json_data: str | dict, *args, **kwargs):
         return super().put(url=url, json=self._convert_json(json_data), *args, **kwargs)
@@ -164,9 +162,7 @@ class TestAsyncClient(AsyncClient):
         assert all(key in ["error", "status_code"] for key in response.json().keys())
 
     @classmethod
-    def check_status_code_in_error_response(
-        cls, response: Response, status_code: int
-    ) -> None:
+    def check_status_code_in_error_response(cls, response: Response, status_code: int) -> None:
         cls.check_correct_keys_in_error_response(response)
         assert response.status_code == status_code
         assert response.json()["status_code"] == status_code
@@ -182,23 +178,15 @@ class TestAsyncClient(AsyncClient):
 
         def ok(key, db_object, value):
             any_ok = False
-            if hasattr(db_object, key) or (
-                isinstance(db_object, dict) and key in db_object
-            ):
-                value_from_db = (
-                    db_object[key]
-                    if isinstance(db_object, dict)
-                    else getattr(db_object, key)
-                )
+            if hasattr(db_object, key) or (isinstance(db_object, dict) and key in db_object):
+                value_from_db = db_object[key] if isinstance(db_object, dict) else getattr(db_object, key)
                 if isinstance(value_from_db, dict):
                     for kk, vv in value_from_db.items():
                         any_ok = ok(kk, value_from_db, vv)
 
                     return any_ok
                 else:
-                    ok_value = _transform_uuid_to_str(
-                        value_from_db
-                    ) == _transform_uuid_to_str(value)
+                    ok_value = _transform_uuid_to_str(value_from_db) == _transform_uuid_to_str(value)
                     msg = f"Key: {key}, Value from db: {value_from_db}, Value from response: {value}"
                     assert ok_value, msg
                     Printer.api_test(msg)
@@ -210,9 +198,7 @@ class TestAsyncClient(AsyncClient):
         for key, value in response_json.items():
             if hasattr(db_object, key):
                 value_from_db = getattr(db_object, key)
-                if not isinstance(
-                    value_from_db, (tortoise.fields.ReverseRelation, list, tuple)
-                ):
+                if not isinstance(value_from_db, (tortoise.fields.ReverseRelation, list, tuple)):
                     any_ok = ok(key, db_object, value)
 
                 if isinstance(value_from_db, (list, tuple)):

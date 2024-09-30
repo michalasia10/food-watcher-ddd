@@ -65,9 +65,7 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
         self.output_dto = output_dto
         self.create_dto = create_dto
         self.update_dto = update_dto
-        self._router = APIRouter(
-            prefix=self.prefix, tags=[self.tag], **self.extra_router_kwargs
-        )
+        self._router = APIRouter(prefix=self.prefix, tags=[self.tag], **self.extra_router_kwargs)
         for endpoint in self._endpoints:
             self.router.add_api_route(
                 endpoint=partial(endpoint.endpoint, self),
@@ -95,9 +93,7 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
         if "create" in self.crud_methods:
             assert self.create_dto is not None and self._service is not None
 
-            @self.router.post(
-                "/", response_model=self.output_dto, status_code=HTTPStatus.CREATED
-            )
+            @self.router.post("/", response_model=self.output_dto, status_code=HTTPStatus.CREATED)
             async def create(item: basic_create_dto):
                 """Basic endpoint to create instance"""
 
@@ -106,25 +102,19 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
         if "create_auth" in self.crud_methods:
             assert self.create_dto is not None and self._service is not None
 
-            @self.router.post(
-                "/", response_model=self.output_dto, status_code=HTTPStatus.CREATED
-            )
+            @self.router.post("/", response_model=self.output_dto, status_code=HTTPStatus.CREATED)
             async def create(
                 item: basic_create_dto,
                 user: HTTPBearer = Depends(self._auth_service.bearer_auth),
             ):
                 """Basic endpoint to create instance with auth user."""
 
-                return await self._service.create(
-                    item, user_id=user.id, is_admin=user.is_admin
-                )
+                return await self._service.create(item, user_id=user.id, is_admin=user.is_admin)
 
         if "read" in self.crud_methods:
             assert self.output_dto is not None and self._service is not None
 
-            @self.router.get(
-                "/{id}", response_model=self.output_dto, status_code=HTTPStatus.OK
-            )
+            @self.router.get("/{id}/", response_model=self.output_dto, status_code=HTTPStatus.OK)
             async def read(id: UUID):
                 """Basic endpoint to get instance by id."""
                 return await self._service.get_by_id(id)
@@ -132,9 +122,7 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
         if "update" in self.crud_methods:
             assert self.create_dto is not None and self._service is not None
 
-            @self.router.put(
-                "/{id}", response_model=self.output_dto, status_code=HTTPStatus.OK
-            )
+            @self.router.put("/{id}/", response_model=self.output_dto, status_code=HTTPStatus.OK)
             async def update(
                 id: UUID,
                 item: basic_update_dto,
@@ -142,17 +130,11 @@ class BaseModelView(Generic[OutPutModel, InPutModel], metaclass=RoutableMetav2):
             ):
                 """Basic endpoint to update instance."""
 
-                return await self._service.update(
-                    id, item, user_id=user.id, is_admin=user.is_admin
-                )
+                return await self._service.update(id, item, user_id=user.id, is_admin=user.is_admin)
 
         if "delete" in self.crud_methods:
 
-            @self.router.delete("/{id}", status_code=HTTPStatus.NO_CONTENT)
-            async def delete(
-                id: UUID, user: HTTPBearer = Depends(self._auth_service.bearer_auth)
-            ):
+            @self.router.delete("/{id}/", status_code=HTTPStatus.NO_CONTENT)
+            async def delete(id: UUID, user: HTTPBearer = Depends(self._auth_service.bearer_auth)):
                 "Basic endpoint to delete instance by id."
-                return await self._service.delete(
-                    id, user_id=user.id, is_admin=user.is_admin
-                )
+                return await self._service.delete(id, user_id=user.id, is_admin=user.is_admin)
