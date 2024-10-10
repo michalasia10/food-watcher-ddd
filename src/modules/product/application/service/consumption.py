@@ -12,6 +12,8 @@ from src.modules.product.application.dto.consumption import (
 from src.modules.product.application.dto.daily_product import DailyUserProductInputDto
 from src.modules.product.domain.entity.consumption import DailyUserConsumption
 from src.modules.product.domain.entity.daily_product import DailyUserProduct
+from src.modules.product.domain.entity.meal import Meal
+from src.modules.product.domain.enum import UserProductType
 from src.modules.product.domain.errors import (
     ProductNotFound,
     DailyUserConsumptionNotFound,
@@ -43,6 +45,40 @@ class ConsumptionService:
         self._daily_product_repository: IPostgresRepository = daily_product_repository
         self._user_settings_service: IUserSettingsService = settings_service
 
+    async def _get_products_and_set_meals(self, day: DailyUserConsumption) -> list[dict]:
+        """
+        Method to get all products from the daily consumption and set them ( group ) to the meals.
+
+        Args:
+            day: DailyUserConsumption
+
+        Returns: list[dict]
+
+        """
+        meals = []
+
+        for _type in UserProductType:
+            meal = Meal(type=_type.value)
+            products = await self._daily_product_repository.aget_all_from_filter(
+                day_id=day.id,
+                type=_type,
+                fetch_fields=["product"],
+            )
+            meal.add_products(products)
+            meals.append(
+                dict(
+                    meal=meal.type,
+                    products=meal.products,
+                    summary=dict(
+                        proteins=meal.summary_proteins,
+                        fats=meal.summary_fats,
+                        carbs=meal.summary_carbohydrates,
+                        calories=meal.summary_calories,
+                    ),
+                )
+            )
+        return meals
+
     async def get_all_user_days(
         self, user_id: UUID, skip: int = 0, limit: int = 10
     ) -> list[DailyUserConsumptionOutputDto]:
@@ -61,8 +97,11 @@ class ConsumptionService:
             user_id=user_id,
             offset=skip,
             limit=limit,
-            fetch_fields=["products", "products__product"],
         )
+
+        for day in days:
+            meals = await self._get_products_and_set_meals(day)
+            day.meals = meals
 
         user_settings = await self._user_settings_service.get_by_user_id(user_id=user_id)
 
@@ -87,11 +126,11 @@ class ConsumptionService:
         try:
             day = await self._consumption_repository.aget_by_id(
                 id=day_id,
-                fetch_fields=["products", "products__product"],
             )
         except DoesNotExist:
             raise DailyUserConsumptionNotFound(f"Daily consumption with id {day_id} not found.")
 
+        day.meals = await self._get_products_and_set_meals(day)
         user_settings = await self._user_settings_service.get_by_user_id(user_id=day.user_id)
 
         return DailyUserConsumptionOutputDto(
@@ -113,11 +152,11 @@ class ConsumptionService:
         day = await self._consumption_repository.aget_first_from_filter(
             user_id=user_id,
             date=date,
-            fetch_fields=["products", "products__product"],
         )
         if day is None:
             raise DailyUserConsumptionNotFound(f"Daily consumption with date {date} not found for user {user_id}.")
 
+        day.meals = await self._get_products_and_set_meals(day)
         user_settings = await self._user_settings_service.get_by_user_id(user_id=day.user_id)
 
         return DailyUserConsumptionOutputDto(
@@ -152,7 +191,7 @@ class ConsumptionService:
         )
 
         if day is None:
-            entity = DailyUserConsumption.create(user_id=user_id)
+            entity = DailyUserConsumption.create(user_id=user_id, date_value=input_dto.date)
             await self._consumption_repository.asave(entity=entity)
             day: DailyUserConsumption = await self._consumption_repository.aget_by_id(entity.id)
 
@@ -168,9 +207,9 @@ class ConsumptionService:
 
         updated_day: DailyUserConsumption = await self._consumption_repository.aget_by_id(
             id=day.id,
-            fetch_fields=["products", "products__product"],
         )
 
+        updated_day.meals = await self._get_products_and_set_meals(updated_day)
         user_settings = await self._user_settings_service.get_by_user_id(user_id=user_id)
 
         return DailyUserConsumptionOutputDto(
@@ -199,8 +238,9 @@ class ConsumptionService:
 
         updated_day: DailyUserConsumption = await self._consumption_repository.aget_by_id(
             id=day.id,
-            fetch_fields=["products", "products__product"],
         )
+
+        updated_day.meals = await self._get_products_and_set_meals(updated_day)
         user_settings = await self._user_settings_service.get_by_user_id(user_id=user_id)
 
         return DailyUserConsumptionOutputDto(

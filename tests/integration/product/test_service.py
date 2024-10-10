@@ -1,4 +1,5 @@
 from datetime import datetime, date, timedelta
+from http.cookiejar import debug
 
 import pytest
 from uuid6 import uuid6
@@ -51,7 +52,7 @@ async def test_add_meal_daily_consumption_not_exists(user_record, product_record
 
     daily_consumption = await consumption_service.add_meal(user_id=user_record.id, input_dto=dto)
     daily_consumption_from_db = await DailyUserConsumptionTortoiseRepo.aget_by_id(daily_consumption.id)
-    daily_product_from_db = await DailyUserProductTortoiseRepo.aget_by_id(daily_consumption.products[0].id)
+    daily_product_from_db = await DailyUserProductTortoiseRepo.aget_by_id(daily_consumption.meals[2].products[0].id)
 
     # then
     assert daily_consumption_from_db is not None
@@ -80,14 +81,35 @@ async def test_add_meal_daily_consumption_exists(
     daily_consumption = await consumption_service.add_meal(user_id=user_record.id, input_dto=dto)
 
     daily_consumption_from_db = await DailyUserConsumptionTortoiseRepo.aget_by_id(daily_consumption.id)
-    daily_product_from_db_first = await DailyUserProductTortoiseRepo.aget_by_id(daily_consumption.products[0].id)
-    daily_product_from_db_second = await DailyUserProductTortoiseRepo.aget_by_id(daily_consumption.products[1].id)
+    daily_product_from_db_first = await DailyUserProductTortoiseRepo.aget_by_id(
+        daily_consumption.meals[2].products[0].id
+    )
+    daily_product_from_db_second = await DailyUserProductTortoiseRepo.aget_by_id(
+        daily_consumption.meals[2].products[1].id
+    )
 
     # then
-    assert len(daily_consumption.products) == 2
+    assert len(daily_consumption.meals[2].products) == 2
     assert daily_consumption.summary.calories == daily_consumption.summary.calories
     expected_summary_calories = daily_product_from_db_second.calories + daily_product_from_db_first.calories
     assert daily_consumption.summary.calories == expected_summary_calories
+
+    assert daily_consumption.meals[0].summary.calories == 0
+    assert daily_consumption.meals[0].summary.proteins == 0
+    assert daily_consumption.meals[0].summary.fats == 0
+    assert daily_consumption.meals[0].summary.carbs == 0
+
+    assert daily_consumption.meals[1].summary.calories == 0
+    assert daily_consumption.meals[1].summary.proteins == 0
+    assert daily_consumption.meals[1].summary.fats == 0
+    assert daily_consumption.meals[1].summary.carbs == 0
+
+    assert daily_consumption.meals[2].summary.calories > 0
+    assert daily_consumption.meals[2].summary.proteins > 0
+    assert daily_consumption.meals[2].summary.fats > 0
+    assert daily_consumption.meals[2].summary.carbs > 0
+
+    assert daily_consumption.meals[2].summary.calories == expected_summary_calories
 
     assert daily_consumption_from_db is not None
     assert daily_product_from_db_first is not None

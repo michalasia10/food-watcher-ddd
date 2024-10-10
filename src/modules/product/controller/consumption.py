@@ -39,7 +39,7 @@ async def get_user_all_days(
     return await service.get_all_user_days(user_id=user.id, skip=skip, limit=limit)
 
 
-@router.get("/by_day_id/{day_id}")
+@router.get("/by_day_id/{day_id}/")
 @inject
 async def get_day_by_id(
     day_id: UUID,

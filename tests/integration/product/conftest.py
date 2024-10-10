@@ -4,6 +4,7 @@ from uuid import UUID
 import pytest
 import pytest_asyncio
 
+from src.modules.product.domain.enum import UserProductType
 from src.modules.product.application.service.consumption import ConsumptionService, IUserSettingsService
 from src.modules.product.application.service.product import ProductCrudService
 from src.modules.product.domain.entity.consumption import DailyUserConsumption
@@ -105,6 +106,7 @@ async def consumption_with_product(consumption_record, product_record):
         product=product_record,
         day=consumption_record,
         weight_in_grams=100.0,
+        type=UserProductType.DINNER,
     )
     await DailyUserProductTortoiseRepo.asave(entity=daily_product)
     await DailyUserConsumptionTortoiseRepo.aupdate(entity=consumption_record)

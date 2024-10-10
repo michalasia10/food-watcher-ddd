@@ -210,7 +210,7 @@ async def test_user_login(api_client, endpoint_enum, user_record, user_password)
 
     # when
     response = await api_client.post(
-        f"{endpoint_enum.USERS.value}login",
+        f"{endpoint_enum.USERS.value}login/",
         json_data=login_dto.model_dump_json(),
     )
 
@@ -230,7 +230,7 @@ async def test_user_login_wrong_password(api_client, endpoint_enum, user_record)
 
     # when
     response = await api_client.post(
-        f"{endpoint_enum.USERS.value}login",
+        f"{endpoint_enum.USERS.value}login/",
         json_data=login_dto.model_dump_json(),
     )
 
@@ -245,7 +245,7 @@ async def test_user_login_wrong_username(api_client, endpoint_enum, user_record,
 
     # when
     response = await api_client.post(
-        f"{endpoint_enum.USERS.value}login",
+        f"{endpoint_enum.USERS.value}login/",
         json_data=login_dto.model_dump_json(),
     )
 

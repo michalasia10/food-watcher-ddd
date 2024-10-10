@@ -184,7 +184,7 @@ async def test_consumption_controller_get_all_user_days(
     api_client.set_token(user_token.api_token)
 
     # when
-    response = await api_client.get(endpoint_enum.CONSUMPTION.get_detail("by_user_id/"))
+    response = await api_client.get(endpoint_enum.CONSUMPTION.get_detail("by_user_id"))
 
     # then
     assert response.status_code == HTTPStatus.OK
@@ -194,10 +194,13 @@ async def test_consumption_controller_get_all_user_days(
     day = days[0]
     assert "user_id" in day
     assert "date" in day
-    assert "products" in day
+    assert "meals" in day
     assert "summary" in day
 
-    products = day["products"]
+    meals = day["meals"]
+    assert len(meals) == 3
+
+    products = meals[2]["products"]
     assert len(products) == 1
     product = products[0]
 
@@ -219,7 +222,7 @@ async def test_consumption_controller_get_all_user_days_dummy_user(
     api_client.set_token(user_token.api_token)
 
     # when
-    response = await api_client.get(endpoint_enum.CONSUMPTION.get_detail("by_user_id/"))
+    response = await api_client.get(endpoint_enum.CONSUMPTION.get_detail("by_user_id"))
 
     # then
     assert response.status_code == HTTPStatus.OK
@@ -276,7 +279,7 @@ async def test_consumption_controller_get_day_by_datetime(
     date_str = str(consumption_with_product.date)
 
     # when
-    response = await api_client.get(endpoint_enum.CONSUMPTION.get_detail(f"by_datetime_for_user/{date_str}/"))
+    response = await api_client.get(endpoint_enum.CONSUMPTION.get_detail(f"by_datetime_for_user/{date_str}"))
 
     # then
     assert response.status_code == HTTPStatus.OK
@@ -294,7 +297,7 @@ async def test_consumption_controller_get_day_by_datetime_dummy_day(
     date_str = str(datetime.now() - timedelta(days=1))
 
     # when
-    response = await api_client.get(endpoint_enum.CONSUMPTION.get_detail(f"by_datetime_for_user/{date_str}/"))
+    response = await api_client.get(endpoint_enum.CONSUMPTION.get_detail(f"by_datetime_for_user/{date_str}"))
 
     # then
     assert response.status_code == HTTPStatus.NOT_FOUND
@@ -309,7 +312,7 @@ async def test_consumption_controller_get_day_by_datetime_dummy_user(
     date_str = str(consumption_with_product.date)
 
     # when
-    response = await api_client.get(endpoint_enum.CONSUMPTION.get_detail(f"by_datetime_for_user/{date_str}/"))
+    response = await api_client.get(endpoint_enum.CONSUMPTION.get_detail(f"by_datetime_for_user/{date_str}"))
 
     # then
     assert response.status_code == HTTPStatus.NOT_FOUND

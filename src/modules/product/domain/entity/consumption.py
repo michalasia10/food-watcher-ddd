@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime, date
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from src.core.domain.entity import Entity
@@ -7,26 +8,29 @@ from src.core.domain.value_object import PrecisedFloat
 from src.modules.common.macro.factory import MacroCalculatorType, MacroCalculatorFactory
 from src.modules.common.macro.strategies import MacroCalculatorStrategy
 
+if TYPE_CHECKING:
+    from src.modules.product.domain.entity.meal import Meal
+
 
 @dataclass
 class DailyUserConsumption(Entity):
     date: datetime | date
     user_id: UUID | None = None
-    products: list["DailyUserProduct"] = field(default_factory=list)
+    meals: list["Meal"] = field(default_factory=list)
     summary_proteins: PrecisedFloat = PrecisedFloat(0.0)
     summary_fats: PrecisedFloat = PrecisedFloat(0.0)
     summary_carbohydrates: PrecisedFloat = PrecisedFloat(0.0)
     summary_calories: PrecisedFloat = PrecisedFloat(0.0)
 
     @classmethod
-    def create(cls, user_id: UUID) -> "DailyUserConsumption":
+    def create(cls, user_id: UUID, date_value=None) -> "DailyUserConsumption":
         now = cls.create_now_time()
         entity = cls(
             id=cls.create_id(),
             updated_at=now,
             created_at=now,
             user_id=user_id,
-            date=date(now.year, now.month, now.day),
+            date=date_value or date(now.year, now.month, now.day),
         )
         return entity
 
