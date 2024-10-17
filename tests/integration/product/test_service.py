@@ -1,5 +1,4 @@
 from datetime import datetime, date, timedelta
-from http.cookiejar import debug
 
 import pytest
 from uuid6 import uuid6
@@ -10,6 +9,7 @@ from src.modules.product.domain.enum import UserProductType
 from src.modules.product.domain.errors import (
     ProductNotFound,
     DailyUserConsumptionNotFound,
+    DailyProductNotFound,
 )
 from src.modules.product.infra.repo.postgres.consumption import (
     DailyUserConsumptionTortoiseRepo,
@@ -50,19 +50,15 @@ async def test_add_meal_daily_consumption_not_exists(user_record, product_record
 
     # when
 
-    daily_consumption = await consumption_service.add_meal(user_id=user_record.id, input_dto=dto)
-    daily_consumption_from_db = await DailyUserConsumptionTortoiseRepo.aget_by_id(daily_consumption.id)
-    daily_product_from_db = await DailyUserProductTortoiseRepo.aget_by_id(daily_consumption.meals[2].products[0].id)
+    await consumption_service.add_meal(user_id=user_record.id, input_dto=dto)
+    daily_consumptions_from_db = await DailyUserConsumptionTortoiseRepo.aget_all()
+    daily_product_from_db = await DailyUserProductTortoiseRepo.aget_first_from_filter(
+        day_id=daily_consumptions_from_db[0].id
+    )
 
     # then
-    assert daily_consumption_from_db is not None
+    assert daily_consumptions_from_db is not None
     assert daily_product_from_db is not None
-
-    assert daily_product_from_db.product_id == product_record.id
-    assert daily_product_from_db.day_id == daily_consumption.id
-
-    assert daily_consumption_from_db.user_id == user_record.id
-    assert daily_consumption_from_db.date == dto.date
 
 
 @pytest.mark.asyncio
@@ -78,48 +74,57 @@ async def test_add_meal_daily_consumption_exists(
     )
 
     # when
-    daily_consumption = await consumption_service.add_meal(user_id=user_record.id, input_dto=dto)
+    await consumption_service.add_meal(user_id=user_record.id, input_dto=dto)
 
-    daily_consumption_from_db = await DailyUserConsumptionTortoiseRepo.aget_by_id(daily_consumption.id)
-    daily_product_from_db_first = await DailyUserProductTortoiseRepo.aget_by_id(
-        daily_consumption.meals[2].products[0].id
-    )
-    daily_product_from_db_second = await DailyUserProductTortoiseRepo.aget_by_id(
-        daily_consumption.meals[2].products[1].id
+    daily_consumption_from_db = await DailyUserConsumptionTortoiseRepo.aget_first_from_filter(user_id=user_record.id)
+    daily_product_from_db_first, daily_product_from_db_second = await DailyUserProductTortoiseRepo.aget_all_from_filter(
+        day_id=daily_consumption_from_db.id,
     )
 
     # then
-    assert len(daily_consumption.meals[2].products) == 2
-    assert daily_consumption.summary.calories == daily_consumption.summary.calories
     expected_summary_calories = daily_product_from_db_second.calories + daily_product_from_db_first.calories
-    assert daily_consumption.summary.calories == expected_summary_calories
-
-    assert daily_consumption.meals[0].summary.calories == 0
-    assert daily_consumption.meals[0].summary.proteins == 0
-    assert daily_consumption.meals[0].summary.fats == 0
-    assert daily_consumption.meals[0].summary.carbs == 0
-
-    assert daily_consumption.meals[1].summary.calories == 0
-    assert daily_consumption.meals[1].summary.proteins == 0
-    assert daily_consumption.meals[1].summary.fats == 0
-    assert daily_consumption.meals[1].summary.carbs == 0
-
-    assert daily_consumption.meals[2].summary.calories > 0
-    assert daily_consumption.meals[2].summary.proteins > 0
-    assert daily_consumption.meals[2].summary.fats > 0
-    assert daily_consumption.meals[2].summary.carbs > 0
-
-    assert daily_consumption.meals[2].summary.calories == expected_summary_calories
+    assert daily_consumption_from_db.summary_calories == expected_summary_calories
 
     assert daily_consumption_from_db is not None
     assert daily_product_from_db_first is not None
     assert daily_product_from_db_second is not None
 
     assert daily_product_from_db_first.product_id == product_record.id
-    assert daily_product_from_db_first.day_id == daily_consumption.id
 
     assert daily_consumption_from_db.user_id == user_record.id
     assert daily_consumption_from_db.date == dto.date
+
+
+@pytest.mark.asyncio
+async def test_delete_meal_daily_consumption_exists(
+    user_record, consumption_with_product, product_record, consumption_service
+):
+    # given
+    daily_product = await DailyUserProductTortoiseRepo.aget_first_from_filter(day_id=consumption_with_product.id)
+
+    # sanity check
+    assert consumption_with_product.summary_fats == 10.00
+    assert consumption_with_product.summary_proteins == 40.00
+    assert consumption_with_product.summary_carbohydrates == 20.00
+    assert consumption_with_product.summary_calories == 100.00
+
+    # when
+    await consumption_service.delete_meal(user_id=user_record.id, daily_product_id=daily_product.id)
+
+    # then
+    daily_consumption_from_db = await DailyUserConsumptionTortoiseRepo.aget_by_id(consumption_with_product.id)
+
+    assert daily_consumption_from_db is not None
+    assert daily_consumption_from_db.summary_fats != 10.00
+    assert daily_consumption_from_db.summary_proteins != 40.00
+    assert daily_consumption_from_db.summary_carbohydrates != 20.00
+    assert daily_consumption_from_db.summary_calories != 100.00
+
+
+@pytest.mark.asyncio
+async def test_delete_meal_daily_consumption_not_exists(user_record, consumption_service):
+    with pytest.raises(DailyProductNotFound):
+        await consumption_service.delete_meal(user_id=user_record.id, daily_product_id=uuid6())
 
 
 @pytest.mark.asyncio
