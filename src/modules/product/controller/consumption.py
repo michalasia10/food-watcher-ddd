@@ -85,3 +85,23 @@ async def add_meal(
     await service.add_meal(user_id=user.id, input_dto=dto)
 
     return Response(status_code=HTTPStatus.CREATED)
+
+
+@router.delete("/{daily_product_id}/")
+@inject
+async def delete_meal(
+    daily_product_id: UUID,
+    token: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
+    service: ConsumptionService = dependency(AppContainer.consumption.service),
+    auth_service: IAuthService = dependency(AppContainer.auth.auth_service),
+) -> Response:
+    """
+    Delete a meal for a user's day.
+
+    """
+
+    user = await auth_service.verify(token.credentials)
+
+    await service.delete_meal(user_id=user.id, daily_product_id=daily_product_id)
+
+    return Response(status_code=HTTPStatus.NO_CONTENT)

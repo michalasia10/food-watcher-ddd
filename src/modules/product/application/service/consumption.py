@@ -9,6 +9,7 @@ from src.core.infra.repo.tortoiserepo import IPostgresRepository
 from src.modules.product.application.dto.consumption import (
     DailyUserConsumptionOutputDto,
 )
+from loguru import logger
 from src.modules.product.application.dto.daily_product import DailyUserProductInputDto
 from src.modules.product.domain.entity.consumption import DailyUserConsumption
 from src.modules.product.domain.entity.daily_product import DailyUserProduct
@@ -164,7 +165,7 @@ class ConsumptionService:
             **self._consumption_repository.convert_snapshot(snapshot=day.snapshot),
         )
 
-    async def add_meal(self, user_id: UUID, input_dto: DailyUserProductInputDto) -> DailyUserConsumptionOutputDto:
+    async def add_meal(self, user_id: UUID, input_dto: DailyUserProductInputDto) -> None:
         """
         Method to add a meal to the daily consumption of a user.
 
@@ -176,7 +177,7 @@ class ConsumptionService:
             user_id: UUID
             input_dto: DailyUserProductInputDto
 
-        Returns: DailyUserConsumptionOutputDto
+        Returns: None
 
         """
 
@@ -205,23 +206,23 @@ class ConsumptionService:
         await self._daily_product_repository.asave(entity=daily_product)
         await self._consumption_repository.aupdate(entity=day)
 
-        updated_day: DailyUserConsumption = await self._consumption_repository.aget_by_id(
-            id=day.id,
-        )
+        logger.info(f"Product with id {product.id} added to daily consumption with id {day.id}")
 
-        updated_day.meals = await self._get_products_and_set_meals(updated_day)
-        user_settings = await self._user_settings_service.get_by_user_id(user_id=user_id)
+    async def delete_meal(self, user_id: UUID, daily_product_id: UUID) -> None:
+        """
+        Method to delete a meal from the daily consumption of a user.
 
-        return DailyUserConsumptionOutputDto(
-            user=user_settings.macro.model_dump(),
-            **self._consumption_repository.convert_snapshot(snapshot=updated_day.snapshot),
-        )
+        Args:
+            user_id: UUID
+            daily_product_id: UUID
 
-    async def delete_meal(self, user_id: UUID, daily_product_id: UUID) -> DailyUserConsumptionOutputDto:
+        Returns: None
+
+        """
         try:
             product = await self._daily_product_repository.aget_by_id(daily_product_id)
         except DoesNotExist:
-            raise DailyProductNotFound(f"Product with id {daily_product_id} not found")
+            raise DailyProductNotFound(f"Product in Meal with id `{daily_product_id}` not found")
 
         day: DailyUserConsumption = await self._consumption_repository.aget_by_id(
             id=product.day_id,
@@ -236,14 +237,4 @@ class ConsumptionService:
         await self._daily_product_repository.adelete(entity=product)
         await self._consumption_repository.aupdate(entity=day)
 
-        updated_day: DailyUserConsumption = await self._consumption_repository.aget_by_id(
-            id=day.id,
-        )
-
-        updated_day.meals = await self._get_products_and_set_meals(updated_day)
-        user_settings = await self._user_settings_service.get_by_user_id(user_id=user_id)
-
-        return DailyUserConsumptionOutputDto(
-            user=user_settings.macro.model_dump(),
-            **self._consumption_repository.convert_snapshot(snapshot=updated_day.snapshot),
-        )
+        logger.info(f"Product with id {daily_product_id} deleted from daily consumption with id {day.id}")
